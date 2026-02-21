@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'npm:hono';
-import * as kv from './kv-wrapper.tsx';
+import * as kv from './kv-wrapper.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const cleanupRoutes = new Hono();

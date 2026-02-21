@@ -1744,5 +1744,5 @@ adminRoutes.post('/passengers/delete-all', async (c) => {
 
 export default adminRoutes;
 
-export default adminRoutes;
+
 

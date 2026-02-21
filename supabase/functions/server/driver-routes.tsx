@@ -1,7 +1,7 @@
 import { Hono } from "npm:hono";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import * as kv from "./kv-wrapper.tsx";
-import { isValidUUID, safeGetUserByIdWithCleanup } from "./uuid-validator.tsx";
+import * as kv from "./kv-wrapper.ts";
+import { isValidUUID, safeGetUserByIdWithCleanup } from "./uuid-validator.ts";
 
 const app = new Hono();
 

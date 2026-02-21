@@ -1,4 +1,4 @@
-/**
+s/**
  * 🔔 ROUTES FCM POUR LE SERVEUR SMARTCABB
  * 
  * Routes pour gérer Firebase Cloud Messaging :
@@ -11,7 +11,7 @@
  */
 
 import { Hono } from 'npm:hono@4';
-import * as kv from './kv-wrapper.tsx';
+import * as kv from './kv-wrapper.ts';
 import {
   sendFCMNotification,
   sendRideNotificationToDriver,

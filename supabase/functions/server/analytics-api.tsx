@@ -6,7 +6,7 @@
  */
 
 import { Hono } from 'npm:hono@4.6.14';
-import * as kv from './kv-wrapper.tsx';
+import * as kv from './kv-wrapper.ts';
 
 const analyticsApp = new Hono();
 

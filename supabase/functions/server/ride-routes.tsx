@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import * as kv from "./kv-wrapper.tsx";
 import * as matching from "./ride-matching.tsx";
 import { checkDriversAvailability, getCategoryName } from "./ride-availability-helper.tsx";
-import { safeGetUserByIdWithCleanup } from "./uuid-validator.tsx";
+import { safeGetUserByIdWithCleanup } from "./uuid-validator.ts";
 import { normalizePhoneNumber, isValidPhoneNumber } from "./phone-utils.ts";
 
 const app = new Hono();

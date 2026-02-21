@@ -1,6 +1,6 @@
 import { Hono } from "npm:hono";
 import * as kv from "./kv-wrapper.tsx";
-import { isValidUUID } from "./uuid-validator.tsx";
+import { isValidUUID } from "./uuid-validator.ts";
 
 const app = new Hono();
 
