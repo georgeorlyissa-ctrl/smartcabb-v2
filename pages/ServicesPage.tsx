@@ -27,11 +27,7 @@ export function ServicesPage() {
         '/vehicles/smartcabb_standard/Standard_2.png',
         '/vehicles/smartcabb_standard/Standard_3.png',
         '/vehicles/smartcabb_standard/Standard_4.png',
-
         '/vehicles/smartcabb_standard/Standard_5.png',
-
-        '/vehicles/smartcabb_standard/Stadard_5.png',
-
         '/vehicles/smartcabb_standard/Standard_6.png',
       ],
       vehicules: 'Toyota IST, Suzuki Swift, Toyota Vitz, Toyota Blade, Toyota Ractis, Toyota Runx',
@@ -45,13 +41,8 @@ export function ServicesPage() {
         { icon: '❄️', text: 'Air-conditioned' },
         { icon: '🛡️', text: 'Secured' }
       ],
-
       priceFR: 'À partir de 3000 FC',
       priceEN: 'From 3000 FC'
-
-      priceFR: 'À partir de 7 $ (15.400 fc)',
-      priceEN: 'From  7 $ (15.400 fc)'
-
     },
     {
       id: 'confort',
@@ -82,13 +73,8 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-
       priceFR: 'À partir de 4500 FC',
       priceEN: 'From 4500 FC'
-
-      priceFR: 'À partir de 15 $ (33.000) FC',
-      priceEN: 'From 15 $ (33.000) FC'
-
     },
     {
       id: 'business',
@@ -102,19 +88,11 @@ export function ServicesPage() {
       borderColor: 'border-orange-100',
       bgColor: 'bg-orange-50/50',
       images: [
-
         '/vehicles/smartcabb_business/Business_1.png',
         '/vehicles/smartcabb_business/Business_2.png',
         '/vehicles/smartcabb_business/Business_3.png',
         '/vehicles/smartcabb_business/Business_4.png',
         '/vehicles/smartcabb_business/Business_5.png',
-
-        '/vehicles/smartcabb_business/Bussiness_1.png',
-        '/vehicles/smartcabb_business/Bussiness_2.png',
-        '/vehicles/smartcabb_business/Bussiness_3.png',
-        '/vehicles/smartcabb_business/Bussiness_4.png',
-        '/vehicles/smartcabb_business/Bussiness_5.png',
-
         '/vehicles/smartcabb_business/Business_6.png',
       ],
       vehicules: 'Prado, Fortuner',
@@ -130,13 +108,8 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-
       priceFR: 'À partir de 7000 FC',
       priceEN: 'From 7000 FC'
-
-      priceFR: 'À partir de 160 $ ( 352.000) FC',
-      priceEN: 'From 160 $ ( 352.000) FC'
-
     },
     {
       id: 'familia',
@@ -150,17 +123,10 @@ export function ServicesPage() {
       borderColor: 'border-emerald-100',
       bgColor: 'bg-emerald-50/50',
       images: [
-
         '/vehicles/smartcabb_familiale/Familialle_1.png',
         '/vehicles/smartcabb_familiale/Familialle_2.png',
         '/vehicles/smartcabb_familiale/Familialle_3.png',
         '/vehicles/smartcabb_familiale/Familialle_4.png',
-
-        '/vehicles/smartcabb_familiale/Familiale_1.png',
-        '/vehicles/smartcabb_familiale/Familiale_2.png',
-        '/vehicles/smartcabb_familiale/Familiale_3.png',
-        '/vehicles/smartcabb_familiale/Familiale_4.png',
-
       ],
       vehicules: 'Noah, Alphard, Voxy',
       featuresFR: [
@@ -175,13 +141,8 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-
       priceFR: 'À partir de 10000 FC',
       priceEN: 'From 10000 FC'
-
-      priceFR: 'À partir de 15 $ (33.000 FC)',
-      priceEN: 'From 15 $ (33.000 FC)'
-
     }
   ];
 
