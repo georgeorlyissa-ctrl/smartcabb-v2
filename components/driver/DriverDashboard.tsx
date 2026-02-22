@@ -20,6 +20,17 @@ import { useDriverLocation, isNearPickupLocation, calculateDistance } from '../.
 import { reverseGeocodeWithCache } from '../../lib/geocoding';
 import { getVehicleDisplayName } from '../../lib/vehicle-helpers';
 import { toast } from '../../lib/toast';
+import { projectId, publicAnonKey } from '../../utils/supabase/info';
+import { 
+  notifyRideConfirmed,
+  notifyDriverEnroute,
+  notifyDriverArrived,
+  notifyRideStarted,
+  notifyRideCompleted,
+  notifyPaymentReceived,
+  notifyRideCancelled
+} from '../../lib/sms-service';
+import { RideNotificationSound } from './RideNotificationSound';
 
 // Icônes SVG inline
 const Power = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -79,17 +90,6 @@ const MessageSquare = ({ className = "w-5 h-5" }: { className?: string }) => (
 const PlayCircle = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 );
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
-import { 
-  notifyRideConfirmed,
-  notifyDriverEnroute,
-  notifyDriverArrived,
-  notifyRideStarted,
-  notifyRideCompleted,
-  notifyPaymentReceived,
-  notifyRideCancelled
-} from '../../lib/sms-service';
-import { RideNotificationSound } from './RideNotificationSound';
 
 // ✅ v517.77 - Helper pour formater les montants CDF de manière sécurisée
 const formatCDF = (amount: number | null | undefined): string => {
@@ -324,38 +324,18 @@ export function DriverDashboard() {
       
       try {
         console.log('💰 Chargement du solde depuis le backend...');
-        
-        // ✅ Créer un timeout manuel (AbortSignal.timeout() n'est pas supporté partout)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes max
-        
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driver.id}/balance`,
           {
             headers: {
               'Authorization': `Bearer ${publicAnonKey}`
-            },
-            signal: controller.signal
+            }
           }
-        ).catch(err => {
-          clearTimeout(timeoutId);
-          if (err.name === 'AbortError') {
-            console.warn('⚠️ Timeout chargement solde (5s dépassées)');
-          } else {
-            console.warn('⚠️ Erreur réseau chargement solde:', err.name);
-          }
-          return null;
-        });
+        );
         
-        clearTimeout(timeoutId);
-        
-        if (response && response.ok) {
-          const data = await response.json().catch(err => {
-            console.error('❌ Erreur parsing JSON:', err);
-            return null;
-          });
-          
-          if (data && data.success) {
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
             const backendBalance = data.balance;
             
             // ✅ v517.79: Sauvegarder dans localStorage pour persistance
@@ -384,11 +364,8 @@ export function DriverDashboard() {
             }
           }
         }
-      } catch (error: any) {
-        // ✅ NE PAS logger les erreurs "Script error" qui polluent la console
-        if (error?.message && error.message !== 'Script error.') {
-          console.error('❌ Erreur chargement solde:', error.message);
-        }
+      } catch (error) {
+        console.error('❌ Erreur chargement solde:', error);
       }
     };
     
@@ -436,20 +413,13 @@ export function DriverDashboard() {
     // 2. Envoyer au backend pour persistance
     const updateOnlineStatus = async () => {
       try {
-
         // ✅ FIX CRITIQUE: Utiliser publicAnonKey au lieu de accessToken
-
-        // ✅ Créer un timeout manuel
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes max
-        
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/heartbeat`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-
               'Authorization': `Bearer ${publicAnonKey}` // ✅ Utiliser publicAnonKey
             },
             body: JSON.stringify({
@@ -466,38 +436,6 @@ export function DriverDashboard() {
         }
       } catch (error) {
         console.error('❌ Erreur envoi heartbeat:', error);
-
-              'Authorization': `Bearer ${publicAnonKey}`
-            },
-            body: JSON.stringify({
-              driverId: driver?.id,
-              isOnline: isOnline,
-              location: driverLocation || null,
-              lastSeen: new Date().toISOString()
-            }),
-            signal: controller.signal
-          }
-        ).catch(err => {
-          clearTimeout(timeoutId);
-          if (err.name === 'AbortError') {
-            console.warn('⚠️ Timeout heartbeat (5s dépassées)');
-          } else {
-            console.warn('⚠️ Erreur réseau heartbeat:', err.name);
-          }
-          return null;
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response && response.ok) {
-          console.log(`💓 Heartbeat envoyé: ${isOnline ? 'EN LIGNE' : 'HORS LIGNE'}`);
-        }
-      } catch (error: any) {
-        // ✅ NE PAS logger les erreurs "Script error"
-        if (error?.message && error.message !== 'Script error.') {
-          console.error('❌ Erreur envoi heartbeat:', error.message);
-        }
-
       }
     };
     
@@ -697,31 +635,18 @@ export function DriverDashboard() {
       if (!driver?.id) return;
 
       try {
-        // ✅ Créer un timeout manuel
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/rides/pending/${driver.id}`,
           {
             headers: {
               'Authorization': `Bearer ${publicAnonKey}`
-            },
-            signal: controller.signal
+            }
           }
-        ).catch(err => {
-          clearTimeout(timeoutId);
-          if (err.name !== 'AbortError') {
-            console.warn('⚠️ Erreur réseau polling demandes:', err.name);
-          }
-          return null;
-        });
-        
-        clearTimeout(timeoutId);
+        );
 
-        if (response && response.ok) {
-          const data = await response.json().catch(() => null);
-          if (data && data.success && data.ride) {
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.ride) {
             // 🔥 FIX : Vérifier si c'est une NOUVELLE demande avant d'afficher
             const newRideId = data.ride.id;
             const currentRideId = rideRequest?.id;
@@ -741,7 +666,7 @@ export function DriverDashboard() {
               // C'est la même demande, ne rien faire
               console.log('🔍 Même demande déjà affichée, pas de notification');
             }
-          } else if (data && data.success && !data.ride) {
+          } else if (data.success && !data.ride) {
             console.log('🔍 Polling actif - Aucune demande en attente');
             // ❌ CORRECTION : Ne PAS fermer automatiquement si le driver a déjà une demande affichée
             // ou s'il a accepté une course (state.currentRide existe)
@@ -757,11 +682,8 @@ export function DriverDashboard() {
             }
           }
         }
-      } catch (error: any) {
-        // ✅ NE PAS logger les erreurs "Script error"
-        if (error?.message && error.message !== 'Script error.') {
-          console.error('❌ Erreur vérification demandes:', error.message);
-        }
+      } catch (error) {
+        console.error('❌ Erreur lors de la vérification des demandes:', error);
       }
     };
 
@@ -787,32 +709,19 @@ export function DriverDashboard() {
 
     const checkRideStatus = async () => {
       try {
-        // ✅ Créer un timeout manuel
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/rides/status/${rideRequest.id}`,
           {
             headers: {
               'Authorization': `Bearer ${publicAnonKey}`
-            },
-            signal: controller.signal
+            }
           }
-        ).catch(err => {
-          clearTimeout(timeoutId);
-          if (err.name !== 'AbortError') {
-            console.warn('⚠️ Erreur réseau surveillance statut:', err.name);
-          }
-          return null;
-        });
-        
-        clearTimeout(timeoutId);
+        );
 
-        if (response && response.ok) {
-          const data = await response.json().catch(() => null);
+        if (response.ok) {
+          const data = await response.json();
           
-          if (data && data.success && data.ride) {
+          if (data.success && data.ride) {
             const rideStatus = data.ride.status;
             const assignedDriverId = data.ride.driverId;
             
@@ -849,11 +758,8 @@ export function DriverDashboard() {
             }
           }
         }
-      } catch (error: any) {
-        // ✅ NE PAS logger les erreurs "Script error"
-        if (error?.message && error.message !== 'Script error.') {
-          console.error('❌ Erreur surveillance statut:', error.message);
-        }
+      } catch (error) {
+        console.error('❌ Erreur surveillance statut course:', error);
       }
     };
 
@@ -911,17 +817,11 @@ export function DriverDashboard() {
 
     const syncCurrentRide = async () => {
       try {
-
-        // ✅ Créer un timeout manuel
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/rides/${state.currentRide.id}`,
           {
             headers: {
               'Authorization': `Bearer ${publicAnonKey}`
-
             }
           }
         );
@@ -930,25 +830,6 @@ export function DriverDashboard() {
           const data = await response.json();
           
           if (data.success && data.ride) {
-
-            },
-            signal: controller.signal
-          }
-        ).catch(err => {
-          clearTimeout(timeoutId);
-          if (err.name !== 'AbortError') {
-            console.warn('⚠️ Erreur réseau sync course:', err.name);
-          }
-          return null;
-        });
-        
-        clearTimeout(timeoutId);
-
-        if (response && response.ok) {
-          const data = await response.json().catch(() => null);
-          
-          if (data && data.success && data.ride) {
-
             const backendRide = data.ride;
             
             // ✅ ANNULATION: Si le passager a annulé, notifier et nettoyer
@@ -999,16 +880,8 @@ export function DriverDashboard() {
             }
           }
         }
-
       } catch (error) {
         console.error('❌ Erreur synchronisation course:', error);
-
-      } catch (error: any) {
-        // ✅ NE PAS logger les erreurs "Script error"
-        if (error?.message && error.message !== 'Script error.') {
-          console.error('❌ Erreur sync course:', error.message);
-        }
-
       }
     };
 
