@@ -176,8 +176,4 @@ export function QuickAdminSignup() {
       </div>
     </div>
   );
-
 }
-
-}
-
