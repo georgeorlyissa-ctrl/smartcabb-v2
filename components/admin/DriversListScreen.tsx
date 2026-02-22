@@ -109,7 +109,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
 
     try {
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/cleanup/invalid-drivers`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/clean-invalid-drivers`,
         {
           method: 'DELETE',
           headers: {
@@ -122,8 +122,8 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
         const data = await response.json();
         console.log('✅ Nettoyage réussi:', data);
         
-        // Le serveur renvoie data.data au lieu de data.details
-        const deletedCount = data.data?.drivers || data.details?.drivers || 0;
+        // Le serveur renvoie data.count
+        const deletedCount = data.count || 0;
         toast.success(`${deletedCount} conducteur(s) invalide(s) supprimé(s) avec succès !`);
         
         // Rafraîchir la liste
@@ -131,7 +131,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
       } else {
         const errorData = await response.json();
         console.error('❌ Erreur nettoyage:', errorData);
-        toast.error(errorData.message || 'Erreur lors du nettoyage');
+        toast.error(errorData.error || 'Erreur lors du nettoyage');
       }
     } catch (error) {
       console.error('❌ Erreur nettoyage:', error);
