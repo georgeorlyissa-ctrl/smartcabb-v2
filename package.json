@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-supabase-info.cjs && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf node_modules/.vite dist"
   },
