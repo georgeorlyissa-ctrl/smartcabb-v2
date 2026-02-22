@@ -44,12 +44,16 @@ export type EnrichedRide = Ride & {
 // Fonction pour récupérer les drivers depuis le KV store
 async function fetchDriversFromKV(): Promise<Driver[]> {
   try {
+    // ✅ AJOUT: Cache-busting pour forcer le rechargement
+    const timestamp = Date.now();
     const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers`,
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers?_t=${timestamp}`,
       {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${publicAnonKey}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
       }
     );
