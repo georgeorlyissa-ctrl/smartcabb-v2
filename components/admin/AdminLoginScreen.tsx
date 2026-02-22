@@ -238,7 +238,6 @@ export function AdminLoginScreen() {
           <div className="text-center">
             <button 
               type="button"
-
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -260,11 +259,6 @@ export function AdminLoginScreen() {
                 }
                 
                 console.log('🔗 ========================================');
-
-              onClick={() => {
-                console.log('🔗 Clic sur "Mot de passe oublié"');
-                console.log('🔗 Redirection vers /admin/forgot-password');
-                navigate('/admin/forgot-password');
               }}
               className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
               disabled={loading}
@@ -278,7 +272,6 @@ export function AdminLoginScreen() {
               Pas de compte admin ?{' '}
               <button 
                 type="button"
-
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -305,11 +298,6 @@ export function AdminLoginScreen() {
                   }
                   
                   console.log('🔗 ========================================');
-
-                onClick={() => {
-                  console.log('🔗 Clic sur "Créer un compte"');
-                  console.log('🔗 Redirection vers /admin/signup');
-                  navigate('/admin/signup');
                 }}
                 className="text-purple-600 hover:text-purple-700 font-semibold"
                 disabled={loading}
