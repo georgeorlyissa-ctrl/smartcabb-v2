@@ -14,7 +14,7 @@
 
 // 🔑 Configuration Firebase SmartCabb (Production)
 const firebaseConfig = {
-  apiKey: "AIzaSyATn8o24PvSwg1LHCFeFdteAA_fGte-Tqs",
+  apiKey: import.meta?.env?.VITE_FIREBASE_API_KEY || "",
   authDomain: "smartcabb-bed00.firebaseapp.com",
   projectId: "smartcabb-bed00",
   storageBucket: "smartcabb-bed00.firebasestorage.app",
