@@ -7,6 +7,10 @@ import { projectId, publicAnonKey } from '../utils/supabase/info';
  * Service d'authentification pour SmartCabb (Version optimisée)
  * Messages d'erreur courts - L'UI gère les actions via toasts
  */
+/**
+ * Service d'authentification pour SmartCabb (Version optimisée)
+ * Messages d'erreur courts - L'UI gère les actions via toasts
+ */
 
 export interface LoginCredentials {
   identifier: string; // Email ou numéro de téléphone
