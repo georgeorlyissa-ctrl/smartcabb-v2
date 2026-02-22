@@ -94,6 +94,14 @@ export function AdminLoginScreen() {
 
       console.log('✅ Authentification réussie, vérification du rôle admin...');
 
+      // ✅ Vérifier que le profil existe
+      if (!result.profile) {
+        console.error('❌ Profil non trouvé dans le KV store');
+        toast.error('Profil utilisateur non trouvé. Veuillez contacter le support.');
+        setLoading(false);
+        return;
+      }
+
       // Vérifier que c'est bien un admin
       if (result.profile.role !== 'admin') {
         console.error('❌ Pas un compte admin');
