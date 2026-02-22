@@ -203,7 +203,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
       toast.success('💥 Suppression en cours... Cela peut prendre quelques secondes...');
 
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/cleanup/delete-all-drivers`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/delete-all-drivers`,
         {
           method: 'DELETE',
           headers: {
@@ -216,7 +216,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
         const data = await response.json();
         console.log('✅ Suppression nucléaire réussie:', data);
         
-        const deletedCount = data.data?.drivers || 0;
+        const deletedCount = data.count || 0;
         toast.success(`💥 ${deletedCount} conducteur(s) supprimé(s) avec succès ! Base de données nettoyée.`);
         
         // Rafraîchir la liste
@@ -224,7 +224,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
       } else {
         const errorData = await response.json();
         console.error('❌ Erreur suppression:', errorData);
-        toast.error(errorData.message || 'Erreur lors de la suppression');
+        toast.error(errorData.error || 'Erreur lors de la suppression');
       }
     } catch (error) {
       console.error('❌ Erreur suppression:', error);
