@@ -18,6 +18,7 @@ import { CancellationsScreen } from './CancellationsScreen';
 import { SMSBalanceCard } from './SMSBalanceCard';
 import { NotificationTester } from './NotificationTester';
 import FCMTestPanel from './FCMTestPanel';
+import { SMSInsufficientBalanceBanner } from './SMSInsufficientBalanceBanner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { supabase } from '../../lib/supabase';
 import { projectId, publicAnonKey } from '../../utils/supabase/info';
@@ -771,6 +772,9 @@ export function AdminDashboard() {
 
         {!loading && !error && (
           <>
+            {/* ⚠️ Bannière d'alerte SMS insuffisant */}
+            <SMSInsufficientBalanceBanner />
+            
             {/* Panel de notifications */}
             {showNotifications && (
               <motion.div
