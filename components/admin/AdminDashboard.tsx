@@ -272,6 +272,49 @@ export function AdminDashboard() {
     }
   };
 
+  // 🔍 NOUVELLE FONCTION: Diagnostic détaillé des conducteurs
+  const handleDebugDrivers = async () => {
+    try {
+      console.log('🔍 🚗 Diagnostic détaillé des conducteurs...');
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/debug/drivers`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('📊 DIAGNOSTIC CONDUCTEURS DÉTAILLÉ:', result);
+        console.log('📋 Nombre total:', result.count);
+        console.log('📋 Liste des conducteurs:');
+        console.table(result.drivers);
+        console.log('📋 Données brutes complètes:', result.raw_drivers);
+        
+        // Compter les statuts
+        const pending = result.drivers.filter((d: any) => d.status === 'pending').length;
+        const approved = result.drivers.filter((d: any) => d.status === 'approved' || d.is_approved).length;
+        const rejected = result.drivers.filter((d: any) => d.status === 'rejected').length;
+        
+        console.log(`📊 STATUTS: ${pending} pending, ${approved} approved, ${rejected} rejected`);
+        
+        toast.success(`🚗 ${result.count} conducteur(s) trouvé(s)`, {
+          description: `${pending} en attente, ${approved} approuvés (voir console F12)`
+        });
+      } else {
+        toast.error(result.error || 'Erreur diagnostic');
+      }
+    } catch (error) {
+      console.error('❌ Erreur diagnostic conducteurs:', error);
+      toast.error('Erreur lors du diagnostic');
+    }
+  };
+
   // Fonction pour supprimer tous les passagers et conducteurs
   const handleDeleteAllAccounts = async () => {
     setDeletingAccounts(true);
@@ -587,6 +630,16 @@ export function AdminDashboard() {
       count: null,
       highlight: true,
       color: 'from-gray-500 to-slate-500'
+    },
+    {
+      id: 'action-debug-drivers',
+      title: '🔍 Diagnostic Conducteurs',
+      description: 'Voir les détails des conducteurs (console F12)',
+      icon: Car,
+      action: handleDebugDrivers,
+      count: null,
+      highlight: true,
+      color: 'from-blue-500 to-indigo-500'
     },
     {
       id: 'action-sms-settings',
