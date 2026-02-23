@@ -89,12 +89,22 @@ export async function signUpDriver(driverData: DriverSignUpData) {
 
     const registerResult = await registerResponse.json();
 
+    console.log('📥 [SIGNUP] Résultat /auth/signup:', registerResult);
+
     if (!registerResult.success) {
-      console.error('❌ Erreur création compte:', registerResult.error);
+      console.error('❌ [SIGNUP] Erreur création compte:', registerResult.error);
       return registerResult;
     }
 
-    console.log('✅ Compte créé:', registerResult.profile.id);
+    if (!registerResult.profile || !registerResult.profile.id) {
+      console.error('❌ [SIGNUP] Profil manquant dans la réponse:', registerResult);
+      return {
+        success: false,
+        error: 'Erreur serveur: profil utilisateur non créé'
+      };
+    }
+
+    console.log('✅ [SIGNUP] Compte créé:', registerResult.profile.id);
 
     // 2. Créer le profil conducteur avec véhicule - TOUTES LES DONNÉES
     console.log('🚗 Envoi vers /drivers/create avec:', {
