@@ -42,17 +42,34 @@ export interface DriverSignUpData {
 export async function signUpDriver(driverData: DriverSignUpData) {
   try {
     console.log('🚗 Inscription conducteur...', driverData.phone);
+    console.log('📋 Données reçues:', {
+      fullName: driverData.fullName,
+      phone: driverData.phone,
+      vehicleCategory: driverData.vehicleCategory,
+      vehicleMake: driverData.vehicleMake,
+      vehicleModel: driverData.vehicleModel,
+      vehiclePlate: driverData.vehiclePlate,
+      vehicleColor: driverData.vehicleColor,
+      hasProfilePhoto: !!driverData.profilePhoto
+    });
     
     // ✅ Générer un email automatique si non fourni
     // ✅ UNIFORMISATION : Utiliser @smartcabb.app au lieu de @smartcabb.local
     const email = driverData.email || `${driverData.phone.replace(/[^0-9]/g, '')}_${Date.now()}@smartcabb.app`;
     
-    // ✅ Normaliser les champs du véhicule
-    const vehicleType = driverData.vehicleType || driverData.vehicleCategory || 'economique';
+    // ✅ Normaliser les champs du véhicule - IMPORTANT: Garder vehicleCategory au lieu de vehicleType
+    const vehicleCategory = driverData.vehicleCategory || driverData.vehicleType || 'smart_standard';
     const licensePlate = driverData.licensePlate || driverData.vehiclePlate || '';
     const vehicleBrand = driverData.vehicleBrand || driverData.vehicleMake || '';
     
-    console.log('📋 Données normalisées:', { email, vehicleType, licensePlate, vehicleBrand });
+    console.log('📋 Données normalisées:', { 
+      email, 
+      vehicleCategory, 
+      licensePlate, 
+      vehicleBrand,
+      vehicleModel: driverData.vehicleModel,
+      vehicleColor: driverData.vehicleColor
+    });
     
     // 1. Créer le compte utilisateur
     const registerResponse = await fetch(`${API_BASE}/auth/signup`, {
@@ -79,7 +96,17 @@ export async function signUpDriver(driverData: DriverSignUpData) {
 
     console.log('✅ Compte créé:', registerResult.profile.id);
 
-    // 2. Créer le profil conducteur avec véhicule
+    // 2. Créer le profil conducteur avec véhicule - TOUTES LES DONNÉES
+    console.log('🚗 Envoi vers /drivers/create avec:', {
+      userId: registerResult.profile.id,
+      vehicleCategory,
+      vehicleMake: vehicleBrand,
+      vehicleModel: driverData.vehicleModel,
+      vehiclePlate: licensePlate,
+      vehicleColor: driverData.vehicleColor,
+      hasPhoto: !!driverData.profilePhoto
+    });
+    
     const driverProfileResponse = await fetch(`${API_BASE}/drivers/create`, {
       method: 'POST',
       headers: {
@@ -88,9 +115,14 @@ export async function signUpDriver(driverData: DriverSignUpData) {
       },
       body: JSON.stringify({
         userId: registerResult.profile.id,
-        vehicleType: vehicleType,
+        // ✅ Envoyer vehicleCategory au lieu de vehicleType
+        vehicleCategory: vehicleCategory,
+        vehicleType: vehicleCategory, // Compatibilité
+        // ✅ Tous les champs du véhicule
         licensePlate: licensePlate,
+        vehiclePlate: licensePlate, // Alias
         vehicleBrand: vehicleBrand,
+        vehicleMake: vehicleBrand, // Alias
         vehicleModel: driverData.vehicleModel || '',
         vehicleYear: driverData.vehicleYear || new Date().getFullYear().toString(),
         vehicleColor: driverData.vehicleColor || '',
@@ -105,6 +137,8 @@ export async function signUpDriver(driverData: DriverSignUpData) {
     });
 
     const driverProfileResult = await driverProfileResponse.json();
+    
+    console.log('📥 Résultat /drivers/create:', driverProfileResult);
 
     if (!driverProfileResult.success) {
       console.error('❌ Erreur création profil conducteur:', driverProfileResult.error);
@@ -133,6 +167,3 @@ export async function signUpDriver(driverData: DriverSignUpData) {
 }
 
 export default signUpDriver;
-
-
-
