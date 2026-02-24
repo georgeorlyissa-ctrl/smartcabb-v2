@@ -132,12 +132,16 @@ async function fetchRidesFromKV(): Promise<Ride[]> {
 // Fonction pour récupérer les passagers depuis le KV store
 async function fetchPassengersFromKV(): Promise<Profile[]> {
   try {
+    // ✅ AJOUT: Cache-busting pour forcer le rechargement
+    const timestamp = Date.now();
     const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers`,
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers?_t=${timestamp}`,
       {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
+          'Authorization': `Bearer ${publicAnonKey}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
       }
     );
@@ -215,9 +219,9 @@ export function useSupabaseData() {
       };
 
       // Charger avec Promise.all (sans timeouts artificiels)
-      // IMPORTANT: Les drivers sont chargés depuis le KV store via l'API serveur
+      // IMPORTANT: Les drivers et passagers sont chargés depuis le KV store via l'API serveur
       const [profilesData, driversData, vehiclesData, ridesData, promoCodesData, settingsData] = await Promise.all([
-        createTimeoutPromise(profileService.getAllProfiles(), 0, 'Profiles'),
+        createTimeoutPromise(fetchPassengersFromKV(), 0, 'Passengers'), // ✅ CHANGÉ: Charger depuis KV au lieu de Postgres
         createTimeoutPromise(fetchDriversFromKV(), 0, 'Drivers'),
         createTimeoutPromise(vehicleService.getAllVehicles(), 0, 'Vehicles'),
         createTimeoutPromise(fetchRidesFromKV(), 0, 'Rides'),
