@@ -65,7 +65,8 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
         setUsers(data.users);
         setFilteredUsers(data.users);
         setStats(data.stats);
-        toast.success(`${data.total} utilisateurs chargés`);
+        // ✅ FIX: Supprimé le toast de succès qui s'affichait à chaque chargement
+        // toast.success(`${data.total} utilisateurs chargés`);
       } else {
         console.error('❌ Erreur:', data.error);
         toast.error(data.error || 'Erreur lors du chargement');
