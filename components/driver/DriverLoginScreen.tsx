@@ -30,11 +30,76 @@ export function DriverLoginScreen() {
       const result = await signIn({ identifier, password });
 
       if (!result.success) {
+        // ✅ CAS 1 : Erreur réseau (serveur non accessible)
+        if (result.error?.includes('Impossible de contacter le serveur')) {
+          toast.error(
+            <div className="space-y-3">
+              <p className="font-semibold">🌐 Problème de connexion</p>
+              <p className="text-sm">Impossible de contacter le serveur d'authentification Supabase.</p>
+              <div className="text-sm space-y-2 bg-gray-50 p-3 rounded">
+                <p className="font-medium">Solutions possibles :</p>
+                <ul className="list-disc list-inside text-xs space-y-1">
+                  <li>Vérifiez votre connexion internet</li>
+                  <li>Vérifiez que Supabase est accessible</li>
+                  <li>Consultez la console développeur (F12)</li>
+                </ul>
+              </div>
+            </div>,
+            {
+              duration: 10000,
+              position: 'top-center'
+            }
+          );
+          
+          setLoading(false);
+          return;
+        }
+        
         // Afficher l'erreur de connexion
-        toast.error(result.error || 'Erreur de connexion', {
-          description: 'Vérifiez votre numéro de téléphone et mot de passe',
-          duration: 4000
-        });
+        const errorMsg = result.error || 'Erreur de connexion';
+        
+        // ✅ CAS 2 : Si identifiants incorrects, proposer de créer un compte
+        if (errorMsg.includes('Identifiants incorrects') || errorMsg.includes('Invalid login credentials')) {
+          toast.error(
+            <div className="space-y-3">
+              <p className="font-semibold">❌ Aucun compte trouvé</p>
+              <p className="text-sm">Ces identifiants ne correspondent à aucun compte conducteur existant.</p>
+              
+              <div className="space-y-2">
+                <button 
+                  onClick={() => setCurrentScreen('driver-registration')}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 w-full font-medium"
+                >
+                  ✨ Créer mon compte conducteur
+                </button>
+                
+                <button
+                  onClick={() => {
+                    window.open('/admin/seed-test-users', '_blank');
+                  }}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 w-full font-medium"
+                >
+                  🧪 Créer des utilisateurs de test
+                </button>
+              </div>
+              
+              <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                <p className="font-medium mb-1">Utilisateurs de test :</p>
+                <p>🚗 Conducteur : 0990666661 / Test1234</p>
+                <p>👤 Passager : 0990666662 / Test1234</p>
+              </div>
+            </div>,
+            {
+              duration: 15000,
+              position: 'top-center'
+            }
+          );
+        } else {
+          toast.error(errorMsg, {
+            description: 'Vérifiez votre numéro de téléphone et mot de passe',
+            duration: 4000
+          });
+        }
         setLoading(false);
         return;
       }
@@ -194,7 +259,7 @@ export function DriverLoginScreen() {
               <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder="email@exemple.com ou +243 XXX XXX XXX"
+                placeholder="+243 XXX XXX XXX"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="pl-12 h-12"
