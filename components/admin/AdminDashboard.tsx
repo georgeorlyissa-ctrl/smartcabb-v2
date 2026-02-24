@@ -1012,7 +1012,7 @@ export function AdminDashboard() {
                       <div className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                         <div>
-                          <p className="text-sm font-medium">Course #{ride.id.slice(-4)}</p>
+                          <p className="text-sm font-medium">Course #{ride.id?.slice(-4) || 'N/A'}</p>
                           <p className="text-xs text-gray-600">{ride.pickup.address}</p>
                         </div>
                       </div>
