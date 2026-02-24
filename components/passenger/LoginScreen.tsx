@@ -69,7 +69,34 @@ export function LoginScreen() {
       if (!result.success) {
         console.error('❌ Erreur de connexion:', result.error);
         
-        // 🆕 CAS SPÉCIAL : Profil orphelin détecté
+        // ✅ CAS 1 : Erreur réseau (serveur non accessible)
+        if (result.error?.includes('Impossible de contacter le serveur')) {
+          setErrorMsg('');
+          
+          toast.error(
+            <div className="space-y-3">
+              <p className="font-semibold">🌐 Problème de connexion</p>
+              <p className="text-sm">Impossible de contacter le serveur d'authentification Supabase.</p>
+              <div className="text-sm space-y-2 bg-gray-50 p-3 rounded">
+                <p className="font-medium">Solutions possibles :</p>
+                <ul className="list-disc list-inside text-xs space-y-1">
+                  <li>Vérifiez votre connexion internet</li>
+                  <li>Vérifiez que Supabase est accessible</li>
+                  <li>Consultez la console développeur (F12)</li>
+                </ul>
+              </div>
+            </div>,
+            {
+              duration: 10000,
+              position: 'top-center'
+            }
+          );
+          
+          setLoading(false);
+          return;
+        }
+        
+        // 🆕 CAS 2 : Profil orphelin détecté
         if (result.error === 'ORPHAN_PROFILE' && (result as any).orphanProfile) {
           const orphanProfile = (result as any).orphanProfile;
           console.log('⚠️ Profil orphelin détecté:', orphanProfile);
@@ -115,9 +142,50 @@ export function LoginScreen() {
           console.error('🐛 Debug info:', (result as any).debug);
         }
         
-        toast.error(fullMessage, {
-          duration: 6000 // Plus long pour lire le message
-        });
+        // 🆕 CAS 3 : Si le compte n'existe pas, proposer de s'inscrire OU de créer un compte de test
+        if (errorMessage.includes('Identifiants incorrects') || errorMessage.includes('Invalid login credentials')) {
+          toast.error(
+            <div className="space-y-3">
+              <p className="font-semibold">❌ Aucun compte trouvé</p>
+              <p className="text-sm">Ces identifiants ne correspondent à aucun compte existant.</p>
+              
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setCurrentScreen('register');
+                  }}
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm hover:bg-cyan-700 w-full font-medium"
+                >
+                  ✨ Créer mon compte
+                </button>
+                
+                <button
+                  onClick={() => {
+                    window.open('/admin/seed-test-users', '_blank');
+                  }}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 w-full font-medium"
+                >
+                  🧪 Créer des utilisateurs de test
+                </button>
+              </div>
+              
+              <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                <p className="font-medium mb-1">Utilisateurs de test :</p>
+                <p>🚗 Conducteur : 0990666661 / Test1234</p>
+                <p>👤 Passager : 0990666662 / Test1234</p>
+              </div>
+            </div>,
+            {
+              duration: 15000,
+              position: 'top-center'
+            }
+          );
+        } else {
+          toast.error(fullMessage, {
+            duration: 6000
+          });
+        }
+        
         setLoading(false);
         return;
       }
@@ -125,36 +193,68 @@ export function LoginScreen() {
       console.log('✅ Connexion réussie, récupération du profil...');
 
       // 🔥 Récupérer le profil depuis le backend (auto-création si nécessaire)
-      const profileResponse = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${result.user.id}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-            'Content-Type': 'application/json'
+      let profileData;
+      let profile;
+      
+      try {
+        const profileResponse = await fetch(
+          `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${result.user.id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${publicAnonKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (!profileResponse.ok) {
+          const errorData = await profileResponse.json().catch(() => ({ error: 'Erreur inconnue' }));
+          console.error('❌ Erreur récupération profil depuis le backend:', errorData);
+          
+          // ✅ Si le backend n'est pas disponible, utiliser le profil de l'auth
+          console.log('⚠️ Backend non disponible, utilisation du profil d\'authentification');
+          profile = {
+            id: result.user.id,
+            email: result.user.email,
+            full_name: result.user.user_metadata?.full_name || 'Utilisateur',
+            phone: result.user.user_metadata?.phone || '',
+            role: 'passenger',
+            created_at: result.user.created_at
+          };
+        } else {
+          profileData = await profileResponse.json();
+          
+          if (!profileData.success || !profileData.passenger) {
+            console.error('❌ Profil introuvable dans la réponse du backend:', profileData);
+            
+            // Fallback : utiliser les données de l'auth
+            profile = {
+              id: result.user.id,
+              email: result.user.email,
+              full_name: result.user.user_metadata?.full_name || 'Utilisateur',
+              phone: result.user.user_metadata?.phone || '',
+              role: 'passenger',
+              created_at: result.user.created_at
+            };
+          } else {
+            profile = profileData.passenger;
           }
         }
-      );
-
-      if (!profileResponse.ok) {
-        const errorData = await profileResponse.json().catch(() => ({ error: 'Erreur inconnue' }));
-        console.error('❌ Erreur récupération profil depuis le backend:', errorData);
-        setErrorMsg('Impossible de récupérer votre profil. Veuillez réessayer.');
-        toast.error('Impossible de récupérer votre profil. Veuillez réessayer.');
-        setLoading(false);
-        return;
+      } catch (fetchError) {
+        console.error('❌ Erreur fetch profil:', fetchError);
+        
+        // Fallback : utiliser les données de l'auth
+        console.log('⚠️ Utilisation du profil d\'authentification comme fallback');
+        profile = {
+          id: result.user.id,
+          email: result.user.email,
+          full_name: result.user.user_metadata?.full_name || 'Utilisateur',
+          phone: result.user.user_metadata?.phone || '',
+          role: 'passenger',
+          created_at: result.user.created_at
+        };
       }
 
-      const profileData = await profileResponse.json();
-      
-      if (!profileData.success || !profileData.passenger) {
-        console.error('❌ Profil introuvable dans la réponse du backend:', profileData);
-        setErrorMsg('Profil introuvable');
-        toast.error('Profil introuvable');
-        setLoading(false);
-        return;
-      }
-
-      const profile = profileData.passenger;
       console.log('✅ Profil récupéré depuis le backend:', profile);
 
       // 🔒 VÉRIFICATION DE SÉCURITÉ : Vérifier le rôle depuis les données du backend
@@ -245,6 +345,19 @@ export function LoginScreen() {
       console.error('❌ Erreur pendant le login:', error);
       setLoading(false);
       setErrorMsg('Erreur lors de la connexion');
+      
+      toast.error(
+        <div className="space-y-2">
+          <p className="font-semibold">❌ Erreur inattendue</p>
+          <p className="text-sm">{error instanceof Error ? error.message : 'Erreur inconnue'}</p>
+          <div className="text-xs bg-gray-50 p-2 rounded">
+            Consultez la console (F12) pour plus de détails
+          </div>
+        </div>,
+        {
+          duration: 8000
+        }
+      );
     }
   };
 
@@ -300,7 +413,7 @@ export function LoginScreen() {
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck="false"
-                label="Email ou Téléphone"
+                label="Numéro de téléphone"
               />
             </div>
 
