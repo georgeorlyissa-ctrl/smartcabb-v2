@@ -15,6 +15,7 @@ import { BUILD_VERSION, BUILD_TIMESTAMP } from './BUILD_VERSION';
 import { startUpdateDetection } from './utils/updateDetector';
 import { checkForUpdate } from './utils/cacheManager';
 import { initConfigSync } from './lib/config-sync';
+import { initializeFirebaseServiceWorker } from './lib/init-firebase-sw';
 
 // ⚡ BUILD v518.0 - OPTIMISATIONS PERFORMANCES MAJEURES
 console.log('');
@@ -85,6 +86,7 @@ import { AdminQuickSetup } from './components/admin/AdminQuickSetup';
 import { AdminAccountSync } from './components/admin/AdminAccountSync';
 import { QuickAdminSignup } from './components/admin/QuickAdminSignup';
 import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswordScreen';
+import { SeedTestUsers } from './components/admin/SeedTestUsers';
 
 // 🔧 Loading fallback
 const SuspenseFallback = () => {
@@ -176,32 +178,6 @@ function App() {
       if (checkForUpdate()) {
         console.log('🔄 Nouvelle version détectée - Cache rafraîchi');
       }
-
-      // 🚫 BLOQUER LES "Script error" CROSS-ORIGIN GLOBALEMENT
-      const globalErrorHandler = (event: ErrorEvent) => {
-        const errorMsg = event?.message || '';
-        
-        // ✅ Bloquer silencieusement les erreurs cross-origin (Google Maps, Firebase, etc.)
-        if (errorMsg === 'Script error.' || errorMsg === 'Script error' || errorMsg === '') {
-          // Bloquer sans logger pour garder la console propre
-          event.preventDefault();
-          event.stopPropagation();
-          return true;
-        }
-        
-        return false;
-      };
-      
-      window.addEventListener('error', globalErrorHandler, true);
-      
-      // Bloquer aussi les promesses non catchées silencieusement
-      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
-        const reason = event?.reason?.message || String(event?.reason || '');
-        if (reason.includes('Script error') || reason === '') {
-          // Bloquer sans logger
-          event.preventDefault();
-        }
-      });
 
       // 🧹 NETTOYAGE DU LOCALSTORAGE : Détecter et supprimer les données corrompues
       try {
@@ -402,6 +378,13 @@ function App() {
     }
   }, []);
 
+  // 🔔 Initialiser le Service Worker Firebase pour les notifications
+  useEffect(() => {
+    // Service Worker Firebase pour les notifications push
+    // Note : Désactivé automatiquement dans les environnements de preview
+    initializeFirebaseServiceWorker();
+  }, []);
+
   return (
     <ErrorBoundary>
       <Router>
@@ -474,6 +457,7 @@ function App() {
                   <Route path="/admin/signup" element={<QuickAdminSignup />} />
                   <Route path="/admin/forgot-password" element={<AdminForgotPasswordScreen />} />
                   <Route path="/admin/clean-system" element={<AdminCleanSystem />} />
+                  <Route path="/admin/seed-test-users" element={<SeedTestUsers />} />
                   
                   {/* Admin Panel - Route générique APRÈS les routes spécifiques */}
                   <Route path="/admin/*" element={<AdminApp />} />
