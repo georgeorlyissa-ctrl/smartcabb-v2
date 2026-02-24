@@ -586,7 +586,7 @@ export function DriverDetailModal({
               </div>
               <div>
                 <h2 className="text-xl">{driver.full_name}</h2>
-                <p className="text-sm text-gray-500">ID: {driver.id.slice(-8)}</p>
+                <p className="text-sm text-gray-500">ID: {driver.id?.slice(-8) || 'N/A'}</p>
               </div>
             </DialogTitle>
             <DialogDescription className="sr-only">
