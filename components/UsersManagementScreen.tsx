@@ -34,6 +34,7 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'Passager' | 'Conducteur' | 'Administrateur'>('all');
   const [showPasswords, setShowPasswords] = useState<{ [key: string]: boolean }>({});
+  const [showAllPasswords, setShowAllPasswords] = useState(false); // ✅ NOUVEAU: Toggle global pour tous les mots de passe
   const [stats, setStats] = useState({ passengers: 0, drivers: 0, admins: 0 });
   const { setCurrentScreen } = useAppState();
 
@@ -147,6 +148,19 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
       ...prev,
       [userId]: !prev[userId]
     }));
+  };
+
+  // ✅ NOUVEAU: Toggle affichage de TOUS les mots de passe
+  const toggleAllPasswords = () => {
+    const newValue = !showAllPasswords;
+    setShowAllPasswords(newValue);
+    
+    // Mettre à jour tous les mots de passe en même temps
+    const newShowPasswords: { [key: string]: boolean } = {};
+    filteredUsers.forEach(user => {
+      newShowPasswords[user.id] = newValue;
+    });
+    setShowPasswords(newShowPasswords);
   };
 
   // Supprimer tous les passagers
@@ -445,7 +459,22 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Nom</th>
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Téléphone</th>
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Mot de passe</th>
+                  <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <span>Mot de passe</span>
+                      <button
+                        onClick={toggleAllPasswords}
+                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        title={showAllPasswords ? 'Masquer tous les mots de passe' : 'Afficher tous les mots de passe'}
+                      >
+                        {showAllPasswords ? (
+                          <EyeOff className="w-4 h-4 text-gray-500" />
+                        ) : (
+                          <Eye className="w-4 h-4 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
+                  </th>
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Solde</th>
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Infos supplémentaires</th>
                   <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Date création</th>
