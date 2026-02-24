@@ -321,6 +321,88 @@ export function AdminDashboard() {
     }
   };
 
+  // 🔍 NOUVELLE FONCTION: Prévisualiser les données de test qui seront supprimées
+  const handlePreviewTestData = async () => {
+    try {
+      console.log('🔍 Prévisualisation des données de test...');
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/cleanup/test-data/preview`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('📊 PRÉVISUALISATION NETTOYAGE:', result.preview);
+        console.log('🗑️ PASSAGERS À SUPPRIMER:', result.preview.passengers.to_delete);
+        console.table(result.preview.passengers.list_to_delete);
+        console.log('✅ PASSAGERS À CONSERVER:', result.preview.passengers.to_keep);
+        console.table(result.preview.passengers.list_to_keep);
+        console.log('🗑️ CONDUCTEURS À SUPPRIMER:', result.preview.drivers.to_delete);
+        console.table(result.preview.drivers.list_to_delete);
+        console.log('✅ CONDUCTEURS À CONSERVER:', result.preview.drivers.to_keep);
+        console.table(result.preview.drivers.list_to_keep);
+        
+        toast.success(`Prévisualisation terminée (voir console F12)`, {
+          description: `${result.preview.passengers.to_delete} passagers et ${result.preview.drivers.to_delete} conducteurs seront supprimés`
+        });
+      } else {
+        toast.error(result.error || 'Erreur prévisualisation');
+      }
+    } catch (error) {
+      console.error('❌ Erreur prévisualisation:', error);
+      toast.error('Erreur lors de la prévisualisation');
+    }
+  };
+
+  // 🧹 NOUVELLE FONCTION: Nettoyer toutes les données de test
+  const handleCleanTestData = async () => {
+    if (!confirm('⚠️ ATTENTION !\n\nCette action va supprimer TOUTES les données de test :\n- Passagers avec "Client N/A", "Non renseigné"\n- Conducteurs "Conducteur inconnu"\n- Courses orphelines\n- Emails @smartcabb.app\n\nCette action est IRRÉVERSIBLE.\n\nContinuer ?')) {
+      return;
+    }
+
+    try {
+      console.log('🧹 Nettoyage des données de test...');
+      toast.info('Nettoyage en cours...', { duration: 2000 });
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/cleanup/test-data`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('✅ NETTOYAGE TERMINÉ:', result);
+        console.log('📊 Statistiques:', result.stats);
+        
+        toast.success(result.message, {
+          description: `${result.stats.passengers_deleted} passagers, ${result.stats.drivers_deleted} conducteurs, ${result.stats.rides_deleted} courses supprimés`
+        });
+
+        // Rafraîchir les données
+        await refresh();
+      } else {
+        toast.error(result.error || 'Erreur lors du nettoyage');
+      }
+    } catch (error) {
+      console.error('❌ Erreur nettoyage:', error);
+      toast.error('Erreur lors du nettoyage des données de test');
+    }
+  };
+
   // Fonction pour supprimer tous les passagers et conducteurs
   const handleDeleteAllAccounts = async () => {
     setDeletingAccounts(true);
@@ -685,6 +767,26 @@ export function AdminDashboard() {
       count: null,
       highlight: true,
       color: 'from-orange-500 to-red-500'
+    },
+    {
+      id: 'action-preview-test-data',
+      title: '🔍 Prévisualiser les données de test',
+      description: 'Voir les données qui seront supprimées',
+      icon: Search,
+      action: handlePreviewTestData,
+      count: null,
+      highlight: true,
+      color: 'from-gray-500 to-slate-500'
+    },
+    {
+      id: 'action-clean-test-data',
+      title: '🧹 Nettoyer les données de test',
+      description: 'Supprimer les données de test',
+      icon: Trash2,
+      action: handleCleanTestData,
+      count: null,
+      highlight: true,
+      color: 'from-red-500 to-pink-500'
     }
   ];
 
