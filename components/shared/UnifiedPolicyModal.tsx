@@ -1,4 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import { Shield, FileText, X } from '../../lib/icons';
 import { PrivacyPolicy } from './PrivacyPolicy';
 import { TermsOfService } from './TermsOfService';
@@ -6,11 +8,12 @@ import { memo } from 'react';
 
 interface UnifiedPolicyModalProps {
   isOpen: boolean;
-  onAccept: () => void;
+  onAccept?: () => void;
   onClose?: () => void;
   showCloseButton?: boolean;
   mode?: 'privacy' | 'terms' | 'both';
   userType?: 'passenger' | 'driver';
+  readOnly?: boolean; // ✅ Nouveau prop pour mode lecture seule
 }
 
 /**
@@ -18,6 +21,7 @@ interface UnifiedPolicyModalProps {
  * Utilisée de manière identique pour passagers et conducteurs
  * Mode 'both' affiche les deux politiques (pour l'inscription)
  * Mode 'privacy' ou 'terms' affiche uniquement la politique demandée
+ * readOnly = true : Affiche uniquement les documents sans demander d'acceptation
  */
 export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({ 
   isOpen, 
@@ -25,15 +29,24 @@ export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({
   onClose,
   showCloseButton = false,
   mode = 'both',
-  userType = 'passenger'
+  userType = 'passenger',
+  readOnly = false
 }: UnifiedPolicyModalProps) {
   if (!isOpen) return null;
 
   const handleClose = () => {
     if (onClose) {
       onClose();
-    } else if (showCloseButton) {
+    } else if (showCloseButton && onAccept) {
       onAccept();
+    }
+  };
+  
+  const handleAccept = () => {
+    if (onAccept) {
+      onAccept();
+    } else if (onClose) {
+      onClose();
     }
   };
 
@@ -147,7 +160,7 @@ export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({
                   </Button>
                 )}
                 <Button
-                  onClick={onAccept}
+                  onClick={handleAccept}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   {mode === 'both' ? "J'accepte les conditions" : 'Fermer'}
