@@ -55,64 +55,68 @@ export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({
       <DialogContent className="w-full max-w-2xl max-h-[90vh] flex flex-col">
         <Card className="bg-white flex-1 flex flex-col">
           <div className="p-6 flex-1 flex flex-col">
-            {/* Header */}
-            <div className="text-center mb-4">
-              {showCloseButton && (
-                <div className="flex justify-end mb-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleClose}
-                    className="w-8 h-8"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+            {/* Header - Simplifié en mode readOnly */}
+            {!readOnly && (
+              <div className="text-center mb-4">
+                {showCloseButton && (
+                  <div className="flex justify-end mb-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleClose}
+                      className="w-8 h-8"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  {mode === 'terms' ? (
+                    <FileText className="w-8 h-8 text-green-600" />
+                  ) : mode === 'privacy' ? (
+                    <Shield className="w-8 h-8 text-green-600" />
+                  ) : (
+                    <Shield className="w-8 h-8 text-green-600" />
+                  )}
                 </div>
-              )}
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                {mode === 'terms' ? (
-                  <FileText className="w-8 h-8 text-green-600" />
-                ) : (
-                  <Shield className="w-8 h-8 text-green-600" />
+                {mode === 'both' && (
+                  <>
+                    <h2 className="text-xl mb-2">
+                      Bienvenue sur SmartCabb
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {userType === 'driver' 
+                        ? 'En tant que conducteur partenaire'
+                        : 'En tant que passager'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Veuillez lire et accepter nos conditions et politique de confidentialité
+                    </p>
+                  </>
+                )}
+                {mode === 'terms' && (
+                  <>
+                    <h2 className="text-xl mb-2">
+                      Conditions Générales d'Utilisation
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Identiques pour tous les utilisateurs SmartCabb
+                    </p>
+                  </>
+                )}
+                {mode === 'privacy' && (
+                  <>
+                    <h2 className="text-xl mb-2">
+                      Politique de Confidentialité
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Protection de vos données personnelles
+                    </p>
+                  </>
                 )}
               </div>
-              {mode === 'both' && (
-                <>
-                  <h2 className="text-xl mb-2">
-                    Bienvenue sur SmartCabb
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {userType === 'driver' 
-                      ? 'En tant que conducteur partenaire'
-                      : 'En tant que passager'}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Veuillez lire et accepter nos conditions et politique de confidentialité
-                  </p>
-                </>
-              )}
-              {mode === 'terms' && (
-                <>
-                  <h2 className="text-xl mb-2">
-                    Conditions Générales d'Utilisation
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    Identiques pour tous les utilisateurs SmartCabb
-                  </p>
-                </>
-              )}
-              {mode === 'privacy' && (
-                <>
-                  <h2 className="text-xl mb-2">
-                    Politique de Confidentialité
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    Protection de vos données personnelles
-                  </p>
-                </>
-              )}
-            </div>
-
+            )}
+            
             {/* Content */}
             <div className="flex-1 overflow-hidden">
               {mode === 'both' && (
@@ -139,7 +143,7 @@ export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({
 
             {/* Footer */}
             <div className="mt-6 pt-4 border-t space-y-3">
-              {mode === 'both' && (
+              {mode === 'both' && !readOnly && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-900">
                     <strong>Note importante :</strong> Ces conditions sont <strong>identiques</strong> pour 
@@ -149,29 +153,40 @@ export const UnifiedPolicyModal = memo(function UnifiedPolicyModal({
                 </div>
               )}
               
-              <div className="flex items-center space-x-3">
-                {onClose && (
-                  <Button
-                    onClick={onClose}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Annuler
-                  </Button>
-                )}
+              {readOnly ? (
                 <Button
-                  onClick={handleAccept}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleClose}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
-                  {mode === 'both' ? "J'accepte les conditions" : 'Fermer'}
+                  Fermer
                 </Button>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-center space-x-3">
+                    {onClose && (
+                      <Button
+                        onClick={onClose}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Annuler
+                      </Button>
+                    )}
+                    <Button
+                      onClick={handleAccept}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {mode === 'both' ? "J'accepte les conditions" : 'Fermer'}
+                    </Button>
+                  </div>
 
-              <p className="text-xs text-gray-500 text-center">
-                {mode === 'both' 
-                  ? "En acceptant, vous confirmez avoir lu et compris ces documents"
-                  : "Ces conditions s'appliquent à tous les utilisateurs SmartCabb"}
-              </p>
+                  <p className="text-xs text-gray-500 text-center">
+                    {mode === 'both' 
+                      ? "En acceptant, vous confirmez avoir lu et compris ces documents"
+                      : "Ces conditions s'appliquent à tous les utilisateurs SmartCabb"}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </Card>
