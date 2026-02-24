@@ -65,14 +65,19 @@ export function AdminDashboard() {
     console.log('🔒 isAdmin:', state.isAdmin);
     console.log('🔒 currentUser:', state.currentUser);
     
-    if (!state.isAdmin || !state.currentUser) {
-      console.log('❌ Accès non autorisé - Redirection vers login');
-      setCurrentScreen('admin-login');
-      toast.error('Veuillez vous connecter pour accéder au dashboard');
-      return;
-    }
+    // ✅ FIX: Attendre un court instant pour laisser le temps à l'état de se charger
+    // Évite l'affichage d'un toast d'erreur pendant le chargement initial
+    const timer = setTimeout(() => {
+      if (!state.isAdmin || !state.currentUser) {
+        console.log('❌ Accès non autorisé - Redirection vers login');
+        setCurrentScreen('admin-login');
+        toast.error('Veuillez vous connecter pour accéder au dashboard');
+      } else {
+        console.log('✅ Authentification confirmée');
+      }
+    }, 100); // Petit délai de 100ms pour laisser l'état se charger
     
-    console.log('✅ Authentification confirmée');
+    return () => clearTimeout(timer);
   }, []); // ✅ Tableau de dépendances vide = exécution uniquement au montage
 
   const { 
