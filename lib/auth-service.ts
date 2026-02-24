@@ -6,17 +6,18 @@ import { apiCache, CACHE_DURATION } from './api-cache'; // ⚡ OPTIMISATION
 
 /**
  * Service d'authentification pour SmartCabb (Version optimisée)
- * Messages d'erreur courts - L'UI gère les actions via toasts
+ * Authentification uniquement par numéro de téléphone
+ * Les emails sont générés automatiquement en arrière-plan pour Supabase
  */
 
 export interface LoginCredentials {
-  identifier: string; // Email ou numéro de téléphone
+  identifier: string; // Numéro de téléphone uniquement
   password: string;
 }
 
 export interface SignUpData {
-  email?: string;
-  phone?: string;
+  email?: string; // Optionnel - généré automatiquement si non fourni
+  phone: string;  // Obligatoire
   password: string;
   fullName: string;
   role: 'passenger' | 'driver';
@@ -53,7 +54,7 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       console.log('❌ [signIn] Identifiant vide');
       return {
         success: false,
-        error: 'Veuillez entrer un email ou un numéro de téléphone'
+        error: 'Veuillez entrer votre numéro de téléphone'
       };
     }
     
@@ -85,7 +86,8 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       console.log('📱 Connexion par téléphone:', normalizedPhone);
       
       // MODE STANDALONE : Générer l'email directement sans appel backend
-      email = `${normalizedPhone}@smartcabb.app`;
+      // ✅ CORRECTION: Préfixe "u" + numéro SANS + pour que Supabase accepte
+      email = `u${normalizedPhone}@smartcabb.app`;
       console.log('🔐 Email généré:', email);
     } else if (inputType === 'email') {
       // Vérifier que l'email est valide
@@ -101,7 +103,8 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       const normalizedPhone = normalizePhoneNumber(cleanIdentifier);
       if (normalizedPhone) {
         console.log('📱 Traitement comme téléphone:', normalizedPhone);
-        email = `${normalizedPhone}@smartcabb.app`;
+        // ✅ CORRECTION: Préfixe "u" + numéro SANS + pour que Supabase accepte
+        email = `u${normalizedPhone}@smartcabb.app`;
       } else {
         return {
           success: false,
@@ -111,19 +114,55 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     }
     
     // ✅ CONNEXION DIRECTE SUPABASE (MODE STANDALONE - PAS DE BACKEND)
-    console.log('🔐 Tentative de connexion via Supabase Auth direct...');
+    console.log('🔐 Tentative de connexion via Supabase Auth...');
     console.log('🔐 Email/identifier:', email);
     console.log('🔑 Longueur du mot de passe:', password?.length || 0);
     
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    let authData;
+    let authError;
+    
+    try {
+      const authResult = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      authData = authResult.data;
+      authError = authResult.error;
+    } catch (fetchError) {
+      console.error('❌ Erreur réseau lors de la connexion:', fetchError);
+      return {
+        success: false,
+        error: 'Impossible de contacter le serveur. Vérifiez votre connexion internet.'
+      };
+    }
     
     if (authError) {
-      console.error('❌ Erreur de connexion:', authError.message);
-      console.error('   - Status:', authError.status);
+      console.error('❌ Erreur de connexion:', authError.message || authError);
+      console.error('   - Status:', (authError as any).status);
       console.error('   - Details:', authError);
+      
+      // ✅ Si identifiants incorrects, afficher l'aide dans la console
+      if (authError.message && (authError.message.includes('Invalid login credentials') || (authError as any).status === 400)) {
+        console.log('');
+        console.log('╔═══════════════════════════════════════════════════════════════╗');
+        console.log('║  ❌ AUCUN COMPTE TROUVÉ AVEC CES IDENTIFIANTS                ║');
+        console.log('╚═══════════════════════════════════════════════════════════════╝');
+        console.log('');
+        console.log('✅ SOLUTION EN 1 CLIC:');
+        console.log('');
+        console.log('   1. Ouvrir: /admin/seed-test-users');
+        console.log('   2. Cliquer "Créer les utilisateurs de test"');
+        console.log('   3. Se connecter avec les identifiants affichés');
+        console.log('');
+        console.log('   🚗 Conducteur: 0990666661 / Test1234');
+        console.log('   👤 Passager: 0990666662 / Test1234');
+        console.log('');
+        console.log('   ⏱️  Temps: ~1 minute');
+        console.log('');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('');
+      }
       
       // ✅ FIX: Vérifier que authError.message existe avant d'utiliser .includes()
       const errorMessage = authError.message || '';
@@ -136,7 +175,7 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       }
       
       // Messages d'erreur plus clairs
-      if (errorMessage.includes('Invalid login credentials') || authError.status === 400) {
+      if (errorMessage.includes('Invalid login credentials') || (authError as any).status === 400) {
         return {
           success: false,
           error: 'Identifiants incorrects. Vérifiez votre numéro de téléphone et votre mot de passe.'
@@ -150,11 +189,11 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     }
     
     // ✅ FIX: Supabase signInWithPassword retourne access_token directement dans data
-    if (!data?.user || !data?.access_token) {
+    if (!authData?.user || !authData?.access_token) {
       console.error('❌ [signIn] Réponse Supabase incomplète:');
-      console.error('   - data:', data);
-      console.error('   - data.user:', data?.user);
-      console.error('   - data.access_token:', data?.access_token ? '[présent]' : '[absent]');
+      console.error('   - data:', authData);
+      console.error('   - data.user:', authData?.user);
+      console.error('   - data.access_token:', authData?.access_token ? '[présent]' : '[absent]');
       console.error('   - Authentification échouée sans token valide');
       
       return {
@@ -164,16 +203,16 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     }
     
     console.log('✅ [signIn] Authentification Supabase réussie');
-    console.log('   - User ID:', data.user.id);
-    console.log('   - Email:', data.user.email);
-    console.log('   - Access token:', data.access_token ? '[présent]' : '[absent]');
+    console.log('   - User ID:', authData.user.id);
+    console.log('   - Email:', authData.user.email);
+    console.log('   - Access token:', authData.access_token ? '[présent]' : '[absent]');
     
     // ✅ Récupérer le profil depuis Postgres
     console.log('🔍 [signIn] Récupération du profil depuis Postgres...');
-    const profile = await profileService.getProfile(data.user.id);
+    const profile = await profileService.getProfile(authData.user.id);
     
     if (!profile) {
-      console.error('❌ [signIn] Aucun profil trouvé pour user ID:', data.user.id);
+      console.error('❌ [signIn] Aucun profil trouvé pour user ID:', authData.user.id);
       return {
         success: false,
         error: 'Profil introuvable. Veuillez contacter le support.'
@@ -181,13 +220,13 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     }
     
     console.log('✅ [signIn] Profil récupéré:', profile.role, profile.full_name);
-    console.log('✅ Connexion réussie:', data.user.id);
+    console.log('✅ Connexion réussie:', authData.user.id);
     
     return {
       success: true,
-      user: data.user,
+      user: authData.user,
       profile,
-      accessToken: data.access_token
+      accessToken: authData.access_token
     };
     
   } catch (error) {
@@ -223,6 +262,8 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
     
     // Normaliser le numéro de téléphone si fourni
     const normalizedPhone = phone ? normalizePhoneNumber(phone) : null;
+    
+    console.log('📞 [signUp] Téléphone normalisé:', normalizedPhone);
     
     // Déterminer l'email final à utiliser
     let finalEmail: string;
@@ -320,16 +361,30 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
       if (error) {
         console.error('❌ Erreur inscription fallback:', error);
         
-        if (error.message.includes('already registered')) {
+        // ✅ FIX: Vérifier que error.message existe avant d'utiliser .includes()
+        const errorMessage = error.message || error.msg || (error as any).error_description || '';
+        
+        if (errorMessage.includes('already registered')) {
           return {
             success: false,
             error: 'Un compte existe déjà avec cet email ou ce numéro de téléphone'
           };
         }
         
+        // ✅ Gestion spécifique de l'erreur "email_address_invalid"
+        if (errorMessage.includes('invalid') || (error as any).error_code === 'email_address_invalid') {
+          console.error('📧 Email rejeté par Supabase:', finalEmail);
+          console.error('   Détails de l\'erreur:', error);
+          
+          return {
+            success: false,
+            error: `L'adresse email "${finalEmail}" n'est pas acceptée par le serveur. Essayez avec un autre email ou utilisez votre numéro de téléphone.`
+          };
+        }
+        
         return {
           success: false,
-          error: error.message
+          error: errorMessage || 'Erreur lors de l\'inscription'
         };
       }
       
