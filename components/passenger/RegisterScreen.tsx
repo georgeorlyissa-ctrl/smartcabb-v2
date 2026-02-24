@@ -30,7 +30,6 @@ export function RegisterScreen() {
   const { setCurrentScreen, setCurrentUser, setCurrentView } = useAppState();
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     phone: '',
     password: '',
     confirmPassword: ''
@@ -114,7 +113,6 @@ export function RegisterScreen() {
       
       // Inscription avec Supabase
       const result = await signUp({
-        email: formData.email || undefined, // ✅ Passer l'email s'il est fourni
         phone: formData.phone,
         password: formData.password,
         fullName: formData.name,
@@ -125,7 +123,6 @@ export function RegisterScreen() {
         setCurrentUser({
           id: result.profile.id,
           name: result.profile.full_name,
-          email: result.profile.email,
           phone: result.profile.phone || formData.phone
         });
         
@@ -254,24 +251,6 @@ export function RegisterScreen() {
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="words"
-                  spellCheck="false"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <div className="mt-2">
-                <Input
-                  id="register-email"
-                  type="email"
-                  placeholder="exemple@email.com"
-                  value={formData.email}
-                  onChange={(e) => updateFormData('email', e.target.value)}
-                  className="px-4 h-12 bg-gray-50 border-0 rounded-xl text-base"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
                   spellCheck="false"
                 />
               </div>
