@@ -367,15 +367,16 @@ export class PreciseGPSTracker {
 
 /**
  * 🌍 GEOCODING INVERSE (Coordonnées → Adresse)
+ * Utilise Google Maps Geocoding API via le backend SmartCabb
  */
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {
   try {
-    // 🆕 UTILISER LE BACKEND POUR ÉVITER CORS ET RATE LIMIT
+    // ✅ UTILISER GOOGLE MAPS API VIA LE BACKEND
     const projectId = 'zaerjqchzqmcxqblkfkg';
-    const publicAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxNDMyOTgsImV4cCI6MjA3NTcxOTI5OH0.qwFRKsi9Gw4VVYoEGBBCIj0-lAZOxtqlGQ0eT6cPhik'; // ✅ CORRIGÉ : bon token
-    const url = `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/nominatim/reverse?lat=${lat}&lng=${lng}`;
+    const publicAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxNDMyOTgsImV4cCI6MjA3NTcxOTI5OH0.qwFRKsi9Gw4VVYoEGBBCIj0-lAZOxtqlGQ0eT6cPhik';
+    const url = `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/google-maps/reverse?lat=${lat}&lng=${lng}`;
     
-    console.log('🌍 Geocoding:', lat, lng);
+    console.log('🌍 Geocoding Google Maps:', lat, lng);
     console.log('🔗 URL:', url);
     
     const response = await fetch(url, {
@@ -391,44 +392,24 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
     }
 
     const data = await response.json();
-    console.log('✅ Geocoding response complète:', JSON.stringify(data, null, 2));
+    console.log('✅ Geocoding Google Maps response:', JSON.stringify(data, null, 2));
 
-    // Le backend retourne : { success: true, result: { name, description, address: {...}, ... } }
-    if (data.success && data.result) {
-      const place = data.result;
+    // Le backend retourne : { result: { formatted_address, address_components, ... } }
+    if (data.result && data.result.formatted_address) {
+      const address = data.result.formatted_address;
+      console.log('✅ Adresse Google Maps:', address);
       
-      console.log('📍 result.name:', place.name);
-      console.log('📍 result.description:', place.description);
-      console.log('📍 result.address:', place.address);
+      // Simplifier l'adresse pour la RDC (enlever "Democratic Republic of the Congo")
+      const simplifiedAddress = address
+        .replace(', Democratic Republic of the Congo', '')
+        .replace(', République démocratique du Congo', '')
+        .replace(', RDC', '')
+        .trim();
       
-      // Priorité 1: name (si pas vide et pas "Position inconnue")
-      if (place.name && place.name.trim() !== '' && place.name !== 'Position inconnue') {
-        console.log('✅ Retourne result.name:', place.name);
-        return place.name;
-      }
-      
-      // Priorité 2: description
-      if (place.description && place.description.trim() !== '') {
-        console.log('✅ Retourne result.description:', place.description);
-        return place.description;
-      }
-      
-      // Priorité 3: address (c'est un OBJET, pas une string !)
-      if (place.address && typeof place.address === 'object') {
-        const parts = [];
-        if (place.address.street) parts.push(place.address.street);
-        if (place.address.neighborhood) parts.push(place.address.neighborhood);
-        if (place.address.city) parts.push(place.address.city);
-        
-        if (parts.length > 0) {
-          const addressString = parts.join(', ');
-          console.log('✅ Retourne address construite:', addressString);
-          return addressString;
-        }
-      }
+      return simplifiedAddress;
     }
 
-    // Fallback si aucune donnée utilisable
+    // Fallback si aucune adresse trouvée
     console.warn('⚠️ Geocoding: Pas d\'adresse trouvée, utilisation des coordonnées');
     return `${Math.abs(lat).toFixed(6)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(6)}°${lng < 0 ? 'W' : 'E'}`;
     
