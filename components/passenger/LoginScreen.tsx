@@ -158,21 +158,6 @@ export function LoginScreen() {
                 >
                   ✨ Créer mon compte
                 </button>
-                
-                <button
-                  onClick={() => {
-                    window.open('/admin/seed-test-users', '_blank');
-                  }}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 w-full font-medium"
-                >
-                  🧪 Créer des utilisateurs de test
-                </button>
-              </div>
-              
-              <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                <p className="font-medium mb-1">Utilisateurs de test :</p>
-                <p>🚗 Conducteur : 0990666661 / Test1234</p>
-                <p>👤 Passager : 0990666662 / Test1234</p>
               </div>
             </div>,
             {
