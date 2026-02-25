@@ -43,12 +43,14 @@ export async function signIn(credentials: { identifier: string; password: string
  * Inscription passager
  */
 export async function signUp(userData: {
-  email: string;
+  phone: string;
   password: string;
   fullName: string;
-  phone: string;
+  role?: 'passenger' | 'driver' | 'admin';
+  email?: string;
 }) {
   try {
+    // ✅ Pas besoin de générer l'email côté frontend, le backend le fait automatiquement
     const response = await fetch(`${API_BASE}/auth/signup`, {
       method: 'POST',
       headers: {
@@ -56,11 +58,11 @@ export async function signUp(userData: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        email: userData.email,
+        email: userData.email, // Optionnel, backend génère automatiquement si absent
         password: userData.password,
         full_name: userData.fullName,
         phone: userData.phone,
-        role: 'passenger'
+        role: userData.role || 'passenger'
       })
     });
 
@@ -196,5 +198,3 @@ export const authService = {
 };
 
 export default authService;
-
-
