@@ -133,11 +133,11 @@ async function updateBalanceInBackend(
       if (data.success) {
         const newBalance = data.balance;
         
-        // ✅ v517.79 IMPORTANT: Sauvegarder aussi dans localStorage pour persistance
-        localStorage.setItem(`driver_balance_${driverId}`, newBalance.toString());
+        // ✅ CRITIQUE : Ne PLUS sauvegarder dans localStorage
+        // Le backend est la SEULE source de vérité pour éviter les incohérences
         
         console.log(
-          `✅ Solde mis à jour: Backend + localStorage = ${newBalance.toLocaleString()} CDF`
+          `✅ Solde mis à jour dans le backend: ${newBalance.toLocaleString()} CDF`
         );
         return newBalance;
       }
@@ -338,31 +338,23 @@ export function DriverDashboard() {
           if (data.success) {
             const backendBalance = data.balance;
             
-            // ✅ v517.79: Sauvegarder dans localStorage pour persistance
-            localStorage.setItem(`driver_balance_${driver.id}`, backendBalance.toString());
+            // ✅ CRITIQUE : Ne PLUS utiliser localStorage
+            // Le backend est la SEULE source de vérité pour garantir la cohérence
             
             setAccountBalance(backendBalance);
             setBalanceRenderKey(prev => prev + 1);
-            console.log(`✅ Solde chargé: Backend ${backendBalance.toLocaleString()} CDF → localStorage`);
+            console.log(`✅ Solde chargé depuis le backend: ${backendBalance.toLocaleString()} CDF`);
+          } else {
+            console.error('❌ Erreur récupération solde depuis le backend');
+            setAccountBalance(0);
           }
         } else {
-          // Fallback: Si backend échoue, charger depuis localStorage
-          const savedBalance = localStorage.getItem(`driver_balance_${driver.id}`);
-          if (savedBalance) {
-            // ✅ v517.88: Validation stricte après parseFloat
-            const balance = parseFloat(savedBalance);
-            
-            if (isNaN(balance)) {
-              console.error('❌ v517.88 - Solde localStorage invalide (NaN), initialisation à 0');
-              console.error('   Valeur localStorage:', savedBalance);
-              localStorage.setItem(`driver_balance_${driver.id}`, '0');
-              setAccountBalance(0);
-            } else {
-              setAccountBalance(balance);
-              setBalanceRenderKey(prev => prev + 1);
-              console.log(`⚠️ Backend indisponible, fallback localStorage: ${balance.toLocaleString()} CDF`);
-            }
-          }
+          // ❌ Si le backend échoue, afficher 0 au lieu d'utiliser un cache obsolète
+          console.error('❌ Backend indisponible - impossible de récupérer le solde');
+          setAccountBalance(0);
+          toast.error('Impossible de récupérer votre solde. Vérifiez votre connexion.', {
+            duration: 5000
+          });
         }
       } catch (error) {
         console.error('❌ Erreur chargement solde:', error);
