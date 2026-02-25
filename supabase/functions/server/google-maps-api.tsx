@@ -29,30 +29,62 @@ app.get('/search', async (c) => {
     const kinshasaLat = userLat || '-4.3276';
     const kinshasaLng = userLng || '15.3136';
     
-    // ✅ PARAMÈTRES GOOGLE MAPS AVEC RESTRICTION GÉOGRAPHIQUE
-    const params = new URLSearchParams({
-      query: `${query} Kinshasa`, // ⭐ Ajouter "Kinshasa" à la recherche
-      location: `${kinshasaLat},${kinshasaLng}`, // ⭐ Centre de recherche
-      radius: '50000', // ⭐ Rayon de 50km autour de Kinshasa
-      key: apiKey
-    });
+    // ⭐ STRATÉGIE DOUBLE : Recherche avec ET sans "Kinshasa"
+    // Pour maximiser les résultats tout en gardant la restriction géographique
+    const queries = [
+      query, // Requête originale
+      `${query} Kinshasa`, // Requête avec "Kinshasa"
+      `${query} RDC` // Requête avec "RDC"
+    ];
     
-    // 🇨🇩 RESTRICTION STRICTE À LA RDC (components=country:CD)
-    // Note: components ne fonctionne pas avec textsearch, donc on utilise "region=cd"
-    params.append('region', 'cd'); // ⭐ Biaiser vers la RDC
+    let allResults: any[] = [];
+    const seenPlaceIds = new Set<string>();
     
-    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?${params.toString()}`;
+    // Essayer chaque variante de requête
+    for (const searchQuery of queries) {
+      console.log(`🔍 Essai requête: "${searchQuery}"`);
+      
+      // ✅ PARAMÈTRES GOOGLE MAPS AVEC RESTRICTION GÉOGRAPHIQUE
+      const params = new URLSearchParams({
+        query: searchQuery,
+        location: `${kinshasaLat},${kinshasaLng}`, // ⭐ Centre de recherche
+        radius: '50000', // ⭐ Rayon de 50km autour de Kinshasa
+        key: apiKey
+      });
+      
+      // 🇨🇩 RESTRICTION STRICTE À LA RDC
+      params.append('region', 'cd'); // ⭐ Biaiser vers la RDC
+      
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?${params.toString()}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.results?.length > 0) {
+        console.log(`✅ "${searchQuery}": ${data.results.length} résultats`);
+        
+        // Ajouter seulement les nouveaux résultats (pas de doublons)
+        for (const result of data.results) {
+          if (!seenPlaceIds.has(result.place_id)) {
+            seenPlaceIds.add(result.place_id);
+            allResults.push(result);
+          }
+        }
+      } else {
+        console.log(`⚠️ "${searchQuery}": ${data.status} - ${data.results?.length || 0} résultats`);
+      }
+      
+      // Si on a déjà assez de résultats, arrêter
+      if (allResults.length >= 15) {
+        console.log(`✅ Assez de résultats (${allResults.length}), arrêt des requêtes`);
+        break;
+      }
+    }
     
-    console.log('🌍 Recherche avec location bias:', kinshasaLat, kinshasaLng);
-    console.log('🔗 URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
-    
-    const response = await fetch(url);
-    const data = await response.json();
-
-    console.log(`✅ Google Maps: ${data.results?.length || 0} résultats`);
+    console.log(`📊 Total combiné: ${allResults.length} résultats uniques`);
     
     // ✅ FILTRAGE SUPPLÉMENTAIRE : Ne garder QUE les résultats à Kinshasa/RDC
-    let filteredResults = data.results || [];
+    let filteredResults = allResults;
     
     if (filteredResults.length > 0) {
       filteredResults = filteredResults.filter((place: any) => {
@@ -74,8 +106,37 @@ app.get('/search', async (c) => {
       console.log(`🇨🇩 Après filtrage RDC: ${filteredResults.length} résultats`);
     }
     
+    // ✅ CALCUL DE LA DISTANCE depuis la position utilisateur
+    if (userLat && userLng && filteredResults.length > 0) {
+      const userLatNum = parseFloat(userLat);
+      const userLngNum = parseFloat(userLng);
+      
+      filteredResults.forEach((place: any) => {
+        const placeLat = place.geometry.location.lat;
+        const placeLng = place.geometry.location.lng;
+        
+        // Formule Haversine pour calculer la distance
+        const R = 6371; // Rayon de la Terre en km
+        const dLat = (placeLat - userLatNum) * Math.PI / 180;
+        const dLng = (placeLng - userLngNum) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(userLatNum * Math.PI / 180) * Math.cos(placeLat * Math.PI / 180) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        
+        place.distance = distance;
+      });
+      
+      // Trier par distance
+      filteredResults.sort((a: any, b: any) => (a.distance || 999) - (b.distance || 999));
+      
+      console.log(`📏 Résultats triés par distance depuis (${userLat}, ${userLng})`);
+    }
+    
     // ✅ TRANSFORMER EN FORMAT STANDARDISÉ
-    const transformedResults = filteredResults.map((place: any) => ({
+    const transformedResults = filteredResults.slice(0, 20).map((place: any) => ({
       id: place.place_id,
       name: place.name,
       description: place.formatted_address,
@@ -87,8 +148,16 @@ app.get('/search', async (c) => {
       rating: place.rating,
       userRatingsTotal: place.user_ratings_total,
       types: place.types,
+      distance: place.distance,
       source: 'google_maps'
     }));
+    
+    console.log(`🎯 Retour de ${transformedResults.length} résultats au frontend`);
+    if (transformedResults.length > 0) {
+      console.log('📋 Top 5:', transformedResults.slice(0, 5).map((r: any) => 
+        `${r.name} ${r.distance ? `(${r.distance.toFixed(1)}km)` : ''} ${r.rating ? `⭐${r.rating}` : ''}`
+      ));
+    }
 
     return c.json({ results: transformedResults });
   } catch (error) {
