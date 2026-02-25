@@ -364,9 +364,59 @@ export function DriverDashboard() {
     loadBalanceFromBackend();
   }, [driver?.id]);
   
-  // ✅ SUPPRIMÉ : La synchronisation automatique toutes les 5 secondes causait des conflits
-  // Le solde est maintenant géré uniquement par le backend comme source de vérité
-  // Les mises à jour se font explicitement via updateBalanceInBackend()
+  // 🔄 SYNCHRONISATION TEMPS RÉEL DU SOLDE (Polling toutes les 10 secondes)
+  // Permet de synchroniser le solde entre tous les appareils connectés (mobile, ordinateur, tablette)
+  useEffect(() => {
+    if (!driver?.id) return;
+    
+    const syncBalanceFromBackend = async () => {
+      try {
+        const response = await fetch(
+          `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driver.id}/balance`,
+          {
+            headers: {
+              'Authorization': `Bearer ${publicAnonKey}`
+            }
+          }
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            const backendBalance = data.balance;
+            
+            // ✅ Mettre à jour seulement si le solde a changé (éviter les re-renders inutiles)
+            setAccountBalance(prevBalance => {
+              if (prevBalance !== backendBalance) {
+                console.log(`🔄 Solde synchronisé: ${prevBalance.toLocaleString()} → ${backendBalance.toLocaleString()} CDF`);
+                setBalanceRenderKey(prev => prev + 1);
+                
+                // Notifier l'utilisateur si le solde a augmenté (recharge sur un autre appareil)
+                if (backendBalance > prevBalance) {
+                  toast.success(
+                    `💰 Votre solde a été mis à jour: ${backendBalance.toLocaleString()} CDF`,
+                    { duration: 4000 }
+                  );
+                }
+                
+                return backendBalance;
+              }
+              return prevBalance;
+            });
+          }
+        }
+      } catch (error) {
+        // Ignorer les erreurs de synchronisation silencieusement
+        console.error('⚠️ Erreur synchronisation solde:', error);
+      }
+    };
+    
+    // Synchroniser toutes les 10 secondes
+    const intervalId = setInterval(syncBalanceFromBackend, 10000);
+    
+    // Nettoyer l'interval quand le composant est démonté
+    return () => clearInterval(intervalId);
+  }, [driver?.id]);
 
   // Auto-activer le post-payé si le solde est suffisant au chargement
   useEffect(() => {
@@ -1230,9 +1280,8 @@ export function DriverDashboard() {
           // Fallback: mise à jour locale si le backend échoue
           const fallbackBalance = accountBalance + amountToPay;
           setAccountBalance(fallbackBalance);
-          // ✅ v517.79: Sauvegarder aussi le fallback dans localStorage
-          localStorage.setItem(`driver_balance_${driver.id}`, fallbackBalance.toString());
-          console.log(`⚠️ Fallback localStorage: ${fallbackBalance.toLocaleString()} CDF`);
+          // ❌ NE PLUS utiliser localStorage - le backend est la seule source de vérité
+          console.log(`⚠️ Fallback local temporaire: ${fallbackBalance.toLocaleString()} CDF`);
         }
         
         // Réinitialiser le formulaire
@@ -1692,9 +1741,8 @@ export function DriverDashboard() {
         // Fallback: mise à jour locale si le backend échoue
         const fallbackBalance = accountBalance + driverEarnings;
         setAccountBalance(fallbackBalance);
-        // ✅ v517.79: Sauvegarder aussi le fallback dans localStorage
-        localStorage.setItem(`driver_balance_${driver.id}`, fallbackBalance.toString());
-        console.log(`⚠️ Fallback localStorage après course: ${fallbackBalance.toLocaleString()} CDF`);
+        // ❌ NE PLUS utiliser localStorage - le backend est la seule source de vérité
+        console.log(`⚠️ Fallback local temporaire après course: ${fallbackBalance.toLocaleString()} CDF`);
       }
       
       // Forcer le re-render visuel du solde
@@ -1720,7 +1768,7 @@ export function DriverDashboard() {
               const updatedBalance = balanceData.balance;
               setAccountBalance(updatedBalance);
               setBalanceRenderKey(prev => prev + 1);
-              localStorage.setItem(`driver_balance_${driver.id}`, updatedBalance.toString());
+              // ❌ NE PLUS utiliser localStorage - le backend est la seule source de vérité
               console.log(`✅ Solde mis à jour après course: ${updatedBalance.toLocaleString()} CDF`);
               
               // Notification de la déduction de commission
