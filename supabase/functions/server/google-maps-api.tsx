@@ -111,23 +111,104 @@ app.get('/search', async (c) => {
       const userLatNum = parseFloat(userLat);
       const userLngNum = parseFloat(userLng);
       
-      filteredResults.forEach((place: any) => {
-        const placeLat = place.geometry.location.lat;
-        const placeLng = place.geometry.location.lng;
+      // ⭐ UTILISER GOOGLE DISTANCE MATRIX API POUR LES VRAIES DISTANCES ROUTIÈRES
+      // (comme Yango) au lieu de la distance à vol d'oiseau (Haversine)
+      try {
+        console.log(`🚗 Calcul des distances routières réelles avec Google Distance Matrix API...`);
         
-        // Formule Haversine pour calculer la distance
-        const R = 6371; // Rayon de la Terre en km
-        const dLat = (placeLat - userLatNum) * Math.PI / 180;
-        const dLng = (placeLng - userLngNum) * Math.PI / 180;
-        const a = 
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(userLatNum * Math.PI / 180) * Math.cos(placeLat * Math.PI / 180) *
-          Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
+        // Limiter à 25 destinations (limite de l'API)
+        const destinations = filteredResults.slice(0, 25).map((place: any) => 
+          `${place.geometry.location.lat},${place.geometry.location.lng}`
+        ).join('|');
         
-        place.distance = distance;
-      });
+        const distanceMatrixUrl = new URLSearchParams({
+          origins: `${userLat},${userLng}`,
+          destinations,
+          key: apiKey,
+          mode: 'driving',
+          language: 'fr'
+        });
+        
+        const distanceResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/distancematrix/json?${distanceMatrixUrl.toString()}`
+        );
+        const distanceData = await distanceResponse.json();
+        
+        if (distanceData.status === 'OK' && distanceData.rows?.[0]?.elements) {
+          const elements = distanceData.rows[0].elements;
+          
+          // Assigner les distances routières réelles
+          filteredResults.slice(0, 25).forEach((place: any, index: number) => {
+            const element = elements[index];
+            if (element.status === 'OK') {
+              // ✅ Distance routière en km (comme Yango)
+              place.distance = element.distance.value / 1000;
+              place.duration = element.duration.value / 60; // minutes
+              
+              console.log(`  📍 ${place.name}: ${place.distance.toFixed(1)} km, ${Math.round(place.duration)} min`);
+            } else {
+              // Fallback : Haversine
+              const placeLat = place.geometry.location.lat;
+              const placeLng = place.geometry.location.lng;
+              
+              const R = 6371;
+              const dLat = (placeLat - userLatNum) * Math.PI / 180;
+              const dLng = (placeLng - userLngNum) * Math.PI / 180;
+              const a = 
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(userLatNum * Math.PI / 180) * Math.cos(placeLat * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              const distance = R * c;
+              
+              place.distance = distance;
+              console.log(`  📍 ${place.name}: ${distance.toFixed(1)} km (fallback Haversine)`);
+            }
+          });
+          
+          console.log(`✅ Distances routières calculées avec Google Distance Matrix API`);
+        } else {
+          console.warn(`⚠️ Distance Matrix API error: ${distanceData.status}, fallback Haversine`);
+          
+          // Fallback : Haversine pour tous
+          filteredResults.forEach((place: any) => {
+            const placeLat = place.geometry.location.lat;
+            const placeLng = place.geometry.location.lng;
+            
+            const R = 6371;
+            const dLat = (placeLat - userLatNum) * Math.PI / 180;
+            const dLng = (placeLng - userLngNum) * Math.PI / 180;
+            const a = 
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(userLatNum * Math.PI / 180) * Math.cos(placeLat * Math.PI / 180) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c;
+            
+            place.distance = distance;
+          });
+        }
+      } catch (error) {
+        console.error('❌ Distance Matrix API error:', error, '- Fallback Haversine');
+        
+        // Fallback complet : Haversine
+        filteredResults.forEach((place: any) => {
+          const placeLat = place.geometry.location.lat;
+          const placeLng = place.geometry.location.lng;
+          
+          const R = 6371;
+          const dLat = (placeLat - userLatNum) * Math.PI / 180;
+          const dLng = (placeLng - userLngNum) * Math.PI / 180;
+          const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(userLatNum * Math.PI / 180) * Math.cos(placeLat * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distance = R * c;
+          
+          place.distance = distance;
+        });
+      }
       
       // Trier par distance
       filteredResults.sort((a: any, b: any) => (a.distance || 999) - (b.distance || 999));
