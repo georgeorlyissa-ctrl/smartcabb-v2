@@ -82,10 +82,10 @@ export function AdminLoginScreen() {
           result.error.includes('Email ou mot de passe incorrect') ||
           result.error.includes('incorrect')
         )) {
-          toast.error('Identifiants incorrects. Vérifiez votre email et mot de passe.');
+          toast.error('Identifiants incorrects. Vérifiez vos informations de connexion.');
           setShowSyncLink(true); // Afficher le lien de synchronisation
         } else {
-          toast.error(result.error || 'Email ou mot de passe incorrect');
+          toast.error(result.error || 'Identifiants incorrects');
         }
         
         setLoading(false);
