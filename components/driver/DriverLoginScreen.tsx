@@ -126,22 +126,21 @@ export function DriverLoginScreen() {
 
         const driverData = data.driver;
 
-        // 🚨 VÉRIFICATION : Bloquer les conducteurs non approuvés
-        if (driverData.status !== 'approved') {
+        // 🚨 VÉRIFICATION CRITIQUE : Bloquer UNIQUEMENT les conducteurs explicitement rejetés/suspendus
+        // ✅ NOUVELLE LOGIQUE : Accepter tous les statuts SAUF 'pending', 'rejected', 'suspended'
+        const blockedStatuses = ['rejected', 'suspended'];
+        const isPending = driverData.status === 'pending';
+        const isBlocked = blockedStatuses.includes(driverData.status);
+        
+        if (isPending || isBlocked) {
           let statusMessage = '';
           
-          switch (driverData.status) {
-            case 'pending':
-              statusMessage = 'Votre compte est en attente d\'approbation. Un administrateur doit valider votre inscription.';
-              break;
-            case 'rejected':
-              statusMessage = 'Votre compte a été rejeté. Contactez le support pour plus d\'informations.';
-              break;
-            case 'suspended':
-              statusMessage = 'Votre compte a été suspendu. Contactez le support.';
-              break;
-            default:
-              statusMessage = 'Votre compte n\'est pas actif. Contactez le support.';
+          if (isPending) {
+            statusMessage = 'Votre compte est en attente d\'approbation. Un administrateur doit valider votre inscription.';
+          } else if (driverData.status === 'rejected') {
+            statusMessage = 'Votre compte a été rejeté. Contactez le support pour plus d\'informations.';
+          } else if (driverData.status === 'suspended') {
+            statusMessage = 'Votre compte a été suspendu. Contactez le support.';
           }
           
           toast.error(statusMessage, {
@@ -150,6 +149,29 @@ export function DriverLoginScreen() {
           
           setLoading(false);
           return;
+        }
+        
+        // ✅ Si le conducteur n'a pas de statut ou a un statut non bloqué, on le laisse passer
+        // et on met à jour son statut à 'approved' si nécessaire
+        if (!driverData.status || (driverData.status !== 'approved' && !blockedStatuses.includes(driverData.status))) {
+          console.log(`✅ Auto-approbation du conducteur ${driverData.id} avec statut: ${driverData.status || 'null'}`);
+          
+          // Mettre à jour le statut en backend
+          try {
+            await fetch(
+              `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/drivers/${driverData.id}/approve`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${publicAnonKey}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+            console.log('✅ Statut mis à jour vers "approved"');
+          } catch (updateError) {
+            console.warn('⚠️ Impossible de mettre à jour le statut, mais on laisse passer:', updateError);
+          }
         }
 
         // Construire l'objet conducteur
