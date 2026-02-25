@@ -193,4 +193,94 @@ app.get('/reverse', async (c) => {
   }
 });
 
+app.get('/directions', async (c) => {
+  try {
+    const origin = c.req.query('origin');
+    const destination = c.req.query('destination');
+    const waypoints = c.req.query('waypoints');
+    
+    if (!origin || !destination) {
+      return c.json({ error: 'Origin and destination required' }, 400);
+    }
+
+    console.log('🚗 Google Directions API:', origin, '→', destination);
+
+    const apiKey = Deno.env.get('GOOGLE_MAPS_SERVER_API_KEY') || Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!apiKey) {
+      console.warn('⚠️ Google Maps API key missing');
+      return c.json({ error: 'API key not configured' }, 500);
+    }
+
+    // Construire l'URL Google Directions API
+    const params = new URLSearchParams({
+      origin,
+      destination,
+      key: apiKey,
+      mode: 'driving',
+      departure_time: 'now', // Trafic en temps réel
+      language: 'fr' // Français
+    });
+    
+    if (waypoints) {
+      params.append('waypoints', waypoints);
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/directions/json?${params.toString()}`;
+    
+    console.log('🌐 Requête Google Directions (API key cachée)');
+    
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== 'OK') {
+      console.error('❌ Google Directions error:', data.status, data.error_message);
+      return c.json({ error: `Google Directions: ${data.status}` }, 500);
+    }
+
+    if (!data.routes || data.routes.length === 0) {
+      console.error('❌ Aucun itinéraire trouvé');
+      return c.json({ error: 'No routes found' }, 404);
+    }
+
+    const route = data.routes[0];
+    const leg = route.legs[0];
+
+    // Extraire les coordonnées pour la polyline
+    const coordinates: Array<{ lat: number; lng: number }> = [];
+    leg.steps.forEach((step: any) => {
+      coordinates.push({
+        lat: step.start_location.lat,
+        lng: step.start_location.lng
+      });
+    });
+    // Ajouter le dernier point
+    coordinates.push({
+      lat: leg.end_location.lat,
+      lng: leg.end_location.lng
+    });
+
+    // Construire la réponse au format attendu
+    const routeResult = {
+      distance: leg.distance.value / 1000, // Convertir mètres en km
+      duration: leg.duration.value / 60,   // Convertir secondes en minutes
+      coordinates,
+      polyline: route.overview_polyline.points,
+      steps: leg.steps.map((step: any) => ({
+        instruction: step.html_instructions.replace(/<[^>]*>/g, ''), // Retirer HTML
+        distance: step.distance.value / 1000, // km
+        duration: step.duration.value / 60,   // min
+        startLocation: step.start_location,
+        endLocation: step.end_location
+      }))
+    };
+
+    console.log(`✅ Itinéraire calculé: ${routeResult.distance.toFixed(1)} km, ${Math.round(routeResult.duration)} min`);
+
+    return c.json({ route: routeResult });
+  } catch (error) {
+    console.error('❌ Directions error:', error);
+    return c.json({ error: 'Directions calculation failed' }, 500);
+  }
+});
+
 export default app;
