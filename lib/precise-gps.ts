@@ -395,28 +395,76 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
     console.log('✅ Geocoding Google Maps response:', JSON.stringify(data, null, 2));
 
     // Le backend retourne : { result: { formatted_address, address_components, ... } }
-    if (data.result && data.result.formatted_address) {
-      const address = data.result.formatted_address;
-      console.log('✅ Adresse Google Maps:', address);
+    if (data.result) {
+      const result = data.result;
       
-      // Simplifier l'adresse pour la RDC (enlever "Democratic Republic of the Congo")
-      const simplifiedAddress = address
-        .replace(', Democratic Republic of the Congo', '')
-        .replace(', République démocratique du Congo', '')
-        .replace(', RDC', '')
-        .trim();
+      // ✅ STRATÉGIE 1 : Extraire le nom de rue depuis address_components
+      // Chercher dans cet ordre : route (rue) → neighborhood (quartier) → locality (ville)
+      if (result.address_components && Array.isArray(result.address_components)) {
+        // Chercher d'abord la rue (route)
+        const route = result.address_components.find((comp: any) => 
+          comp.types.includes('route')
+        );
+        
+        if (route && route.long_name) {
+          console.log('✅ Adresse trouvée (route):', route.long_name);
+          return route.long_name;
+        }
+        
+        // Sinon chercher le quartier (neighborhood ou sublocality)
+        const neighborhood = result.address_components.find((comp: any) => 
+          comp.types.includes('neighborhood') || 
+          comp.types.includes('sublocality') ||
+          comp.types.includes('sublocality_level_1')
+        );
+        
+        if (neighborhood && neighborhood.long_name) {
+          console.log('✅ Adresse trouvée (quartier):', neighborhood.long_name);
+          return neighborhood.long_name;
+        }
+        
+        // Sinon chercher la localité (locality)
+        const locality = result.address_components.find((comp: any) => 
+          comp.types.includes('locality')
+        );
+        
+        if (locality && locality.long_name) {
+          console.log('✅ Adresse trouvée (locality):', locality.long_name);
+          return locality.long_name;
+        }
+      }
       
-      return simplifiedAddress;
+      // ✅ STRATÉGIE 2 : Nettoyer formatted_address en enlevant le code Plus Code
+      if (result.formatted_address) {
+        const address = result.formatted_address;
+        
+        // Enlever les codes Plus Code (format: M896+V4Q, 2H8M+JR, etc.)
+        const cleanedAddress = address
+          .replace(/[A-Z0-9]{4}\+[A-Z0-9]{2,3},?\s*/g, '') // Enlever "M896+V4Q, "
+          .replace(/, Democratic Republic of the Congo/g, '')
+          .replace(/, République démocratique du Congo/g, '')
+          .replace(/, RDC/g, '')
+          .replace(/, Kinshasa/g, '') // Enlever ", Kinshasa" aussi car souvent redondant
+          .trim()
+          .replace(/^,\s*/, '') // Enlever la virgule au début si elle reste
+          .trim();
+        
+        // Si après nettoyage il reste quelque chose de valide
+        if (cleanedAddress && cleanedAddress.length > 3) {
+          console.log('✅ Adresse nettoyée:', cleanedAddress);
+          return cleanedAddress;
+        }
+      }
     }
 
     // Fallback si aucune adresse trouvée
     console.warn('⚠️ Geocoding: Pas d\'adresse trouvée, utilisation des coordonnées');
-    return `${Math.abs(lat).toFixed(6)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(6)}°${lng < 0 ? 'W' : 'E'}`;
+    return `Position ${Math.abs(lat).toFixed(4)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(4)}°${lng < 0 ? 'W' : 'E'}`;
     
   } catch (error) {
     console.error('❌ Erreur geocoding:', error);
-    // Retourner les coordonnées formatées en cas d'erreur
-    return `${Math.abs(lat).toFixed(6)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(6)}°${lng < 0 ? 'W' : 'E'}`;
+    // Retourner une position formatée en cas d'erreur
+    return `Position ${Math.abs(lat).toFixed(4)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(4)}°${lng < 0 ? 'W' : 'E'}`;
   }
 }
 
