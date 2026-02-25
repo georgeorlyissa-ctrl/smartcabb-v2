@@ -87,7 +87,7 @@ import { AdminQuickSetup } from './components/admin/AdminQuickSetup';
 import { AdminAccountSync } from './components/admin/AdminAccountSync';
 import { QuickAdminSignup } from './components/admin/QuickAdminSignup';
 import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswordScreen';
-import { SeedTestUsers } from './components/admin/SeedTestUsers';
+// ❌ import { SeedTestUsers } - SUPPRIMÉ - Ne plus créer d'utilisateurs de test
 
 // 🔧 Loading fallback
 const SuspenseFallback = () => {
@@ -552,7 +552,7 @@ function App() {
                   <Route path="/admin/signup" element={<QuickAdminSignup />} />
                   <Route path="/admin/forgot-password" element={<AdminForgotPasswordScreen />} />
                   <Route path="/admin/clean-system" element={<AdminCleanSystem />} />
-                  <Route path="/admin/seed-test-users" element={<SeedTestUsers />} />
+                  {/* ❌ Route /admin/seed-test-users SUPPRIMÉE - Ne plus créer d'utilisateurs de test */}
                   
                   {/* Admin Panel - Route générique APRÈS les routes spécifiques */}
                   <Route path="/admin/*" element={<AdminApp />} />
