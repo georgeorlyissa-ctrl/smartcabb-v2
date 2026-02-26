@@ -32,6 +32,9 @@ import {
 } from '../../lib/sms-service';
 import { RideNotificationSound } from './RideNotificationSound';
 
+// ✅ NOUVEAU : Import du système FCM pour notifications push
+import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver';
+
 // Icônes SVG inline
 const Power = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
@@ -198,6 +201,36 @@ export function DriverDashboard() {
       console.log('   - vehicleInfo construit:', vehicleInfo);
     }
   }, [driver, vehicleInfo]);
+  
+  // ✅ NOUVEAU : Enregistrer le token FCM pour recevoir les notifications push
+  useEffect(() => {
+    const setupFCMToken = async () => {
+      if (!driver?.id) return;
+      
+      // Vérifier si le token est déjà enregistré (moins de 7 jours)
+      if (isDriverFCMTokenRegistered(driver.id)) {
+        console.log('✅ Token FCM déjà enregistré, pas besoin de ré-enregistrer');
+        return;
+      }
+      
+      try {
+        console.log('📱 Enregistrement du token FCM pour notifications push...');
+        const success = await registerDriverFCMToken(driver.id);
+        
+        if (success) {
+          console.log('✅ Token FCM enregistré avec succès ! Les notifications push fonctionneront.');
+          toast.success('Notifications activées ! Vous recevrez les demandes de course.');
+        } else {
+          console.warn('⚠️ Impossible d\'enregistrer le token FCM. Les notifications ne fonctionneront pas.');
+          // Ne pas afficher de toast d'erreur car ce n'est pas bloquant
+        }
+      } catch (error) {
+        console.error('❌ Erreur enregistrement token FCM:', error);
+      }
+    };
+    
+    setupFCMToken();
+  }, [driver?.id]);
   
   // ✅ FIX: Rafraîchir le profil du conducteur pour récupérer les infos véhicule normalisées
   useEffect(() => {
