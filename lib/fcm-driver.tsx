@@ -26,7 +26,7 @@ const firebaseConfig = {
 };
 
 // VAPID Key publique (Safe - utilisée uniquement côté client)
-const VAPID_KEY = "BM8KqZ1xH9YJ_VT3x9WvYxGxX8KZ9YpXxZ1xH9YJ_VT3x9WvYxGxX8KZ9YpXxZ1xH9YJ_VT3x9WvYxGxX8KZ9Yp";
+const VAPID_KEY = "BDHm-w7od6Q7PP8y_vCv3TxuQiocDUyH3X6sg1zxQfm_KhCSFJnHtcVP4yekIOWUiJ6vHvO06yaXXnyp0i_1Muc";
 
 // Instance Firebase (singleton)
 let messaging: Messaging | null = null;
