@@ -33,7 +33,8 @@ import {
 import { RideNotificationSound } from './RideNotificationSound';
 
 // ✅ NOUVEAU : Import du système FCM pour notifications push
-import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver';
+// TODO: Décommenter après avoir commité /lib/fcm-driver.tsx sur GitHub
+// import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver';
 
 // Icônes SVG inline
 const Power = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -203,6 +204,8 @@ export function DriverDashboard() {
   }, [driver, vehicleInfo]);
   
   // ✅ NOUVEAU : Enregistrer le token FCM pour recevoir les notifications push
+  // TODO: Décommenter après avoir commité /lib/fcm-driver.tsx sur GitHub
+  /*
   useEffect(() => {
     const setupFCMToken = async () => {
       if (!driver?.id) return;
@@ -231,6 +234,7 @@ export function DriverDashboard() {
     
     setupFCMToken();
   }, [driver?.id]);
+  */
   
   // ✅ FIX: Rafraîchir le profil du conducteur pour récupérer les infos véhicule normalisées
   useEffect(() => {
