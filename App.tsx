@@ -180,6 +180,36 @@ function App() {
         console.log('🔄 Nouvelle version détectée - Cache rafraîchi');
       }
 
+      // 🔥 NOUVEAU : Enregistrer le Service Worker Firebase pour les notifications push
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+          .then((registration) => {
+            console.log('✅ Service Worker Firebase enregistré:', registration.scope);
+            
+            // Envoyer la config Firebase au Service Worker
+            const firebaseConfig = {
+              apiKey: "AIzaSyBaQo0fy37kfP5qLCsEHhVY44Ah3PpCbEw",
+              authDomain: "smartcabb.firebaseapp.com",
+              projectId: "smartcabb",
+              storageBucket: "smartcabb.firebasestorage.app",
+              messagingSenderId: "396618257088",
+              appId: "1:396618257088:web:f97c8aa8a239072ec82cf7",
+              measurementId: "G-PQZC05N17H"
+            };
+            
+            if (registration.active) {
+              registration.active.postMessage({
+                type: 'INIT_FIREBASE',
+                config: firebaseConfig
+              });
+              console.log('✅ Config Firebase envoyée au Service Worker');
+            }
+          })
+          .catch((error) => {
+            console.error('❌ Erreur enregistrement Service Worker Firebase:', error);
+          });
+      }
+
       // 🧹 NETTOYAGE DU LOCALSTORAGE : Détecter et supprimer les données corrompues
       try {
         console.log('🧹 Vérification de l\'intégrité des données...');
@@ -377,107 +407,6 @@ function App() {
     } catch (error) {
       console.error('Erreur initConfigSync:', error);
     }
-  }, []);
-
-  // 🔔 Initialiser le Service Worker Firebase pour les notifications
-  useEffect(() => {
-    // Service Worker Firebase pour les notifications push
-    // Note : Désactivé automatiquement dans les environnements de preview
-    // ✅ FIX BUILD: Firebase Service Worker temporairement désactivé
-    // initializeFirebaseServiceWorker();
-    
-    // Alternative : Initialisation inline pour éviter l'import
-    const initFirebaseServiceWorker = async () => {
-      try {
-        // Vérifier si on peut utiliser le Service Worker
-        if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-          return null;
-        }
-
-        // Vérifier si on est dans un environnement de preview Figma
-        const isFigmaPreview = window.location.hostname.includes('figma.site') || 
-                               window.location.hostname.includes('figmaiframepreview');
-        
-        if (isFigmaPreview) {
-          return null;
-        }
-
-        // Vérifier si on est en HTTPS (requis pour les Service Workers)
-        const isSecureContext = window.isSecureContext || 
-                                window.location.protocol === 'https:' || 
-                                window.location.hostname === 'localhost';
-        
-        if (!isSecureContext) {
-          return null;
-        }
-
-        // Récupérer la clé API de manière sécurisée
-        let apiKey = '';
-        try {
-          apiKey = import.meta?.env?.VITE_FIREBASE_API_KEY || '';
-        } catch (error) {
-          // Ignorer silencieusement si variables d'environnement non disponibles
-        }
-
-        // Si pas de clé API, ne pas initialiser (silencieux)
-        if (!apiKey) {
-          return null;
-        }
-
-        // 1️⃣ Injecter la configuration Firebase dans window
-        (window as any).FIREBASE_CONFIG = {
-          apiKey: apiKey,
-          authDomain: "smartcabb-bed00.firebaseapp.com",
-          projectId: "smartcabb-bed00",
-          storageBucket: "smartcabb-bed00.firebasestorage.app",
-          messagingSenderId: "855559530237",
-          appId: "1:855559530237:web:5ea0fa4232bb08196f4094",
-          measurementId: "G-8QY9ZYGC7B"
-        };
-
-        // 2️⃣ Vérifier si le fichier Service Worker existe
-        try {
-          const response = await fetch('/firebase-messaging-sw.js', { method: 'HEAD' });
-          if (!response.ok) {
-            return null;
-          }
-          
-          const contentType = response.headers.get('content-type');
-          if (contentType && !contentType.includes('javascript')) {
-            return null;
-          }
-        } catch (fetchError) {
-          // Ignorer silencieusement
-        }
-
-        // 3️⃣ Enregistrer le Service Worker
-        const registration = await navigator.serviceWorker.register(
-          '/firebase-messaging-sw.js',
-          { scope: '/' }
-        );
-
-        console.log('✅ Service Worker Firebase enregistré:', registration.scope);
-
-        // 4️⃣ Attendre que le Service Worker soit actif
-        await navigator.serviceWorker.ready;
-
-        // 5️⃣ Envoyer la configuration au Service Worker
-        if (registration.active) {
-          registration.active.postMessage({
-            type: 'INIT_FIREBASE',
-            config: (window as any).FIREBASE_CONFIG
-          });
-          console.log('✅ Configuration Firebase envoyée au Service Worker');
-        }
-
-        return registration;
-      } catch (error: any) {
-        // Retourner silencieusement null en cas d'erreur
-        return null;
-      }
-    };
-    
-    initFirebaseServiceWorker();
   }, []);
 
   return (
