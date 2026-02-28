@@ -85,23 +85,44 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
     // 1️⃣ Enregistrer le Service Worker AVANT d'initialiser Firebase
     if ('serviceWorker' in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-          scope: '/'
-        });
-        console.log('✅ Service Worker enregistré:', registration.scope);
+        // 🔍 Vérifier si on est en dev (Figma Make, null origin, etc.)
+        const isDev = window.location.protocol === 'null:' || 
+                      window.location.hostname === 'null' ||
+                      window.location.origin === 'null';
         
-        // Attendre que le Service Worker soit activé
-        if (registration.installing) {
-          await new Promise<void>((resolve) => {
-            registration.installing!.addEventListener('statechange', (e) => {
-              if ((e.target as ServiceWorker).state === 'activated') {
-                resolve();
-              }
-            });
+        if (isDev) {
+          console.warn('⚠️ [FCM] Environnement de dev détecté - Service Worker désactivé');
+          console.log('💡 [FCM] Les notifications foreground fonctionneront quand même');
+          // Ne pas essayer d'enregistrer le SW en dev, passer directement à l'init Firebase
+        } else {
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+            scope: '/'
           });
+          console.log('✅ Service Worker enregistré:', registration.scope);
+          
+          // Attendre que le Service Worker soit activé
+          if (registration.installing) {
+            await new Promise<void>((resolve) => {
+              registration.installing!.addEventListener('statechange', (e) => {
+                if ((e.target as ServiceWorker).state === 'activated') {
+                  resolve();
+                }
+              });
+            });
+          }
+          
+          // Envoyer la config au Service Worker
+          if (registration.active) {
+            registration.active.postMessage({
+              type: 'INIT_FIREBASE',
+              config: firebaseConfig
+            });
+            console.log('✅ [FCM] Config Firebase envoyée au Service Worker');
+          }
         }
       } catch (swError) {
-        console.error('❌ Erreur enregistrement Service Worker:', swError);
+        console.warn('⚠️ Service Worker non disponible:', swError);
+        console.log('💡 Notifications foreground uniquement');
         // Continuer quand même pour les notifications foreground
       }
     }
@@ -116,7 +137,7 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
       console.log('✅ Firebase App déjà initialisée');
     }
 
-    // 3️⃣ Initialiser Messaging avec le Service Worker
+    // 3️⃣ Initialiser Messaging
     messaging = modules.getMessaging(app);
     console.log('✅ Firebase Messaging initialisé');
 
@@ -135,20 +156,27 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
     // Vérifier support des notifications
     if (!('Notification' in window)) {
       console.warn('⚠️ Notifications non supportées');
+      toast.error('Votre navigateur ne supporte pas les notifications');
       return null;
     }
 
     // Demander permission
+    console.log('🔔 Demande de permission pour les notifications...');
     const permission = await Notification.requestPermission();
+    
     if (permission !== 'granted') {
       console.warn('⚠️ Permission notifications refusée');
+      toast.error('Vous devez autoriser les notifications pour recevoir les demandes de course');
       return null;
     }
+    
+    console.log('✅ Permission notifications accordée');
 
     // Initialiser Firebase Messaging
     const messagingInstance = await initializeFirebaseMessaging();
     if (!messagingInstance) {
       console.error('❌ Firebase Messaging non disponible');
+      toast.error('Erreur d\'initialisation Firebase - Contactez le support');
       return null;
     }
 
@@ -158,33 +186,38 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
       console.error('❌ Firebase modules non disponibles');
       return null;
     }
-    
-    // Envoyer la config au Service Worker dès maintenant
-    if ('serviceWorker' in navigator) {
-      // Attendre que le SW soit prêt
-      const registration = await navigator.serviceWorker.ready;
-      if (registration.active) {
-        registration.active.postMessage({
-          type: 'INIT_FIREBASE',
-          config: firebaseConfig
-        });
-        console.log('✅ [FCM] Config Firebase envoyée au Service Worker');
-      }
-    }
 
     // Obtenir le token FCM
     console.log('🔑 Génération du token FCM...');
-    const token = await modules.getToken(messagingInstance, { vapidKey: VAPID_KEY });
+    
+    try {
+      const token = await modules.getToken(messagingInstance, { vapidKey: VAPID_KEY });
 
-    if (token) {
-      console.log('✅ Token FCM obtenu:', token.substring(0, 20) + '...');
-      return token;
-    } else {
-      console.warn('⚠️ Impossible d\'obtenir le token FCM');
+      if (token) {
+        console.log('✅ Token FCM obtenu:', token.substring(0, 20) + '...');
+        return token;
+      } else {
+        console.warn('⚠️ Impossible d\'obtenir le token FCM');
+        toast.warning('Token FCM non généré - Les notifications en arrière-plan ne fonctionneront pas');
+        return null;
+      }
+    } catch (tokenError: any) {
+      console.error('❌ Erreur génération token FCM:', tokenError);
+      
+      // En dev (Figma Make), le token peut ne pas être généré mais on peut quand même continuer
+      if (window.location.origin === 'null' || window.location.protocol === 'null:') {
+        console.warn('⚠️ [FCM] Mode dev - Génération d\'un token factice');
+        toast.info('Mode développement - Notifications foreground uniquement');
+        // Retourner un token factice pour le dev
+        return 'dev-token-' + Date.now();
+      }
+      
+      toast.error('Erreur lors de la génération du token FCM');
       return null;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Erreur obtention token FCM:', error);
+    toast.error('Erreur: ' + (error.message || 'Impossible d\'obtenir le token FCM'));
     return null;
   }
 }
@@ -201,34 +234,53 @@ export async function registerDriverFCMToken(driverId: string): Promise<boolean>
     
     if (!fcmToken) {
       console.error('❌ [FCM] Impossible d\'obtenir le token');
-      toast.error('Notifications non disponibles');
+      toast.error('Impossible d\'activer les notifications push');
       return false;
     }
 
     console.log('✅ [FCM] Token obtenu, envoi au backend...');
 
     // 2. Envoyer le VRAI token au backend pour sauvegarde
-    const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driverId}/fcm-token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`
-        },
-        body: JSON.stringify({ fcmToken })
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driverId}/fcm-token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${publicAnonKey}`
+          },
+          body: JSON.stringify({ fcmToken })
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [FCM] Erreur HTTP:', response.status, errorText);
+        throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
-    );
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!result.success) {
-      console.error('❌ [FCM] Erreur backend:', result.error);
-      toast.error('Erreur activation notifications');
-      return false;
+      if (!result.success) {
+        console.error('❌ [FCM] Erreur backend:', result.error);
+        toast.error('Erreur lors de l\'enregistrement du token');
+        return false;
+      }
+
+      console.log('✅ [FCM] Token enregistré dans le backend');
+    } catch (fetchError: any) {
+      console.error('❌ [FCM] Erreur communication backend:', fetchError);
+      
+      // En mode dev, continuer quand même
+      if (fcmToken.startsWith('dev-token-')) {
+        console.warn('⚠️ [FCM] Mode dev - Pas d\'enregistrement backend');
+        toast.info('Mode développement - Notifications locales uniquement');
+      } else {
+        toast.error('Erreur de connexion au serveur: ' + fetchError.message);
+        return false;
+      }
     }
-
-    console.log('✅ [FCM] Token enregistré dans le backend');
     
     // 3. Sauvegarder dans localStorage (cache 7 jours)
     const registrationData = {
@@ -239,15 +291,15 @@ export async function registerDriverFCMToken(driverId: string): Promise<boolean>
     };
     localStorage.setItem(`fcm_registered_${driverId}`, JSON.stringify(registrationData));
 
-    toast.success('Notifications activées ! 🔔');
+    toast.success('Notifications activées avec succès ! 🔔');
 
     // 4. Configurer l'écoute des notifications foreground
     setupDriverForegroundListener();
 
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ [FCM] Erreur enregistrement:', error);
-    toast.error('Erreur activation notifications');
+    toast.error('Erreur: ' + (error.message || 'Activation des notifications impossible'));
     return false;
   }
 }
