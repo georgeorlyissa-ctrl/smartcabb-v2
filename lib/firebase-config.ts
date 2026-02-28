@@ -8,19 +8,20 @@
  * ⚠️ CHARGEMENT DYNAMIQUE : Firebase est chargé de manière asynchrone
  * pour éviter les erreurs de build SSR
  * 
- * @version 3.0.0 - Utilisation des packages npm
- * @date 2026-01-27
+ * @version 3.1.0 - Configuration unifiée avec fcm-driver
+ * @date 2026-02-28
  */
 
 // 🔑 Configuration Firebase SmartCabb (Production)
+// ⚠️ UNIFIÉE avec /lib/fcm-driver.tsx pour éviter les conflits
 const firebaseConfig = {
-  apiKey: "AIzaSyAm6Eu3AW3obxlxi-4Z-ToBr50qtvEnzRI",
-  authDomain: "smartcabb-bed00.firebaseapp.com",
-  projectId: "smartcabb-bed00",
-  storageBucket: "smartcabb-bed00.firebasestorage.app",
-  messagingSenderId: "855559530237",
-  appId: "1:855559530237:web:5ea0fa4232bb08196f4094",
-  measurementId: "G-8QY9ZYGC7B"
+  apiKey: "AIzaSyBaQo0fy37kfP5qLCsEHhVY44Ah3PpCbEw",
+  authDomain: "smartcabb.firebaseapp.com",
+  projectId: "smartcabb",
+  storageBucket: "smartcabb.firebasestorage.app",
+  messagingSenderId: "396618257088",
+  appId: "1:396618257088:web:f97c8aa8a239072ec82cf7",
+  measurementId: "G-PQZC05N17H"
 };
 
 // Types Firebase (définis localement pour éviter import sync)
