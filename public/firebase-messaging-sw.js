@@ -6,13 +6,18 @@
  * 
  * ⚠️ IMPORTANT : Ce fichier DOIT être à la racine /public/
  * 
- * @version 2.0.0 - Avec configuration dynamique sécurisée
- * @date 2026-02-21
+ * @version 2.1.0 - Avec gestion erreurs et fallback
+ * @date 2026-02-28
  */
 
-// Import Firebase scripts
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+// Import Firebase scripts avec gestion d'erreur
+try {
+  importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
+  importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+  console.log('[Service Worker] Scripts Firebase chargés');
+} catch (error) {
+  console.error('[Service Worker] Erreur chargement Firebase:', error);
+}
 
 // 🔑 Configuration Firebase - Sera injectée au runtime depuis l'app
 let firebaseConfig = null;
