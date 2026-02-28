@@ -4,14 +4,15 @@
  * ⚠️ VERSION HYBRID : Client génère token + Backend envoie notifications
  * Config Firebase publique nécessaire pour Web Push (Safe)
  * 
- * @version 4.1.0 - PRODUCTION READY (Firebase npm)
- * @date 2026-02-26
+ * @version 4.2.0 - PRODUCTION READY (Imports dynamiques)
+ * @date 2026-02-28
  */
 
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { toast } from './toast';
-import { initializeApp, getApp, getApps } from 'firebase/app';
-import { getMessaging, getToken, onMessage, type Messaging } from 'firebase/messaging';
+
+// Types Firebase
+type Messaging = any;
 
 // 🔥 CONFIG FIREBASE PUBLIQUE (Safe - nécessaire pour Web Push)
 // Note: Cette config est publique et DOIT être côté client pour les notifications push
@@ -30,6 +31,36 @@ const VAPID_KEY = "BDHm-w7od6Q7PP8y_vCv3TxuQiocDUyH3X6sg1zxQfm_KhCSFJnHtcVP4yekI
 
 // Instance Firebase (singleton)
 let messaging: Messaging | null = null;
+let firebaseModules: any = null;
+
+/**
+ * Charger les modules Firebase dynamiquement (évite erreurs build)
+ */
+async function loadFirebaseModules() {
+  if (firebaseModules) return firebaseModules;
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const [appModule, messagingModule] = await Promise.all([
+      import('firebase/app'),
+      import('firebase/messaging')
+    ]);
+
+    firebaseModules = {
+      initializeApp: appModule.initializeApp,
+      getApp: appModule.getApp,
+      getApps: appModule.getApps,
+      getMessaging: messagingModule.getMessaging,
+      getToken: messagingModule.getToken,
+      onMessage: messagingModule.onMessage
+    };
+
+    return firebaseModules;
+  } catch (error) {
+    console.error('❌ Erreur chargement Firebase:', error);
+    return null;
+  }
+}
 
 /**
  * 🔥 Initialiser Firebase Messaging
@@ -41,6 +72,13 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
     // Vérifier si on est dans un environnement browser
     if (typeof window === 'undefined') {
       console.warn('⚠️ Firebase Messaging nécessite un environnement browser');
+      return null;
+    }
+
+    // Charger les modules Firebase
+    const modules = await loadFirebaseModules();
+    if (!modules) {
+      console.warn('⚠️ Firebase modules non disponibles');
       return null;
     }
 
@@ -70,16 +108,16 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
 
     // 2️⃣ Initialiser Firebase App (singleton)
     let app;
-    if (getApps().length === 0) {
-      app = initializeApp(firebaseConfig);
+    if (modules.getApps().length === 0) {
+      app = modules.initializeApp(firebaseConfig);
       console.log('✅ Firebase App initialisée');
     } else {
-      app = getApp();
+      app = modules.getApp();
       console.log('✅ Firebase App déjà initialisée');
     }
 
     // 3️⃣ Initialiser Messaging avec le Service Worker
-    messaging = getMessaging(app);
+    messaging = modules.getMessaging(app);
     console.log('✅ Firebase Messaging initialisé');
 
     return messaging;
@@ -113,6 +151,13 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
       console.error('❌ Firebase Messaging non disponible');
       return null;
     }
+
+    // Charger les modules
+    const modules = await loadFirebaseModules();
+    if (!modules) {
+      console.error('❌ Firebase modules non disponibles');
+      return null;
+    }
     
     // Envoyer la config au Service Worker dès maintenant
     if ('serviceWorker' in navigator) {
@@ -129,7 +174,7 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
 
     // Obtenir le token FCM
     console.log('🔑 Génération du token FCM...');
-    const token = await getToken(messagingInstance, { vapidKey: VAPID_KEY });
+    const token = await modules.getToken(messagingInstance, { vapidKey: VAPID_KEY });
 
     if (token) {
       console.log('✅ Token FCM obtenu:', token.substring(0, 20) + '...');
@@ -215,9 +260,12 @@ async function setupDriverForegroundListener() {
     const messagingInstance = await initializeFirebaseMessaging();
     if (!messagingInstance) return;
 
+    const modules = await loadFirebaseModules();
+    if (!modules) return;
+
     console.log('👂 [FCM] Écoute des notifications foreground...');
 
-    onMessage(messagingInstance, (payload: any) => {
+    modules.onMessage(messagingInstance, (payload: any) => {
       console.log('📨 [FCM] Notification reçue (foreground):', payload);
 
       const notification = payload.notification;
@@ -240,7 +288,7 @@ async function setupDriverForegroundListener() {
 
         // Son de notification
         try {
-          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZTA0OVqzn77BdGAg+ltryxnMpBSh+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBQ==');
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZTA0OVqzn77BdGAg+ltryxnMpBSh+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBSd8yvHajT0KFl237OeiUhELTKXh8bllHAU2jdXzzn0vBQ==');
           audio.play().catch(() => {});
         } catch (e) {
           // Son non disponible
