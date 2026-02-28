@@ -294,10 +294,20 @@ export function EstimateScreen() {
 
   const handleBookRide = async () => {
     console.log("🚨🚨🚨 BOUTON CLIQUÉ ! 🚨🚨🚨");
+    console.log("🔍 State actuel:", {
+      userId: state.currentUser?.id,
+      userName: state.currentUser?.name,
+      userPhone: state.currentUser?.phone,
+      pickup,
+      destination,
+      selectedVehicle,
+      finalPrice
+    });
     
     const selectedVehicleData = vehicles.find(v => v.id === selectedVehicle);
     if (!selectedVehicleData) {
       console.error('❌ EstimateScreen: Aucun véhicule sélectionné');
+      alert('❌ Aucun véhicule sélectionné');
       return;
     }
 
