@@ -14,7 +14,7 @@
 
 // 🔑 Configuration Firebase SmartCabb (Production)
 const firebaseConfig = {
-  apiKey: import.meta?.env?.VITE_FIREBASE_API_KEY || "AIzaSyAm6Eu3AW3obxlxi-4Z-ToBr50qtvEnzRI",
+  apiKey: "AIzaSyAm6Eu3AW3obxlxi-4Z-ToBr50qtvEnzRI",
   authDomain: "smartcabb-bed00.firebaseapp.com",
   projectId: "smartcabb-bed00",
   storageBucket: "smartcabb-bed00.firebasestorage.app",
@@ -94,6 +94,13 @@ export async function initializeFirebase(): Promise<FirebaseApp | null> {
   }
 
   try {
+    // 🔍 LOG DE DÉBOGAGE : Vérifier la clé API
+    console.log('🔑 Configuration Firebase:', {
+      apiKey: firebaseConfig.apiKey.substring(0, 20) + '...',
+      projectId: firebaseConfig.projectId,
+      messagingSenderId: firebaseConfig.messagingSenderId
+    });
+    
     // Charger les modules
     const modules = await loadFirebaseModules();
     if (!modules) {
