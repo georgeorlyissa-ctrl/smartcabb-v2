@@ -44,7 +44,31 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
       return null;
     }
 
-    // Initialiser Firebase App (singleton)
+    // 1️⃣ Enregistrer le Service Worker AVANT d'initialiser Firebase
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+          scope: '/'
+        });
+        console.log('✅ Service Worker enregistré:', registration.scope);
+        
+        // Attendre que le Service Worker soit activé
+        if (registration.installing) {
+          await new Promise<void>((resolve) => {
+            registration.installing!.addEventListener('statechange', (e) => {
+              if ((e.target as ServiceWorker).state === 'activated') {
+                resolve();
+              }
+            });
+          });
+        }
+      } catch (swError) {
+        console.error('❌ Erreur enregistrement Service Worker:', swError);
+        // Continuer quand même pour les notifications foreground
+      }
+    }
+
+    // 2️⃣ Initialiser Firebase App (singleton)
     let app;
     if (getApps().length === 0) {
       app = initializeApp(firebaseConfig);
@@ -54,7 +78,7 @@ async function initializeFirebaseMessaging(): Promise<Messaging | null> {
       console.log('✅ Firebase App déjà initialisée');
     }
 
-    // Initialiser Messaging
+    // 3️⃣ Initialiser Messaging avec le Service Worker
     messaging = getMessaging(app);
     console.log('✅ Firebase Messaging initialisé');
 
@@ -88,6 +112,19 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
     if (!messagingInstance) {
       console.error('❌ Firebase Messaging non disponible');
       return null;
+    }
+    
+    // Envoyer la config au Service Worker dès maintenant
+    if ('serviceWorker' in navigator) {
+      // Attendre que le SW soit prêt
+      const registration = await navigator.serviceWorker.ready;
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'INIT_FIREBASE',
+          config: firebaseConfig
+        });
+        console.log('✅ [FCM] Config Firebase envoyée au Service Worker');
+      }
     }
 
     // Obtenir le token FCM
