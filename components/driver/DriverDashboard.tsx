@@ -33,7 +33,8 @@ import {
 import { RideNotificationSound } from './RideNotificationSound';
 
 // ✅ NOUVEAU : Import du système FCM pour notifications push
-import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver.tsx';
+import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver';
+import { FCMDiagnostic } from './FCMDiagnostic';
 
 // Icônes SVG inline
 const Power = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -155,6 +156,9 @@ async function updateBalanceInBackend(
 export function DriverDashboard() {
   const { state, setCurrentScreen, updateDriver, setCurrentDriver, setCurrentView, setCurrentRide, updateRide, clearCurrentRide } = useAppState();
   const driver = state.currentDriver; // Récupérer le conducteur actuel
+  
+  // 🔥 State pour afficher le diagnostic FCM (dev/debug)
+  const [showFCMDiagnostic, setShowFCMDiagnostic] = useState(false);
   
   // ✅ FIX: Construire l'objet vehicleInfo depuis les champs individuels du driver
   const vehicleInfo = useMemo(() => {
@@ -1911,14 +1915,27 @@ export function DriverDashboard() {
               </p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentScreen('driver-settings')}
-            className="w-10 h-10 flex-shrink-0 ml-2"
-          >
-            <Settings className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            {/* 🔥 Bouton Diagnostic FCM (dev/debug) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowFCMDiagnostic(!showFCMDiagnostic)}
+              className={`w-10 h-10 flex-shrink-0 ${showFCMDiagnostic ? 'bg-orange-100 text-orange-600' : ''}`}
+              title="Diagnostic FCM"
+            >
+              <span className="text-lg">🔥</span>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentScreen('driver-settings')}
+              className="w-10 h-10 flex-shrink-0 ml-2"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -2708,6 +2725,14 @@ export function DriverDashboard() {
 
       {/* 🔔 SYSTÈME DE NOTIFICATIONS SONORES - Joue le son + message vocal automatiquement */}
       <RideNotificationSound shouldPlay={showRideRequest} rideDetails={rideRequest} />
+      
+      {/* 🔥 DIAGNOSTIC FCM - Seulement si activé */}
+      {showFCMDiagnostic && driver?.id && (
+        <FCMDiagnostic 
+          driverId={driver.id} 
+          driverName={driver.name || driver.full_name}
+        />
+      )}
     </motion.div>
   );
 }
