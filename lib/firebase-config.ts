@@ -14,7 +14,7 @@
 
 // 🔑 Configuration Firebase SmartCabb (Production)
 const firebaseConfig = {
-  apiKey: import.meta?.env?.VITE_FIREBASE_API_KEY || "",
+  apiKey: import.meta?.env?.VITE_FIREBASE_API_KEY || "AIzaSyAm6Eu3AW3obxlxi-4Z-ToBr50qtvEnzRI",
   authDomain: "smartcabb-bed00.firebaseapp.com",
   projectId: "smartcabb-bed00",
   storageBucket: "smartcabb-bed00.firebasestorage.app",
@@ -50,17 +50,7 @@ async function loadFirebaseModules() {
   try {
     console.log('📦 Chargement des modules Firebase...');
     
-    // ⚠️ DÉSACTIVÉ COMPLÈTEMENT : Firebase imports causent des erreurs de build
-    // Les packages firebase/* ne sont pas disponibles dans l'environnement de build
-    console.warn('⚠️ Firebase DÉSACTIVÉ - packages non disponibles dans cet environnement');
-    console.warn('⚠️ Les notifications push ne fonctionneront qu\'après configuration Firebase en production');
-    
-    // Retourner null pour que l'app continue sans Firebase
-    return null;
-    
-    /* 
-    // ✅ CODE ORIGINAL FIREBASE (À RÉACTIVER EN PRODUCTION SI BESOIN) :
-    
+    // Charger les modules Firebase dynamiquement
     const [appModule, analyticsModule, messagingModule] = await Promise.all([
       import('firebase/app').catch(() => null),
       import('firebase/analytics').catch(() => null),
@@ -82,7 +72,6 @@ async function loadFirebaseModules() {
 
     console.log('✅ Modules Firebase chargés avec succès');
     return firebaseModules;
-    */
   } catch (error) {
     console.error('❌ Erreur chargement Firebase:', error);
     console.warn('⚠️ Firebase non disponible - notifications push désactivées');
