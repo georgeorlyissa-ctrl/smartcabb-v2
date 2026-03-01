@@ -385,3 +385,82 @@ export async function diagnoseFCM(): Promise<{
     return result;
   }
 }
+
+/**
+ * 🎫 Enregistrer le token FCM d'un conducteur
+ * Wrapper pour faciliter l'utilisation depuis les composants
+ */
+export async function registerDriverFCMToken(driverId: string): Promise<boolean> {
+  try {
+    console.log(`📝 Enregistrement FCM pour le conducteur ${driverId}...`);
+    
+    // Obtenir le token FCM
+    const token = await getFCMToken();
+    if (!token) {
+      console.error('❌ Impossible d\'obtenir le token FCM');
+      return false;
+    }
+
+    // Sauvegarder sur le serveur
+    const saved = await saveFCMToken(driverId, token);
+    if (!saved) {
+      console.error('❌ Impossible de sauvegarder le token FCM');
+      return false;
+    }
+
+    // Sauvegarder localement
+    localStorage.setItem(`fcm_token_${driverId}`, token);
+    localStorage.setItem(`fcm_registered_${driverId}`, 'true');
+    localStorage.setItem(`fcm_registered_at_${driverId}`, new Date().toISOString());
+
+    console.log('✅ Token FCM enregistré avec succès pour', driverId);
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'enregistrement FCM:', error);
+    return false;
+  }
+}
+
+/**
+ * 🔍 Vérifier si un conducteur a un token FCM enregistré (cache local)
+ */
+export function isDriverFCMTokenRegistered(driverId: string): boolean {
+  const registered = localStorage.getItem(`fcm_registered_${driverId}`);
+  const token = localStorage.getItem(`fcm_token_${driverId}`);
+  return registered === 'true' && !!token;
+}
+
+/**
+ * 🔄 Forcer le rafraîchissement du token FCM d'un conducteur
+ */
+export async function forceRefreshDriverFCMToken(driverId: string): Promise<boolean> {
+  try {
+    console.log(`🔄 Rafraîchissement forcé du token FCM pour ${driverId}...`);
+    
+    // Supprimer le cache local
+    localStorage.removeItem(`fcm_token_${driverId}`);
+    localStorage.removeItem(`fcm_registered_${driverId}`);
+    localStorage.removeItem(`fcm_registered_at_${driverId}`);
+
+    // Réenregistrer
+    return await registerDriverFCMToken(driverId);
+  } catch (error) {
+    console.error('❌ Erreur lors du rafraîchissement du token FCM:', error);
+    return false;
+  }
+}
+
+/**
+ * 📊 Obtenir les informations de token FCM d'un conducteur
+ */
+export function getDriverFCMTokenInfo(driverId: string): {
+  token: string | null;
+  registered: boolean;
+  registeredAt: string | null;
+} {
+  return {
+    token: localStorage.getItem(`fcm_token_${driverId}`),
+    registered: localStorage.getItem(`fcm_registered_${driverId}`) === 'true',
+    registeredAt: localStorage.getItem(`fcm_registered_at_${driverId}`)
+  };
+}
