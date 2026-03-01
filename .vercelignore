@@ -1,13 +1,7 @@
-# Ignorer les fichiers backend Supabase (Deno)
-supabase/
-supabase/**
-supabase/functions/**
+# Backend Supabase (Deno)
+supabase/functions/server/
 supabase/functions/server/**
 
-# Ignorer la documentation temporaire
+# Documentation
 *.md
 !README.md
-
-# Ignorer les caches
-.cache/
-*.log
