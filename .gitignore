@@ -3,9 +3,6 @@ node_modules/
 .pnp
 .pnp.js
 
-# Testing
-/coverage
-
 # Production
 /dist
 /build
@@ -33,7 +30,7 @@ pnpm-debug.log*
 # Vercel
 .vercel
 
-# Temporary documentation files (do not deploy)
+# Temporary documentation files
 FIXED_BUILD_ERROR.md
 FCM_EXPORTS_FIXED.md
 FCM_FIXED_COMPLETE.md
