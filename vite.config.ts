@@ -11,6 +11,13 @@ function resolveSupabaseInfo() {
       if (source.includes('utils/supabase/info') && !source.endsWith('.tsx')) {
         return path.resolve(__dirname, './utils/supabase/info.tsx');
       }
+      
+      // ✅ FIX: Ignorer complètement les imports de kv_store.tsx (fichier backend)
+      if (source.includes('kv_store.tsx') || source.includes('kv_store')) {
+        console.warn(`⚠️ Ignoré import backend: ${source}`);
+        return { id: source, external: true };
+      }
+      
       return null;
     }
   };
@@ -68,6 +75,8 @@ export default defineConfig({
         'npm:hono', // ✅ Exclure les imports Deno backend
         /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
         /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
+        /kv_store\.tsx$/, // ✅ FIX: Exclure kv_store.tsx (fichier backend protégé)
+        /\/kv_store\.tsx$/, // ✅ FIX: Exclure ./kv_store.tsx
       ],
     },
   },
