@@ -14,14 +14,15 @@
 
 // 🔑 Configuration Firebase SmartCabb (Production)
 // ⚠️ UNIFIÉE avec /lib/fcm-driver.tsx pour éviter les conflits
+// 🔐 IMPORTANT : Ces valeurs doivent correspondre exactement à votre projet Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyBaQo0fy37kfP5qLCsEHhVY44Ah3PpCbEw",
-  authDomain: "smartcabb.firebaseapp.com",
-  projectId: "smartcabb",
-  storageBucket: "smartcabb.firebasestorage.app",
-  messagingSenderId: "396618257088",
-  appId: "1:396618257088:web:f97c8aa8a239072ec82cf7",
-  measurementId: "G-PQZC05N17H"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC0Kq6QgnfVna4bEWUj0J3VknU0ZHMAaWU",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "smartcabb-bed00.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "smartcabb-bed00",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "smartcabb-bed00.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "855559530237",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:855559530237:web:5ea0fa4232bb08196f4094",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-8QY9ZYGC7B"
 };
 
 // Types Firebase (définis localement pour éviter import sync)
