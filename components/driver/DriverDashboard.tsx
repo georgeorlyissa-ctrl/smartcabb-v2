@@ -1,3 +1,19 @@
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion } from '../../lib/motion'; // ✅ FIX: Utiliser l'implémentation locale
+import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
+import { Card } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { useAppState } from '../../hooks/useAppState';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { stopAllNotifications } from '../../lib/notification-sound'; // ✅ Import pour arrêter la sonnerie
+// import { SoundNotification } from '../SoundNotification'; // DÉSACTIVÉ: Remplacé par RideNotification
+import { RideTimer } from '../RideTimer';
+import { EmergencyAlert } from '../EmergencyAlert';
+import { CommissionSettings } from '../CommissionSettings';
+import { DriverBalanceManager } from './DriverBalanceManager';
 import { supabase } from '../../lib/supabase';
 import { VEHICLE_PRICING, isDayTime, VehicleCategory } from '../../lib/pricing';
 import { getMinimumCreditForCategory } from '../../lib/pricing-config';
