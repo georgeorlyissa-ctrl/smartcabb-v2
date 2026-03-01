@@ -39,6 +39,9 @@ export default defineConfig({
       external: [
         'react-day-picker', // ✅ Externaliser react-day-picker pour éviter l'erreur path.resolve
         'framer-motion', // ✅ Externaliser framer-motion - n'est plus utilisé
+        'npm:hono', // ✅ Exclure les imports Deno backend
+        /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
+        /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
       ],
     },
   },
