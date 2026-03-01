@@ -12,8 +12,29 @@ function resolveSupabaseInfo() {
         return path.resolve(__dirname, './utils/supabase/info.tsx');
       }
       
-      // ✅ FIX: Ignorer complètement les imports de kv_store.tsx (fichier backend)
-      if (source.includes('kv_store.tsx') || source.includes('kv_store')) {
+      // ✅ FIX: Ignorer complètement les imports de fichiers backend
+      const backendFiles = [
+        'kv_store.tsx',
+        'kv_store.ts',
+        'firebase-admin.ts',
+        'firebase-admin.tsx',
+        'fcm-routes.ts',
+        'admin_users_routes.ts',
+        'kv-wrapper.ts',
+        'phone-utils.ts',
+        'uuid-validator.ts',
+        'email-validation.ts',
+      ];
+      
+      for (const backendFile of backendFiles) {
+        if (source.includes(backendFile) || source.endsWith(backendFile)) {
+          console.warn(`⚠️ Ignoré import backend: ${source}`);
+          return { id: source, external: true };
+        }
+      }
+      
+      // Ignorer tous les imports du dossier supabase/functions/server/
+      if (source.includes('supabase/functions/server/')) {
         console.warn(`⚠️ Ignoré import backend: ${source}`);
         return { id: source, external: true };
       }
@@ -74,9 +95,15 @@ export default defineConfig({
         'framer-motion', // ✅ Externaliser framer-motion - n'est plus utilisé
         'npm:hono', // ✅ Exclure les imports Deno backend
         /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
-        /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
-        /kv_store\.tsx$/, // ✅ FIX: Exclure kv_store.tsx (fichier backend protégé)
-        /\/kv_store\.tsx$/, // ✅ FIX: Exclure ./kv_store.tsx
+        /^supabase\\/functions\\/server\\//, // ✅ Exclure tous les fichiers du serveur backend
+        /kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts
+        /firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin.tsx/ts
+        /fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes.tsx/ts
+        /admin_users_routes\.(tsx|ts)$/, // ✅ FIX: Exclure admin_users_routes.tsx/ts
+        /kv-wrapper\.(tsx|ts)$/, // ✅ FIX: Exclure kv-wrapper.tsx/ts
+        /phone-utils\.(tsx|ts)$/, // ✅ FIX: Exclure phone-utils.tsx/ts
+        /uuid-validator\.(tsx|ts)$/, // ✅ FIX: Exclure uuid-validator.tsx/ts
+        /email-validation\.(tsx|ts)$/, // ✅ FIX: Exclure email-validation.tsx/ts
       ],
     },
   },
