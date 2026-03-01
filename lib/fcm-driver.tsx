@@ -207,17 +207,20 @@ async function getDriverFCMTokenFromBrowser(): Promise<string | null> {
       // En dev (Figma Make), le token peut ne pas être généré mais on peut quand même continuer
       if (window.location.origin === 'null' || window.location.protocol === 'null:') {
         console.warn('⚠️ [FCM] Mode dev - Génération d\'un token factice');
-        toast.info('Mode développement - Notifications foreground uniquement');
+        // ✅ FIX: Ne pas afficher de toast car c'est normal en dev
+        console.info('ℹ️ Mode développement - Notifications foreground uniquement');
         // Retourner un token factice pour le dev
         return 'dev-token-' + Date.now();
       }
       
-      toast.error('Erreur lors de la génération du token FCM');
+      // ✅ FIX: Logger seulement, ne pas afficher d'erreur à l'utilisateur
+      console.warn('⚠️ [FCM] Impossible de générer le token - Les notifications push ne fonctionneront pas');
       return null;
     }
   } catch (error: any) {
     console.error('❌ Erreur obtention token FCM:', error);
-    toast.error('Erreur: ' + (error.message || 'Impossible d\'obtenir le token FCM'));
+    // ✅ FIX: Logger seulement, ne pas afficher d'erreur à l'utilisateur
+    console.warn('⚠️ [FCM] Erreur:', error.message || 'Impossible d\'obtenir le token FCM');
     return null;
   }
 }
@@ -233,8 +236,8 @@ export async function registerDriverFCMToken(driverId: string): Promise<boolean>
     const fcmToken = await getDriverFCMTokenFromBrowser();
     
     if (!fcmToken) {
-      console.error('❌ [FCM] Impossible d\'obtenir le token');
-      toast.error('Impossible d\'activer les notifications push');
+      console.warn('⚠️ [FCM] Impossible d\'obtenir le token - Les notifications ne fonctionneront pas');
+      // ✅ FIX: Ne pas afficher d'erreur à l'utilisateur, c'est optionnel
       return false;
     }
 
