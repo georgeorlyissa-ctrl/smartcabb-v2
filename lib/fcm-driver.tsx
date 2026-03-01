@@ -17,13 +17,13 @@ type Messaging = any;
 // 🔥 CONFIG FIREBASE PUBLIQUE (Safe - nécessaire pour Web Push)
 // Note: Cette config est publique et DOIT être côté client pour les notifications push
 const firebaseConfig = {
-  apiKey: "AIzaSyBaQo0fy37kfP5qLCsEHhVY44Ah3PpCbEw",
-  authDomain: "smartcabb.firebaseapp.com",
-  projectId: "smartcabb",
-  storageBucket: "smartcabb.firebasestorage.app",
-  messagingSenderId: "396618257088",
-  appId: "1:396618257088:web:f97c8aa8a239072ec82cf7",
-  measurementId: "G-PQZC05N17H"
+  apiKey: "AIzaSyCBk6dQgnfVnazNEWUjBJ3VknU0ZHMaWWU",
+  authDomain: "smartcabb-bed00.firebaseapp.com",
+  projectId: "smartcabb-bed00",
+  storageBucket: "smartcabb-bed00.firebasestorage.app",
+  messagingSenderId: "855659530237",
+  appId: "1:855659530237:web:5ea0fa4232bb08194f4094",
+  measurementId: "G-0QY92VGC70"
 };
 
 // VAPID Key publique (Safe - utilisée uniquement côté client)
