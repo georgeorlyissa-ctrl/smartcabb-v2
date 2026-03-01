@@ -6,7 +6,11 @@ import path from 'path';
 export default defineConfig({
   plugins: [
     react({
-      exclude: /supabase\/functions\/server/,
+      exclude: [
+        /supabase\/functions\/server/,
+        /supabase\/functions/,
+        /\.md$/,
+      ],
     })
   ],
   
