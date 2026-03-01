@@ -1,0 +1,12 @@
+# Ignorer les fichiers backend Supabase (Deno) lors du build frontend (Vite)
+supabase/functions/server/**
+supabase/functions/**/*.ts
+supabase/functions/**/*.tsx
+
+# Ignorer les fichiers de documentation temporaires
+*.md
+!README.md
+
+# Ignorer les caches
+.cache/
+*.log
