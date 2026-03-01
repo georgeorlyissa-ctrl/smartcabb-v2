@@ -2,6 +2,20 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+// ✅ Plugin personnalisé pour résoudre utils/supabase/info
+function resolveSupabaseInfo() {
+  return {
+    name: 'resolve-supabase-info',
+    resolveId(source: string) {
+      // Résoudre tous les imports de utils/supabase/info (avec ou sans ../)
+      if (source.includes('utils/supabase/info') && !source.endsWith('.tsx')) {
+        return path.resolve(__dirname, './utils/supabase/info.tsx');
+      }
+      return null;
+    }
+  };
+}
+
 // Configuration pour FIGMA MAKE (utilise esm.sh CDN)
 export default defineConfig({
   plugins: [
@@ -11,7 +25,8 @@ export default defineConfig({
         /supabase\/functions/,
         /\.md$/,
       ],
-    })
+    }),
+    resolveSupabaseInfo(), // ✅ NOUVEAU: Plugin pour résoudre utils/supabase/info
   ],
   
   resolve: {
@@ -28,6 +43,13 @@ export default defineConfig({
       
       // ✅ NOUVEAU: Alias pour lucide-react - Redirige vers nos icônes locales
       'lucide-react': path.resolve(__dirname, './lib/icons.tsx'),
+      
+      // ✅ FIX CRITIQUE: Alias pour utils/supabase/info (avec ET sans extension)
+      '../utils/supabase/info': path.resolve(__dirname, './utils/supabase/info.tsx'),
+      '../../utils/supabase/info': path.resolve(__dirname, './utils/supabase/info.tsx'),
+      
+      // ✅ FIX: Alias pour utils - permet d'importer sans extension
+      '@': path.resolve(__dirname, './'),
     },
   },
   
