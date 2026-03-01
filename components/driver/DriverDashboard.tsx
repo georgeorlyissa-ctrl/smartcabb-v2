@@ -1,21 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion } from '../../lib/motion'; // ✅ FIX: Utiliser l'implémentation locale
-import { Button } from '../ui/button';
-import { Switch } from '../ui/switch';
-import { Card } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { useAppState } from '../../hooks/useAppState';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { stopAllNotifications } from '../../lib/notification-sound'; // ✅ Import pour arrêter la sonnerie
-// import { SoundNotification } from '../SoundNotification'; // DÉSACTIVÉ: Remplacé par RideNotification
-import { RideTimer } from '../RideTimer';
-import { EmergencyAlert } from '../EmergencyAlert';
-import { CommissionSettings } from '../CommissionSettings';
-import { DriverBalanceManager } from './DriverBalanceManager';
 import { supabase } from '../../lib/supabase';
 import { VEHICLE_PRICING, isDayTime, VehicleCategory } from '../../lib/pricing';
+import { getMinimumCreditForCategory } from '../../lib/pricing-config';
 import { useDriverLocation, isNearPickupLocation, calculateDistance } from '../../lib/gps-utils';
 import { reverseGeocodeWithCache } from '../../lib/geocoding';
 import { getVehicleDisplayName } from '../../lib/vehicle-helpers';
@@ -253,13 +238,15 @@ export function DriverDashboard() {
         
         if (success) {
           console.log('✅ Token FCM enregistré avec succès ! Les notifications push fonctionneront.');
+          // ✅ FIX: Afficher le message de succès seulement si vraiment réussi
           toast.success('Notifications activées ! Vous recevrez les demandes de course.');
         } else {
-          console.warn('⚠️ Impossible d\'enregistrer le token FCM. Les notifications ne fonctionneront pas.');
-          // Ne pas afficher de toast d'erreur car ce n'est pas bloquant
+          console.warn('⚠️ Impossible d\'enregistrer le token FCM. L\'application fonctionnera quand même.');
+          // ✅ FIX: Ne pas afficher de toast d'erreur car ce n'est pas bloquant
         }
       } catch (error) {
         console.error('❌ Erreur enregistrement token FCM:', error);
+        // ✅ FIX: Ne pas afficher d'erreur à l'utilisateur
       }
     };
     
@@ -574,17 +561,6 @@ export function DriverDashboard() {
       console.error('Erreur déconnexion:', error);
       toast.error('Erreur lors de la déconnexion');
     }
-  };
-
-  // ✅ Helper pour obtenir le crédit minimum
-  const getMinimumCreditForCategory = (category: VehicleCategory): number => {
-    const minimums: Record<VehicleCategory, number> = {
-      'smart_standard': 20000,
-      'smart_confort': 25000,
-      'smart_plus': 30000,
-      'smart_business': 35000
-    };
-    return minimums[category] || 20000;
   };
 
   if (!driver) {
