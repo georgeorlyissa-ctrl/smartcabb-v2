@@ -32,7 +32,7 @@ import {
 } from '../../lib/sms-service';
 import { RideNotificationSound } from './RideNotificationSound';
 import { RideNotification } from './RideNotification';
-import { registerDriverFCMToken } from '../../lib/fcm-driver';
+import { registerDriverFCMToken } from '../../lib/driver-fcm';
 import { FCMDiagnostic } from './FCMDiagnostic';
 
 // ✅ Helper inliné pour éviter les problèmes de build Rollup
