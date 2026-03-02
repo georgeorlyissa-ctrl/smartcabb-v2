@@ -188,6 +188,42 @@ export function FCMDiagnostic({ driverId, driverName }: FCMDiagnosticProps) {
     }
   };
 
+  // 🔥 NOUVEAU : Tester une VRAIE notification push depuis le backend
+  const handleTestPushFromBackend = async () => {
+    setIsLoading(true);
+    addLog('🚀 Test de notification PUSH depuis le serveur...', 'info');
+    
+    try {
+      // Appeler le backend pour envoyer une vraie notification FCM
+      const response = await fetch(
+        `https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/test-notification`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg0MjcyODUsImV4cCI6MjA0NDAwMzI4NX0.IKXMXj9W5IHPcJ7K0X04M0yxnhkWXt8qfMLwODYC9yE'
+          },
+          body: JSON.stringify({ userId: driverId })
+        }
+      );
+
+      const result = await response.json();
+      
+      if (result.success) {
+        addLog(`✅ Notification PUSH envoyée depuis le serveur ! ID: ${result.messageId || 'N/A'}`, 'success');
+        toast.success('Notification PUSH envoyée avec succès ! 🎉');
+      } else {
+        addLog(`❌ Échec: ${result.error}`, 'error');
+        toast.error(`Échec: ${result.error}`);
+      }
+    } catch (error: any) {
+      addLog(`❌ Erreur serveur: ${error.message}`, 'error');
+      toast.error('Erreur lors du test push');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Effacer les logs
   const handleClearLogs = () => {
     setLogs([]);
@@ -277,6 +313,14 @@ export function FCMDiagnostic({ driverId, driverName }: FCMDiagnosticProps) {
             className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 disabled:bg-gray-300 text-sm font-medium"
           >
             🔔 Test Notification
+          </button>
+          
+          <button
+            onClick={handleTestPushFromBackend}
+            disabled={isLoading}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:bg-gray-300 text-sm font-medium"
+          >
+            🚀 Test PUSH Backend
           </button>
         </div>
 
