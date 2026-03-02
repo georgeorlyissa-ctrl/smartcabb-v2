@@ -44,6 +44,11 @@ export function ClientsListScreen({ onBack }: ClientsListScreenProps) {
   const { getPassengers, rides, loading, refresh } = useSupabaseData();
   const passengers = getPassengers();
   
+  // ✅ DEBUG: Logger les passagers reçus
+  useEffect(() => {
+    console.log('🔍 [ClientsListScreen] Passagers reçus:', passengers?.length || 0, passengers);
+  }, [passengers]);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'rides' | 'date'>('name');
   const [selectedPassenger, setSelectedPassenger] = useState<Profile | null>(null);
