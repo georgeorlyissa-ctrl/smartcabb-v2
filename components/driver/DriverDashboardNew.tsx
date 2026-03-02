@@ -76,14 +76,14 @@ interface Driver {
   isApproved: boolean;
   rating: number;
   totalRides: number;
-  vehicle: {
-    make: string;
-    model: string;
-    year: string;
-    color: string;
-    plate: string;
-    category: VehicleCategory;
-    seats: number;
+  vehicle?: {
+    make?: string;
+    model?: string;
+    year?: string;
+    color?: string;
+    plate?: string;
+    category?: VehicleCategory;
+    seats?: number;
   };
   currentLocation?: {
     latitude: number;
@@ -161,7 +161,7 @@ export function DriverDashboardNew() {
     if (!driver) return;
 
     // Vérifier le solde de crédit minimum
-    const minimumCredit = getMinimumCreditForCategory(driver.vehicle.category);
+    const minimumCredit = getMinimumCreditForCategory(driver.vehicle?.category || 'smart_standard');
     
     if (!isOnline && (driver.balance || 0) < minimumCredit) {
       toast.error(`❌ Solde insuffisant ! Vous devez avoir au moins ${minimumCredit.toLocaleString('fr-FR')} CDF pour vous mettre en ligne.`);
@@ -265,7 +265,7 @@ export function DriverDashboardNew() {
         {activeTab === 'home' && (
           <>
             {/* Alerte si solde faible */}
-            {(driver.balance || 0) < getMinimumCreditForCategory(driver.vehicle.category) && (
+            {(driver.balance || 0) < getMinimumCreditForCategory(driver.vehicle?.category || 'smart_standard') && (
               <Card className="p-4 bg-orange-50 border-orange-200">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
@@ -323,21 +323,21 @@ export function DriverDashboardNew() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Marque / Modèle</span>
-                  <span className="font-medium">{driver.vehicle.make} {driver.vehicle.model}</span>
+                  <span className="font-medium">{driver.vehicle?.make} {driver.vehicle?.model}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Plaque</span>
-                  <span className="font-medium font-mono">{driver.vehicle.plate}</span>
+                  <span className="font-medium font-mono">{driver.vehicle?.plate}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Catégorie</span>
                   <Badge className="bg-purple-100 text-purple-700">
-                    {getVehicleDisplayName(driver.vehicle.category)}
+                    {getVehicleDisplayName(driver.vehicle?.category || 'smart_standard')}
                   </Badge>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Couleur</span>
-                  <span className="font-medium">{driver.vehicle.color}</span>
+                  <span className="font-medium">{driver.vehicle?.color}</span>
                 </div>
               </div>
             </Card>
