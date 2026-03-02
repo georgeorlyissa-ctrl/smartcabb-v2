@@ -95,7 +95,7 @@ export default defineConfig({
         'framer-motion', // ✅ Externaliser framer-motion - n'est plus utilisé
         'npm:hono', // ✅ Exclure les imports Deno backend
         /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
-        /^supabase\\/functions\\/server\\//, // ✅ Exclure tous les fichiers du serveur backend
+        /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
         /kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts
         /firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin.tsx/ts
         /fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes.tsx/ts
