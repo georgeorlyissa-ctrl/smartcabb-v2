@@ -300,6 +300,11 @@ export function useSupabaseData() {
       setPromoCodes(promoCodesData);
       setSettings(settingsData);
 
+      // ✅ DEBUG: Logger les données avant enrichissement
+      console.log('🔍 DEBUG - Données brutes reçues:');
+      console.log('  - driversData:', driversData.length, driversData);
+      console.log('  - profilesData:', profilesData.length);
+
       // Enrichir les drivers avec les profils et véhicules
       // NOTE: Les drivers du KV store ont déjà les infos du véhicule intégrées
       const enrichedDrivers: EnrichedDriver[] = driversData.map(driver => {
@@ -330,7 +335,13 @@ export function useSupabaseData() {
         };
       });
 
+      // ✅ DEBUG: Logger les drivers enrichis
+      console.log('🔍 DEBUG - Drivers enrichis:', enrichedDrivers.length, enrichedDrivers);
+
       setDrivers(enrichedDrivers);
+      
+      // ✅ DEBUG: Vérifier après setDrivers
+      console.log('✅ setDrivers appelé avec', enrichedDrivers.length, 'conducteurs');
 
       // Enrichir les rides
       const enrichedRides: EnrichedRide[] = ridesData.map(ride => ({
