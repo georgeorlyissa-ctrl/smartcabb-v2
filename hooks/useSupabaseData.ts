@@ -20,6 +20,18 @@ export type EnrichedDriver = Driver & {
   vehicle_plate?: string;
   vehicle_color?: string;
   vehicle_category?: string;
+  isApproved?: boolean;
+  is_approved?: boolean;
+  total_rides?: number;
+  total_earnings?: number;
+  vehicle?: {
+    make?: string;
+    model?: string;
+    license_plate?: string;
+    color?: string;
+    category?: string;
+  };
+  vehicleType?: string;
 };
 
 // Type enrichi pour les rides
@@ -291,22 +303,30 @@ export function useSupabaseData() {
       // Enrichir les drivers avec les profils et véhicules
       // NOTE: Les drivers du KV store ont déjà les infos du véhicule intégrées
       const enrichedDrivers: EnrichedDriver[] = driversData.map(driver => {
-        const profile = profilesData.find(p => p.id === driver.user_id);
+        // ✅ FIX: Ne pas chercher profile car driver du KV a déjà full_name, email, phone
         
-        // Si le driver vient du KV store, il a déjà vehicle.make, vehicle.model, etc.
-        // Sinon, on cherche dans vehiclesData
-        const vehicle = vehiclesData.find(v => v.id === driver.vehicle_id);
+        // ✅ FIX: Normaliser isApproved (peut être is_approved ou isApproved)
+        const isApproved = driver.isApproved !== undefined 
+          ? driver.isApproved 
+          : driver.is_approved !== undefined 
+            ? driver.is_approved 
+            : false;
         
         return {
           ...driver,
-          full_name: driver.full_name || profile?.full_name || 'Conducteur inconnu',
-          email: driver.email || profile?.email || '',
-          phone: driver.phone || profile?.phone,
-          vehicle_make: driver.vehicle?.make || vehicle?.make,
-          vehicle_model: driver.vehicle?.model || vehicle?.model,
-          vehicle_plate: driver.vehicle?.license_plate || vehicle?.license_plate,
-          vehicle_color: driver.vehicle?.color || vehicle?.color,
-          vehicle_category: driver.vehicle?.category || vehicle?.category,
+          // ✅ Les infos sont déjà dans driver du KV store
+          full_name: driver.full_name || 'Conducteur inconnu',
+          email: driver.email || '',
+          phone: driver.phone,
+          // ✅ Normaliser le champ isApproved
+          isApproved: isApproved,
+          is_approved: isApproved, // ✅ Compatibilité
+          // ✅ Infos véhicule
+          vehicle_make: driver.vehicle?.make || '',
+          vehicle_model: driver.vehicle?.model || '',
+          vehicle_plate: driver.vehicle?.license_plate || '',
+          vehicle_color: driver.vehicle?.color || '',
+          vehicle_category: driver.vehicle?.category || driver.vehicleType || 'standard',
         };
       });
 
