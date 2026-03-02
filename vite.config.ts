@@ -7,33 +7,9 @@ function resolveSupabaseInfo() {
   return {
     name: 'resolve-supabase-info',
     resolveId(source: string) {
-      // Résoudre tous les imports de utils/supabase/info (avec ou sans ../)
+      // Résoudre tous les imports de utils/supabase/info (avec ou sans ../)\
       if (source.includes('utils/supabase/info') && !source.endsWith('.tsx')) {
         return path.resolve(__dirname, './utils/supabase/info.tsx');
-      }
-      
-      // ✅ FIX: Ignorer complètement les imports de fichiers backend
-      const backendFiles = [
-        'kv_store.tsx',
-        'kv_store.ts',
-        'firebase-admin.ts',
-        'firebase-admin.tsx',
-        'fcm-routes.ts',
-        'admin_users_routes.ts',
-        'kv-wrapper.ts',
-        'phone-utils.ts',
-        'uuid-validator.ts',
-        'email-validation.ts',
-      ];
-      
-      for (const backendFile of backendFiles) {
-        // ✅ FIX: Vérifier le nom de fichier exact (pas juste "includes")
-        // Extraire le nom du fichier du chemin
-        const fileName = source.split('/').pop() || '';
-        if (fileName === backendFile) {
-          console.warn(`⚠️ Ignoré import backend: ${source}`);
-          return { id: source, external: true };
-        }
       }
       
       // Ignorer tous les imports du dossier supabase/functions/server/
@@ -98,15 +74,15 @@ export default defineConfig({
         'framer-motion', // ✅ Externaliser framer-motion - n'est plus utilisé
         'npm:hono', // ✅ Exclure les imports Deno backend
         /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
-        /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
-        /\/kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts (avec / avant)
-        /\/firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin.tsx/ts (avec / avant)
-        /\/fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes.tsx/ts (avec / avant)
-        /\/admin_users_routes\.(tsx|ts)$/, // ✅ FIX: Exclure admin_users_routes.tsx/ts (avec / avant)
-        /\/kv-wrapper\.(tsx|ts)$/, // ✅ FIX: Exclure kv-wrapper.tsx/ts (avec / avant)
-        /\/phone-utils\.(tsx|ts)$/, // ✅ FIX: Exclure phone-utils.tsx/ts (avec / avant)
-        /\/uuid-validator\.(tsx|ts)$/, // ✅ FIX: Exclure uuid-validator.tsx/ts (avec / avant)
-        /\/email-validation\.(tsx|ts)$/, // ✅ FIX: Exclure email-validation.tsx/ts (avec / avant)
+        /^supabase\\/functions\\/server\\//, // ✅ Exclure tous les fichiers du serveur backend
+        /supabase\/functions\/server\/kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts backend
+        /supabase\/functions\/server\/firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin backend
+        /supabase\/functions\/server\/fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes backend
+        /supabase\/functions\/server\/admin_users_routes\.(tsx|ts)$/, // ✅ FIX: Exclure admin_users_routes backend
+        /supabase\/functions\/server\/kv-wrapper\.(tsx|ts)$/, // ✅ FIX: Exclure kv-wrapper backend
+        /supabase\/functions\/server\/phone-utils\.(tsx|ts)$/, // ✅ FIX: Exclure phone-utils BACKEND UNIQUEMENT
+        /supabase\/functions\/server\/uuid-validator\.(tsx|ts)$/, // ✅ FIX: Exclure uuid-validator backend
+        /supabase\/functions\/server\/email-validation\.(tsx|ts)$/, // ✅ FIX: Exclure email-validation backend
       ],
     },
   },
