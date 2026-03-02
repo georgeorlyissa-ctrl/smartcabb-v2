@@ -35,6 +35,11 @@ import { RideNotification } from './RideNotification';
 import { registerDriverFCMToken } from '../../lib/driver-fcm';
 import { FCMDiagnostic } from './FCMDiagnostic';
 
+// Nouveaux imports pour les écrans
+import { DriverRidesHistory } from './DriverRidesHistory';
+import { DriverEarningsScreen } from './DriverEarningsScreen';
+import { DriverProfileSettings } from './DriverProfileSettings';
+
 // ✅ Helper inliné pour éviter les problèmes de build Rollup
 function isDriverFCMTokenRegistered(driverId: string): boolean {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
