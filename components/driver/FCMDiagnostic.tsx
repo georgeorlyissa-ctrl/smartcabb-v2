@@ -12,13 +12,22 @@ import { useState, useEffect } from 'react';
 import { toast } from '../../lib/toast';
 import { 
   registerDriverFCMToken, 
-  isDriverFCMTokenRegistered,
   forceRefreshDriverFCMToken 
 } from '../../lib/fcm-driver';
 
 interface FCMDiagnosticProps {
   driverId: string;
   driverName?: string;
+}
+
+// ✅ Helper inliné pour éviter les problèmes de build Rollup
+function isDriverFCMTokenRegistered(driverId: string): boolean {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return false;
+  }
+  const registered = localStorage.getItem(`fcm_registered_${driverId}`);
+  const token = localStorage.getItem(`fcm_token_${driverId}`);
+  return registered === 'true' && !!token;
 }
 
 export function FCMDiagnostic({ driverId, driverName }: FCMDiagnosticProps) {
