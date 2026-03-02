@@ -32,8 +32,18 @@ import {
 } from '../../lib/sms-service';
 import { RideNotificationSound } from './RideNotificationSound';
 import { RideNotification } from './RideNotification';
-import { registerDriverFCMToken, isDriverFCMTokenRegistered } from '../../lib/fcm-driver';
+import { registerDriverFCMToken } from '../../lib/fcm-driver';
 import { FCMDiagnostic } from './FCMDiagnostic';
+
+// ✅ Helper inliné pour éviter les problèmes de build Rollup
+function isDriverFCMTokenRegistered(driverId: string): boolean {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return false;
+  }
+  const registered = localStorage.getItem(`fcm_registered_${driverId}`);
+  const token = localStorage.getItem(`fcm_token_${driverId}`);
+  return registered === 'true' && !!token;
+}
 
 // Icônes SVG inline
 const Power = ({ className = "w-5 h-5" }: { className?: string }) => (
