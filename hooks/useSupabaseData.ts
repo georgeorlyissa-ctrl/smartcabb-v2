@@ -54,39 +54,54 @@ export type EnrichedRide = Ride & {
 };
 
 // Fonction pour récupérer les drivers depuis le KV store
-async function fetchDriversFromKV(): Promise<Driver[]> {
+async function fetchDriversFromKV(): Promise<any[]> {
   try {
-    // ✅ AJOUT: Cache-busting pour forcer le rechargement
-    const timestamp = Date.now();
+    console.log('🔄 Chargement des conducteurs depuis le KV store...');
     const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers?_t=${timestamp}`,
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers`,
       {
-        method: 'GET',
         headers: {
           'Authorization': `Bearer ${publicAnonKey}`,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
+        },
       }
     );
-    
+
     if (!response.ok) {
-      console.error('Erreur fetch drivers KV:', response.statusText);
+      console.error('❌ Serveur backend non accessible (404):', response.status, response.statusText);
       return [];
     }
-    
+
     const data = await response.json();
-    
-    if (data.success && data.drivers) {
-      console.log('✅ Drivers chargés depuis KV store:', data.count);
-      console.log('🔍 DEBUG - Premier conducteur:', data.drivers[0]); // 🔍 DEBUG
-      console.log('🔍 DEBUG - Statut du premier conducteur:', data.drivers[0]?.status); // 🔍 DEBUG
-      return data.drivers;
-    }
-    
-    return [];
+    console.log('✅ Drivers chargés depuis KV store:', data.drivers?.length || 0);
+    return data.drivers || [];
   } catch (error) {
-    console.error('❌ Erreur récupération drivers depuis KV:', error);
+    console.error('❌ Erreur fetch drivers KV:', error);
+    return [];
+  }
+}
+
+async function fetchPassengersFromKV(): Promise<any[]> {
+  try {
+    console.log('🔄 Chargement des passagers depuis le KV store...');
+    const response = await fetch(
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers`,
+      {
+        headers: {
+          'Authorization': `Bearer ${publicAnonKey}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('❌ Serveur backend non accessible (404):', response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log('✅ Passagers chargés depuis KV store:', data.passengers?.length || 0);
+    return data.passengers || [];
+  } catch (error) {
+    console.error('❌ Erreur fetch passengers KV:', error);
     return [];
   }
 }
@@ -137,53 +152,6 @@ async function fetchRidesFromKV(): Promise<Ride[]> {
     return [];
   } catch (error) {
     console.error('❌ Erreur récupération courses depuis KV:', error);
-    return [];
-  }
-}
-
-// Fonction pour récupérer les passagers depuis le KV store
-async function fetchPassengersFromKV(): Promise<Profile[]> {
-  try {
-    // ✅ AJOUT: Cache-busting pour forcer le rechargement
-    const timestamp = Date.now();
-    const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers?_t=${timestamp}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      console.error('Erreur fetch passengers KV:', response.statusText);
-      return [];
-    }
-    
-    const data = await response.json();
-    
-    if (data.success && data.passengers) {
-      console.log('✅ Passagers chargés depuis KV store:', data.count);
-      // Convertir les passagers du KV store au format Profile
-      return data.passengers.map((passenger: any) => ({
-        id: passenger.id,
-        email: passenger.email,
-        full_name: passenger.name || passenger.full_name,
-        phone: passenger.phone,
-        role: 'passenger' as const,
-        balance: passenger.balance || 0,
-        account_type: passenger.account_type || 'prepaid',
-        created_at: passenger.created_at || new Date().toISOString(),
-        updated_at: passenger.updated_at || new Date().toISOString()
-      }));
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('❌ Erreur récupération passagers depuis KV:', error);
     return [];
   }
 }
