@@ -99,14 +99,14 @@ export default defineConfig({
         'npm:hono', // ✅ Exclure les imports Deno backend
         /^npm:/, // ✅ Exclure tous les imports npm: (syntaxe Deno)
         /^supabase\/functions\/server\//, // ✅ Exclure tous les fichiers du serveur backend
-        /kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts
-        /firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin.tsx/ts
-        /fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes.tsx/ts
-        /admin_users_routes\.(tsx|ts)$/, // ✅ FIX: Exclure admin_users_routes.tsx/ts
-        /kv-wrapper\.(tsx|ts)$/, // ✅ FIX: Exclure kv-wrapper.tsx/ts
-        /phone-utils\.(tsx|ts)$/, // ✅ FIX: Exclure phone-utils.tsx/ts
-        /uuid-validator\.(tsx|ts)$/, // ✅ FIX: Exclure uuid-validator.tsx/ts
-        /email-validation\.(tsx|ts)$/, // ✅ FIX: Exclure email-validation.tsx/ts
+        /\/kv_store\.(tsx|ts)$/, // ✅ FIX: Exclure kv_store.tsx/ts (avec / avant)
+        /\/firebase-admin\.(tsx|ts)$/, // ✅ FIX: Exclure firebase-admin.tsx/ts (avec / avant)
+        /\/fcm-routes\.(tsx|ts)$/, // ✅ FIX: Exclure fcm-routes.tsx/ts (avec / avant)
+        /\/admin_users_routes\.(tsx|ts)$/, // ✅ FIX: Exclure admin_users_routes.tsx/ts (avec / avant)
+        /\/kv-wrapper\.(tsx|ts)$/, // ✅ FIX: Exclure kv-wrapper.tsx/ts (avec / avant)
+        /\/phone-utils\.(tsx|ts)$/, // ✅ FIX: Exclure phone-utils.tsx/ts (avec / avant)
+        /\/uuid-validator\.(tsx|ts)$/, // ✅ FIX: Exclure uuid-validator.tsx/ts (avec / avant)
+        /\/email-validation\.(tsx|ts)$/, // ✅ FIX: Exclure email-validation.tsx/ts (avec / avant)
       ],
     },
   },
