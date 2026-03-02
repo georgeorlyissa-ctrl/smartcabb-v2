@@ -1,8 +1,8 @@
 {
   "name": "smartcabb-production",
-  "version": "518.1.1",
+  "version": "518.1.3",
   "type": "module",
-  "description": "SmartCabb - Fix ImageCarousel + Route admin signup + Mode standalone",
+  "description": "SmartCabb - Fix phone-utils external (page blanche)",
   "private": true,
   "scripts": {
     "dev": "vite",
