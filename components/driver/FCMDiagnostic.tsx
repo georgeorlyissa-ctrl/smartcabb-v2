@@ -13,7 +13,7 @@ import { toast } from '../../lib/toast';
 import { 
   registerDriverFCMToken, 
   forceRefreshDriverFCMToken 
-} from '../../lib/fcm-driver';
+} from '../../lib/driver-fcm';
 
 interface FCMDiagnosticProps {
   driverId: string;
