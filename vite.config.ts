@@ -27,7 +27,10 @@ function resolveSupabaseInfo() {
       ];
       
       for (const backendFile of backendFiles) {
-        if (source.includes(backendFile) || source.endsWith(backendFile)) {
+        // ✅ FIX: Vérifier le nom de fichier exact (pas juste "includes")
+        // Extraire le nom du fichier du chemin
+        const fileName = source.split('/').pop() || '';
+        if (fileName === backendFile) {
           console.warn(`⚠️ Ignoré import backend: ${source}`);
           return { id: source, external: true };
         }
