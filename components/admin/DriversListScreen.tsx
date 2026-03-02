@@ -35,6 +35,11 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
   const { setCurrentScreen } = useAppState();
   const { drivers, rides, loading, refresh, vehicleService } = useSupabaseData();
   
+  // ✅ DEBUG: Logger les drivers reçus du hook
+  useEffect(() => {
+    console.log('🔍 [DriversListScreen] Drivers reçus du hook:', drivers?.length || 0, drivers);
+  }, [drivers]);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'online' | 'offline' | 'pending'>('all');
   const [selectedDriver, setSelectedDriver] = useState<EnrichedDriver | null>(null);
