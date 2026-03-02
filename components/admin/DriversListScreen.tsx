@@ -56,7 +56,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
     const matchesFilter = filterStatus === 'all' || 
                          (filterStatus === 'online' && driver.is_available) ||
                          (filterStatus === 'offline' && !driver.is_available) ||
-                         (filterStatus === 'pending' && driver.status === 'pending');
+                         (filterStatus === 'pending' && !driver.isApproved); // ✅ FIX: isApproved === false = pending
     return matchesSearch && matchesFilter;
   });
 
