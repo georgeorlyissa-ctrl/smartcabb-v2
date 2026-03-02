@@ -1,8 +1,8 @@
 {
   "name": "smartcabb-production",
-  "version": "518.1.3",
+  "version": "518.1.4",
   "type": "module",
-  "description": "SmartCabb - Fix phone-utils external (page blanche)",
+  "description": "SmartCabb - Fix regex syntax vite.config",
   "private": true,
   "scripts": {
     "dev": "vite",
