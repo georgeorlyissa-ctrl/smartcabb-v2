@@ -123,8 +123,9 @@ export function DriverRegistrationScreen() {
 
   // Fonction pour obtenir la catégorie du véhicule
   const getVehicleCategory = (vehicleType: string) => {
+    if (!vehicleType) return '';
     const type = vehicleTypes.find(t => t.value === vehicleType);
-    return type ? type.category : '';
+    return type?.category || '';
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -449,7 +450,7 @@ export function DriverRegistrationScreen() {
                       handleInputChange('vehicleMake', selectedVehicle.make);
                       handleInputChange('vehicleModel', selectedVehicle.model);
                       handleInputChange('vehicleType', selectedVehicle.type);
-                      toast.success(`Type automatique : ${vehicleTypes.find(t => t.value === selectedVehicle.type)?.label}`);
+                      toast.success(`Type automatique : ${vehicleTypes.find(t => t.value === selectedVehicle.type)?.label || 'Type inconnu'}`);
                     }
                   }
                 }}
