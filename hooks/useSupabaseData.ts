@@ -53,109 +53,6 @@ export type EnrichedRide = Ride & {
   createdAt: Date;
 };
 
-// Fonction pour récupérer les drivers depuis le KV store
-async function fetchDriversFromKV(): Promise<any[]> {
-  try {
-    console.log('🔄 Chargement des conducteurs depuis le KV store...');
-    const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers`,
-      {
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.error('❌ Serveur backend non accessible (404):', response.status, response.statusText);
-      return [];
-    }
-
-    const data = await response.json();
-    console.log('✅ Drivers chargés depuis KV store:', data.drivers?.length || 0);
-    return data.drivers || [];
-  } catch (error) {
-    console.error('❌ Erreur fetch drivers KV:', error);
-    return [];
-  }
-}
-
-async function fetchPassengersFromKV(): Promise<any[]> {
-  try {
-    console.log('🔄 Chargement des passagers depuis le KV store...');
-    const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers`,
-      {
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.error('❌ Serveur backend non accessible (404):', response.status, response.statusText);
-      return [];
-    }
-
-    const data = await response.json();
-    console.log('✅ Passagers chargés depuis KV store:', data.passengers?.length || 0);
-    return data.passengers || [];
-  } catch (error) {
-    console.error('❌ Erreur fetch passengers KV:', error);
-    return [];
-  }
-}
-
-// Fonction pour récupérer les courses depuis le KV store
-async function fetchRidesFromKV(): Promise<Ride[]> {
-  try {
-    const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/rides?limit=1000`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      console.error('Erreur fetch rides KV:', response.statusText);
-      return [];
-    }
-    
-    const data = await response.json();
-    
-    if (data.success && data.rides) {
-      console.log('✅ Courses chargées depuis KV store:', data.count);
-      // Convertir les courses du KV store au format attendu
-      return data.rides.map((ride: any) => ({
-        id: ride.id,
-        passenger_id: ride.passengerId || ride.passenger_id,
-        driver_id: ride.driverId || ride.driver_id,
-        pickup_address: ride.pickup?.address || ride.pickupAddress,
-        pickup_lat: ride.pickup?.lat || ride.pickupLat,
-        pickup_lng: ride.pickup?.lng || ride.pickupLng,
-        dropoff_address: ride.destination?.address || ride.destinationAddress,
-        dropoff_lat: ride.destination?.lat || ride.destinationLat,
-        dropoff_lng: ride.destination?.lng || ride.destinationLng,
-        total_amount: ride.finalPrice || ride.total_amount || ride.estimatedPrice,
-        duration_minutes: ride.duration || ride.duration_minutes,
-        status: ride.status,
-        created_at: ride.createdAt || ride.created_at,
-        vehicle_category: ride.vehicleType || ride.vehicle_category,
-        rating: ride.rating,
-        payment_method: ride.paymentMethod || ride.payment_method
-      }));
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('❌ Erreur récupération courses depuis KV:', error);
-    return [];
-  }
-}
-
 export function useSupabaseData() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [rawDrivers, setRawDrivers] = useState<Driver[]>([]);
@@ -172,6 +69,128 @@ export function useSupabaseData() {
   // Utiliser useRef au lieu de state pour éviter les re-renders
   const isLoadingRef = useRef(false);
   const hasLoadedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Fonction pour récupérer les drivers depuis le KV store
+  const fetchDriversFromKV = useCallback(async (): Promise<any[]> => {
+    const controller = new AbortController();
+    try {
+      console.log('🔄 Chargement des conducteurs depuis le KV store...');
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers`,
+        {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+          },
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        console.error('❌ Serveur backend non accessible:', response.status, response.statusText);
+        return [];
+      }
+
+      const data = await response.json();
+      console.log('✅ Drivers chargés depuis KV store:', data.drivers?.length || 0);
+      return data.drivers || [];
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('⚠️ Fetch drivers annulé');
+        return [];
+      }
+      console.error('❌ Erreur fetch drivers KV:', error);
+      return [];
+    }
+  }, []);
+
+  const fetchPassengersFromKV = useCallback(async (): Promise<any[]> => {
+    const controller = new AbortController();
+    try {
+      console.log('🔄 Chargement des passagers depuis le KV store...');
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers`,
+        {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+          },
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        console.error('❌ Serveur backend non accessible:', response.status, response.statusText);
+        return [];
+      }
+
+      const data = await response.json();
+      console.log('✅ Passagers chargés depuis KV store:', data.passengers?.length || 0);
+      return data.passengers || [];
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('⚠️ Fetch passengers annulé');
+        return [];
+      }
+      console.error('❌ Erreur fetch passengers KV:', error);
+      return [];
+    }
+  }, []);
+
+  // Fonction pour récupérer les courses depuis le KV store
+  const fetchRidesFromKV = useCallback(async (): Promise<Ride[]> => {
+    const controller = new AbortController();
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/rides?limit=1000`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          },
+          signal: controller.signal,
+        }
+      );
+      
+      if (!response.ok) {
+        console.error('Erreur fetch rides KV:', response.statusText);
+        return [];
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.rides) {
+        console.log('✅ Courses chargées depuis KV store:', data.count);
+        // Convertir les courses du KV store au format attendu
+        return data.rides.map((ride: any) => ({
+          id: ride.id,
+          passenger_id: ride.passengerId || ride.passenger_id,
+          driver_id: ride.driverId || ride.driver_id,
+          pickup_address: ride.pickup?.address || ride.pickupAddress,
+          pickup_lat: ride.pickup?.lat || ride.pickupLat,
+          pickup_lng: ride.pickup?.lng || ride.pickupLng,
+          dropoff_address: ride.destination?.address || ride.destinationAddress,
+          dropoff_lat: ride.destination?.lat || ride.destinationLat,
+          dropoff_lng: ride.destination?.lng || ride.destinationLng,
+          total_amount: ride.finalPrice || ride.total_amount || ride.estimatedPrice,
+          duration_minutes: ride.duration || ride.duration_minutes,
+          status: ride.status,
+          created_at: ride.createdAt || ride.created_at,
+          vehicle_category: ride.vehicleType || ride.vehicle_category,
+          rating: ride.rating,
+          payment_method: ride.paymentMethod || ride.payment_method
+        }));
+      }
+      
+      return [];
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('⚠️ Fetch rides annulé');
+        return [];
+      }
+      console.error('❌ Erreur récupération courses depuis KV:', error);
+      return [];
+    }
+  }, []);
 
   // Charger toutes les données
   const loadAllData = useCallback(async () => {
@@ -361,9 +380,14 @@ export function useSupabaseData() {
     
     console.log('🚀 Initial data load on mount');
     
+    // Créer un AbortController pour ce chargement
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    
     // Timeout augmenté pour éviter les erreurs
     const timeoutId = setTimeout(() => {
       if (isLoadingRef.current) {
+        controller.abort(); // Annuler toutes les requêtes en cours
         isLoadingRef.current = false;
         setLoading(false);
         // Ne pas définir d'erreur si c'est juste un timeout - mode dégradé
@@ -375,8 +399,12 @@ export function useSupabaseData() {
       clearTimeout(timeoutId);
     });
     
+    // Cleanup : annuler toutes les requêtes en cours
     return () => {
+      console.log('🧹 Cleanup: Annulation des requêtes en cours');
       clearTimeout(timeoutId);
+      controller.abort();
+      abortControllerRef.current = null;
     };
   }, []); // Tableau vide = exécute UNE SEULE FOIS au montage
 
