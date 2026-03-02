@@ -8,7 +8,8 @@ import { EarningsScreen } from '../components/driver/EarningsScreen';
 import { DriverSettingsScreen } from '../components/driver/DriverSettingsScreen';
 import { DriverProfileScreen } from '../components/driver/DriverProfileScreen';
 import { ClientInfoScreen } from '../components/driver/ClientInfoScreen';
-import { ConfirmationCodeScreen } from '../components/driver/ConfirmationCodeScreen';
+// ✅ SUPPRIMÉ : ConfirmationCodeScreen n'existe plus (système de code de confirmation retiré)
+// import { ConfirmationCodeScreen } from '../components/driver/ConfirmationCodeScreen';
 import { DriverWalletScreen } from '../components/driver/DriverWalletScreen';
 import { ActiveRideNavigationScreen } from '../components/driver/ActiveRideNavigationScreen';
 import { PaymentConfirmationScreen } from '../components/driver/PaymentConfirmationScreen';
@@ -104,7 +105,6 @@ function DriverAppContent() {
         {currentScreen === 'driver-profile' && <DriverProfileScreen />}
         {(currentScreen === 'driver-client-info' || currentScreen === 'client-info') && <ClientInfoScreen />}
         {currentScreen === 'driver-wallet' && <DriverWalletScreen />}
-        {(currentScreen === 'driver-confirmation-code' || currentScreen === 'confirmation-code') && <ConfirmationCodeScreen />}
         {(currentScreen === 'driver-active-ride' || currentScreen === 'active-ride') && <ActiveRideNavigationScreen />}
         {(currentScreen === 'driver-payment-confirmation' || currentScreen === 'payment-confirmation') && <PaymentConfirmationScreen />}
         {(currentScreen === 'welcome-back' || currentScreen === 'welcome-back-driver') && (
