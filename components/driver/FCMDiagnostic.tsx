@@ -207,18 +207,25 @@ export function FCMDiagnostic({ driverId, driverName }: FCMDiagnosticProps) {
         }
       );
 
+      // Vérifier le statut HTTP
+      addLog(`📡 Statut HTTP: ${response.status} ${response.statusText}`, response.ok ? 'info' : 'error');
+
+      // Lire la réponse
       const result = await response.json();
+      addLog(`📦 Réponse: ${JSON.stringify(result)}`, 'info');
       
       if (result.success) {
         addLog(`✅ Notification PUSH envoyée depuis le serveur ! ID: ${result.messageId || 'N/A'}`, 'success');
         toast.success('Notification PUSH envoyée avec succès ! 🎉');
       } else {
-        addLog(`❌ Échec: ${result.error}`, 'error');
-        toast.error(`Échec: ${result.error}`);
+        const errorMsg = result.error || result.message || JSON.stringify(result);
+        addLog(`❌ Échec: ${errorMsg}`, 'error');
+        toast.error(`Échec: ${errorMsg}`);
       }
     } catch (error: any) {
       addLog(`❌ Erreur serveur: ${error.message}`, 'error');
-      toast.error('Erreur lors du test push');
+      console.error('Erreur complète:', error);
+      toast.error(`Erreur: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
