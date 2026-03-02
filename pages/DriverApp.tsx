@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from '../lib/simple-router';
 import { DriverWelcomeScreen } from '../components/driver/DriverWelcomeScreen';
 import { DriverLoginScreen } from '../components/driver/DriverLoginScreen';
 import { DriverRegistrationScreen } from '../components/driver/DriverRegistrationScreen';
-import { DriverDashboard } from '../components/driver/DriverDashboard';
+import { DriverDashboardNew } from '../components/driver/DriverDashboardNew';
 import { NavigationScreen } from '../components/driver/NavigationScreen';
 import { EarningsScreen } from '../components/driver/EarningsScreen';
 import { DriverSettingsScreen } from '../components/driver/DriverSettingsScreen';
@@ -97,7 +97,7 @@ function DriverAppContent() {
         {currentScreen === 'driver-welcome' && <DriverWelcomeScreen />}
         {currentScreen === 'driver-login' && <DriverLoginScreen />}
         {currentScreen === 'driver-registration' && <DriverRegistrationScreen />}
-        {currentScreen === 'driver-dashboard' && <DriverDashboard />}
+        {currentScreen === 'driver-dashboard' && <DriverDashboardNew />}
         {(currentScreen === 'driver-navigation' || currentScreen === 'navigation') && <NavigationScreen />}
         {currentScreen === 'driver-earnings' && <EarningsScreen />}
         {currentScreen === 'driver-settings' && <DriverSettingsScreen />}
