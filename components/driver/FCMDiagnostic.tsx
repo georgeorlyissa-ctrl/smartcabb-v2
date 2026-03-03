@@ -14,6 +14,7 @@ import {
   registerDriverFCMToken, 
   forceRefreshDriverFCMToken 
 } from '../../lib/driver-fcm';
+import { projectId, publicAnonKey } from '../../utils/supabase/info';
 
 interface FCMDiagnosticProps {
   driverId: string;
@@ -196,12 +197,12 @@ export function FCMDiagnostic({ driverId, driverName }: FCMDiagnosticProps) {
     try {
       // Appeler le backend pour envoyer une vraie notification FCM
       const response = await fetch(
-        `https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/test-notification`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/fcm/test-notification`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg0MjcyODUsImV4cCI6MjA0NDAwMzI4NX0.IKXMXj9W5IHPcJ7K0X04M0yxnhkWXt8qfMLwODYC9yE'
+            'Authorization': `Bearer ${publicAnonKey}`
           },
           body: JSON.stringify({ userId: driverId })
         }
