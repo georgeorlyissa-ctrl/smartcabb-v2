@@ -490,6 +490,53 @@ export function AdminDashboard() {
     }
   };
 
+  // 🔄 NOUVELLE FONCTION : Migrer les conducteurs de Postgres vers KV store
+  const handleMigrateDriversToKV = async () => {
+    if (!confirm('Voulez-vous synchroniser les conducteurs de Postgres vers le KV store ? Cela ne supprimera aucune donnée.')) {
+      return;
+    }
+
+    setDeletingAccounts(true); // Réutiliser cet état pour le loading
+    
+    try {
+      console.log('🔄 Migration des conducteurs Postgres → KV store...');
+
+      // Appeler la nouvelle route de migration
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/migrate-drivers-to-kv`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Erreur lors de la migration');
+      }
+
+      console.log('✅ Résultat migration:', result);
+
+      // Afficher les stats de migration
+      const stats = result.stats;
+      toast.success(result.message, {
+        description: `${stats.migrated} conducteur(s) migré(s), ${stats.skipped} déjà présent(s). Total KV: ${stats.kv_total_after}`
+      });
+
+      // Rafraîchir les données pour afficher les conducteurs
+      await refresh();
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la migration:', error);
+      toast.error('Erreur lors de la migration des conducteurs');
+    } finally {
+      setDeletingAccounts(false);
+    }
+  };
+
   const statCards = [
     {
       id: 'stat-active-rides',
@@ -787,6 +834,16 @@ export function AdminDashboard() {
       count: null,
       highlight: true,
       color: 'from-red-500 to-pink-500'
+    },
+    {
+      id: 'action-migrate-drivers-to-kv',
+      title: '🔄 Migrer conducteurs vers KV',
+      description: 'Synchroniser les conducteurs de Postgres vers le KV store',
+      icon: Database,
+      action: handleMigrateDriversToKV,
+      count: null,
+      highlight: true,
+      color: 'from-blue-500 to-indigo-500'
     }
   ];
 
