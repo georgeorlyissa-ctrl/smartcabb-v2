@@ -126,6 +126,21 @@ export async function initializeFCM(): Promise<boolean> {
     messaging = modules.getMessaging(app);
     console.log('🔔 Firebase Cloud Messaging (FCM) initialisé');
 
+    // 🔥 IMPORTANT : Envoyer la config au Service Worker pour qu'il puisse recevoir les notifications
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if (registration.active) {
+        console.log('📨 Envoi de la configuration Firebase au Service Worker...');
+        registration.active.postMessage({
+          type: 'INIT_FIREBASE',
+          config: firebaseConfig
+        });
+        console.log('✅ Configuration envoyée au Service Worker');
+      }
+    } catch (swError) {
+      console.warn('⚠️ Impossible d\'envoyer la config au Service Worker:', swError);
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Erreur initialisation FCM:', error);
