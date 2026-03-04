@@ -408,42 +408,62 @@ export function AdminDashboard() {
     setDeletingAccounts(true);
     
     try {
-      console.log('🗑️ Suppression de tous les comptes passagers et conducteurs...');
-
-      // Appeler l'API backend
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/delete-all-accounts`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/delete-all-accounts`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
           }
         }
       );
 
-      const result = await response.json();
+      const data = await response.json();
 
-      if (!result.success) {
-        throw new Error(result.error || 'Erreur lors de la suppression');
+      if (data.success) {
+        toast.success(data.message || 'Tous les comptes ont été supprimés avec succès');
+        setShowDeleteAccountsModal(false);
+        refresh(); // Rafraîchir les données
+      } else {
+        toast.error(data.error || 'Erreur lors de la suppression des comptes');
       }
-
-      console.log('✅ Résultat:', result);
-
-      // Rafraîchir les données
-      await refresh();
-
-      toast.success(result.message, {
-        description: `${result.details.profiles} profils, ${result.details.drivers} conducteurs, ${result.details.rides} courses supprimés.`
-      });
-
-      setShowDeleteAccountsModal(false);
-
     } catch (error) {
-      console.error('❌ Erreur lors de la suppression:', error);
+      console.error('Erreur lors de la suppression des comptes:', error);
       toast.error('Erreur lors de la suppression des comptes');
     } finally {
       setDeletingAccounts(false);
+    }
+  };
+
+  // 🔧 Fonction pour migrer tous les profils avec le bon préfixe
+  const handleMigrateProfiles = async () => {
+    try {
+      toast.info('🔧 Migration en cours...');
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/migration/fix-prefixes`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(`✅ Migration réussie ! ${data.migrated} profil(s) migré(s)`);
+        console.log('📊 Détails migration:', data);
+        refresh(); // Rafraîchir les données
+      } else {
+        toast.error(data.error || 'Erreur lors de la migration');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la migration:', error);
+      toast.error('Erreur lors de la migration des profils');
     }
   };
 
@@ -841,6 +861,16 @@ export function AdminDashboard() {
       description: 'Synchroniser les conducteurs de Postgres vers le KV store',
       icon: Database,
       action: handleMigrateDriversToKV,
+      count: null,
+      highlight: true,
+      color: 'from-blue-500 to-indigo-500'
+    },
+    {
+      id: 'action-migrate-profiles',
+      title: '🔧 Migrer profils',
+      description: 'Corriger les préfixes des profils',
+      icon: Database,
+      action: handleMigrateProfiles,
       count: null,
       highlight: true,
       color: 'from-blue-500 to-indigo-500'
