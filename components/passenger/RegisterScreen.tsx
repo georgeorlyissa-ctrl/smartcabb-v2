@@ -111,6 +111,11 @@ export function RegisterScreen() {
         // Continuer même si le nettoyage échoue
       }
       
+      console.log('📱 Début inscription avec:', { 
+        phone: formData.phone, 
+        name: formData.name 
+      });
+      
       // Inscription avec Supabase
       const result = await signUp({
         phone: formData.phone,
@@ -119,7 +124,10 @@ export function RegisterScreen() {
         role: 'passenger'
       });
       
+      console.log('📊 Résultat inscription:', result);
+      
       if (result.success && result.profile) {
+        console.log('✅ Inscription réussie!');
         setCurrentUser({
           id: result.profile.id,
           name: result.profile.full_name,
@@ -150,21 +158,28 @@ export function RegisterScreen() {
         // 🔍 Détecter si l'utilisateur existe déjà
         const errorMessage = result.error || 'Erreur lors de l\'inscription';
         
+        console.error('❌ Erreur inscription:', errorMessage);
+        
         if (errorMessage.toLowerCase().includes('already been registered') || 
             errorMessage.toLowerCase().includes('déjà enregistré') ||
-            errorMessage.toLowerCase().includes('already exists')) {
+            errorMessage.toLowerCase().includes('already exists') ||
+            errorMessage.toLowerCase().includes('user with this email already exists')) {
           setErrorMsg('Ce numéro de téléphone est déjà inscrit. Connectez-vous plutôt.');
           
           // Rediriger automatiquement vers l'écran de connexion après 3 secondes
           setTimeout(() => {
             setCurrentScreen('login');
           }, 3000);
+        } else if (errorMessage.toLowerCase().includes('database error')) {
+          setErrorMsg('Erreur serveur. Veuillez réessayer dans quelques instants.');
         } else {
           setErrorMsg(errorMessage);
         }
       }
     } catch (error) {
       console.error('❌ Erreur inattendue lors de l\'inscription:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Erreur inconnue';
+      console.error('❌ Détails erreur:', errorMsg);
       setErrorMsg('Erreur lors de l\'inscription. Vérifiez votre connexion Internet.');
     }
     
