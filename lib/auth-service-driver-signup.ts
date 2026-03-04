@@ -51,10 +51,10 @@ export async function signUpDriver(driverData: {
     }
     
     // Appeler l'endpoint serveur (Admin API) pour TOUS les cas
-    console.log('🌐 Appel endpoint serveur /signup-driver');
+    console.log('🌐 Appel endpoint serveur /drivers/signup');
     
     const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/signup-driver`,
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/signup`,
       {
         method: 'POST',
         headers: {
@@ -62,7 +62,7 @@ export async function signUpDriver(driverData: {
           'Authorization': `Bearer ${publicAnonKey}`
         },
         body: JSON.stringify({
-          fullName,
+          full_name: fullName,
           email: email?.trim() || null,
           phone: normalizedPhone,
           password,
