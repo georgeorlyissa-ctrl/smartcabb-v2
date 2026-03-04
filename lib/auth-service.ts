@@ -305,10 +305,22 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
         }
       );
 
-      const result = await response.json();
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response ok:', response.ok);
 
-      if (!result.success) {
+      const result = await response.json();
+      
+      console.log('📊 Response body:', result);
+
+      if (!response.ok || !result.success) {
         console.error('❌ Erreur serveur inscription:', result.error);
+        
+        // Si l'erreur dit "Database error", essayer le fallback direct
+        if (result.error?.includes('Database error') || result.error?.includes('unexpected_failure')) {
+          console.log('⚠️ Erreur backend détectée, passage en mode fallback direct...');
+          throw new Error('Backend unavailable - using fallback');
+        }
+        
         return {
           success: false,
           error: result.error || 'Erreur lors de l\'inscription'
@@ -343,8 +355,10 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
     } catch (fetchError) {
       console.error('❌ Erreur appel serveur:', fetchError);
       
-      // Fallback: essayer l'inscription côté client
-      console.log('⚠️ Fallback: tentative inscription côté client...');
+      // Fallback: essayer l'inscription côté client DIRECTEMENT via Supabase
+      console.log('⚠️ Fallback: tentative inscription DIRECTE via Supabase Auth...');
+      console.log('📧 Email à utiliser:', finalEmail);
+      console.log('📱 Téléphone:', normalizedPhone);
       
       const { data, error } = await supabase.auth.signUp({
         email: finalEmail,
