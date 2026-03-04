@@ -20,6 +20,7 @@ import { ResetPasswordOTPScreen } from '../components/ResetPasswordOTPScreen';
 import { RLSFixModal } from '../components/RLSFixModal';
 import { RLSBlockingScreen } from '../components/RLSBlockingScreen';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useEffect } from 'react';
 
 function DriverAppContent() {
@@ -146,8 +147,10 @@ function DriverAppContent() {
 
 export function DriverApp() {
   return (
-    <Routes>
-      <Route path="/*" element={<DriverAppContent />} />
-    </Routes>
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/*" element={<DriverAppContent />} />
+      </Routes>
+    </ErrorBoundary>
   );
 }
