@@ -131,26 +131,50 @@ export function DriverDashboardNew() {
     const loadDriver = async () => {
       if (!state.currentDriver?.id) return;
       
-      try {
-        const response = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${state.currentDriver.id}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${publicAnonKey}`,
-            },
+      // ✅ FIX: Réessayer jusqu'à 3 fois avec délais progressifs
+      let attempts = 0;
+      const maxAttempts = 3;
+      const delays = [0, 2000, 5000]; // 0s, 2s, 5s
+      
+      while (attempts < maxAttempts) {
+        try {
+          // Attendre avant de réessayer (sauf pour la première tentative)
+          if (attempts > 0) {
+            console.log(`⏳ Tentative ${attempts + 1}/${maxAttempts} de chargement du profil conducteur après ${delays[attempts]}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delays[attempts]));
           }
-        );
+          
+          const response = await fetch(
+            `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${state.currentDriver.id}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${publicAnonKey}`,
+              },
+            }
+          );
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.driver) {
-            setDriver(data.driver);
-            setIsOnline(data.driver.status === 'online');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.driver) {
+              console.log('✅ Profil conducteur chargé avec succès');
+              setDriver(data.driver);
+              setIsOnline(data.driver.status === 'online');
+              return; // Succès, sortir de la boucle
+            }
+          } else if (response.status === 404) {
+            console.log(`⚠️ Profil conducteur non trouvé (tentative ${attempts + 1}/${maxAttempts})`);
+            // Continuer à réessayer
           }
+        } catch (error) {
+          console.error(`❌ Erreur chargement conducteur (tentative ${attempts + 1}/${maxAttempts}):`, error);
         }
-      } catch (error) {
-        console.error('Erreur chargement conducteur:', error);
+        
+        attempts++;
       }
+      
+      // Si on arrive ici, toutes les tentatives ont échoué
+      console.error('❌ Impossible de charger le profil conducteur après', maxAttempts, 'tentatives');
+      toast.error('Erreur de chargement du profil. Veuillez actualiser la page.');
     };
 
     loadDriver();
