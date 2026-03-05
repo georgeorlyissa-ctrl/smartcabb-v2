@@ -97,6 +97,43 @@ export function DriverSignupDiagnostic() {
     }
   };
 
+  // Test 0: Test KV Store basique
+  const testKVStore = async () => {
+    addLog('🧪 TEST 0: Test fonctionnement KV store...');
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/test-kv-save`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        addLog(`📊 Résultats du test KV:`);
+        addLog(`  ├─ kv.set() → ${result.results.kvSet}`);
+        addLog(`  ├─ kv.get() → ${result.results.kvGet}`);
+        addLog(`  ├─ Supabase save → ${result.results.supabaseSave}`);
+        addLog(`  └─ Supabase get → ${result.results.supabaseGet}`);
+        
+        if (result.results.kvGet === 'not_found') {
+          addLog(`❌ PROBLÈME DÉTECTÉ: kv.set() ne persiste pas les données!`);
+        } else {
+          addLog(`✅ KV store fonctionne correctement`);
+        }
+      } else {
+        addLog(`❌ Erreur test KV: ${result.error}`);
+      }
+    } catch (error) {
+      addLog(`❌ Exception: ${error}`);
+    }
+  };
+
   // Test 3: Diagnostic KV store
   const testDiagnostic = async (userId?: string) => {
     const id = userId || testUserId;
@@ -138,6 +175,11 @@ export function DriverSignupDiagnostic() {
     addLog('🚀 DÉBUT DU TEST COMPLET');
     addLog('='.repeat(50));
 
+    // Test 0: Vérifier que le KV store fonctionne
+    await testKVStore();
+    addLog('');
+    
+    // Test 1-3: Test d'inscription complète
     const userId = await testCreateUser();
     
     if (userId) {
@@ -157,8 +199,9 @@ export function DriverSignupDiagnostic() {
       <h1 className="text-2xl font-bold mb-4">🔍 Diagnostic Inscription Conducteur</h1>
       
       <div className="space-y-4 mb-6">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button onClick={runFullTest}>🚀 Test Complet</Button>
+          <Button onClick={testKVStore} variant="outline">0️⃣ Test KV Store</Button>
           <Button onClick={() => testCreateUser()}>1️⃣ Créer Utilisateur</Button>
           <Button onClick={() => testGetProfile()}>2️⃣ Get Profil</Button>
           <Button onClick={() => testDiagnostic()}>3️⃣ Diagnostic KV</Button>
