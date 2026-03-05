@@ -89,6 +89,9 @@ import { QuickAdminSignup } from './components/admin/QuickAdminSignup';
 import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswordScreen';
 // ❌ import { SeedTestUsers } - SUPPRIMÉ - Ne plus créer d'utilisateurs de test
 
+// 🔍 Driver Diagnostic
+import { DriverSignupDiagnostic } from './components/driver/DriverSignupDiagnostic';
+
 // 🔧 Loading fallback
 const SuspenseFallback = () => {
   console.log('⏳ SuspenseFallback - Chargement en cours...');
@@ -452,6 +455,9 @@ function App() {
                   <Route path="/admin/forgot-password" element={<AdminForgotPasswordScreen />} />
                   <Route path="/admin/clean-system" element={<AdminCleanSystem />} />
                   {/* ❌ Route /admin/seed-test-users SUPPRIMÉE - Ne plus créer d'utilisateurs de test */}
+                  
+                  {/* 🔍 Driver Diagnostic Route */}
+                  <Route path="/driver/signup-diagnostic" element={<DriverSignupDiagnostic />} />
                   
                   {/* Admin Panel - Route générique APRÈS les routes spécifiques */}
                   <Route path="/admin/*" element={<AdminApp />} />
