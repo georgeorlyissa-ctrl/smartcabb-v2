@@ -35,7 +35,7 @@ export function DriverRegistrationScreen() {
   
   const navigate = useNavigate();
   
-  const { setCurrentScreen } = useAppState();
+  const { setCurrentScreen, setCurrentDriver } = useAppState();
     
   const [step, setStep] = useState(1);
   
@@ -249,6 +249,12 @@ export function DriverRegistrationScreen() {
         toast.info('Votre candidature est en attente d\'approbation par un administrateur.');
         toast.info('Vous serez notifié par SMS une fois vos documents validés.');
         
+        // ✅ FIX: Sauvegarder le profil conducteur dans l'état global
+        console.log('💾 Sauvegarde du profil conducteur dans l\'état:', result.profile);
+        if (result.profile) {
+          setCurrentDriver(result.profile);
+        }
+        
         // 📱 Envoyer SMS de confirmation d'inscription
         if (formData.phone) {
           try {
@@ -263,9 +269,9 @@ export function DriverRegistrationScreen() {
           }
         }
         
-        // Rediriger vers l'écran d'accueil conducteur après 2 secondes
+        // ✅ FIX: Rediriger vers le dashboard conducteur au lieu de driver-welcome
         setTimeout(() => {
-          setCurrentScreen('driver-welcome');
+          setCurrentScreen('driver-dashboard');
         }, 2000);
       } else {
         toast.error(result.error || 'Erreur lors de l\'inscription');
