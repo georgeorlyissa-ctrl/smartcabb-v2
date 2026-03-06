@@ -265,7 +265,9 @@ export function DriverRegistrationScreen() {
             });
             console.log('✅ SMS de confirmation inscription conducteur envoyé');
           } catch (error) {
-            console.error('❌ Erreur envoi SMS inscription conducteur:', error);
+            // ⚠️ Ne pas afficher d'erreur à l'utilisateur si le SMS échoue
+            // L'inscription a réussi, c'est juste le SMS qui n'a pas été envoyé
+            console.warn('⚠️ SMS de confirmation non envoyé (pas d\'impact sur l\'inscription):', error);
           }
         }
         
