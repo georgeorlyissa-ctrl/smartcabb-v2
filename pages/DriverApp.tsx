@@ -21,6 +21,7 @@ import { RLSFixModal } from '../components/RLSFixModal';
 import { RLSBlockingScreen } from '../components/RLSBlockingScreen';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { DriverDeploymentCheck } from '../components/driver/DriverDeploymentCheck';
 import { useEffect } from 'react';
 
 function DriverAppContent() {
@@ -130,6 +131,9 @@ function DriverAppContent() {
             userType="driver" 
           />
         )}
+        
+        {/* Deployment Check */}
+        {currentScreen === 'driver-deployment-check' && <DriverDeploymentCheck />}
         
         {/* Fallback: Si aucun écran driver n'est affiché, afficher le welcome screen */}
         {!currentScreen && <DriverWelcomeScreen />}
