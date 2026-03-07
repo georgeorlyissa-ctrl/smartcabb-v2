@@ -99,61 +99,15 @@ export async function signUpDriver(driverData: {
     console.log('📧 Email utilisateur:', serverData.user?.email);
     console.log('👤 Profil:', serverData.profile);
 
-    // ✅ FIX: Utiliser l'email de l'utilisateur créé au lieu de credentials.tempEmail
-    const userEmail = serverData.user?.email || serverData.profile?.email;
-    
-    if (!userEmail) {
-      console.error('❌ Email non trouvé dans la réponse serveur:', serverData);
-      return {
-        success: false,
-        error: 'Erreur serveur: email non retourné après inscription'
-      };
-    }
-
-    console.log('🔐 Connexion automatique avec email:', userEmail);
-
-    // Se connecter immédiatement avec les credentials
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: userEmail,
-      password
-    });
-
-    if (authError || !authData?.user) {
-      console.error('❌ Erreur connexion:', authError);
-      console.log('⚠️ Tentative de reconnexion après 2s...');
-      
-      // Retry une fois après 2 secondes
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-        email: userEmail,
-        password
-      });
-      
-      if (retryError || !retryData?.user) {
-        console.error('❌ Erreur reconnexion:', retryError);
-        return {
-          success: false,
-          error: 'Compte créé mais erreur de connexion. Essayez de vous connecter manuellement.'
-        };
-      }
-      
-      console.log('✅ Conducteur créé et connecté (retry):', serverData.profile.full_name);
-      
-      return {
-        success: true,
-        user: retryData.user,
-        profile: serverData.profile,
-        accessToken: retryData.session?.access_token
-      };
-    }
-
-    console.log('✅ Conducteur créé et connecté:', serverData.profile.full_name);
+    // ❌ NE PAS connecter automatiquement le conducteur non approuvé
+    // Il doit attendre l'approbation de l'admin
+    console.log('⏳ Compte créé, en attente d\'approbation admin');
     
     return {
       success: true,
-      user: authData.user,
-      profile: serverData.profile,
-      accessToken: authData.session?.access_token
+      user: serverData.user,
+      profile: serverData.profile
+      // Pas d'accessToken = pas de connexion automatique
     };
 
   } catch (error) {
