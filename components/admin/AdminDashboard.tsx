@@ -59,15 +59,16 @@ export function AdminDashboard() {
   const { state, setCurrentScreen, setCurrentView, setIsAdmin, setCurrentUser } = useAppState();
   const navigate = useNavigate();
 
-  // ✅ PROTECTION : Vérifier que l'admin est authentifié
+  // ✅ Vérification d'authentification au montage
   useEffect(() => {
-    console.log('🔒 AdminDashboard - Vérification authentification...');
-    console.log('🔒 isAdmin:', state.isAdmin);
-    console.log('🔒 currentUser:', state.currentUser);
-    
-    // ✅ FIX: Attendre un court instant pour laisser le temps à l'état de se charger
-    // Évite l'affichage d'un toast d'erreur pendant le chargement initial
+    // Petit délai pour laisser l'état se charger depuis localStorage
     const timer = setTimeout(() => {
+      console.log('🔐 Vérification authentification admin...', { 
+        isAdmin: state.isAdmin, 
+        hasUser: !!state.currentUser,
+        currentScreen: state.currentScreen 
+      });
+      
       if (!state.isAdmin || !state.currentUser) {
         console.log('❌ Accès non autorisé - Redirection vers login');
         setCurrentScreen('admin-login');
@@ -78,7 +79,7 @@ export function AdminDashboard() {
     }, 100); // Petit délai de 100ms pour laisser l'état se charger
     
     return () => clearTimeout(timer);
-  }, []); // ✅ Tableau de dépendances vide = exécution uniquement au montage
+  }, [state.isAdmin, state.currentUser, setCurrentScreen]); // ✅ FIX: Dépendances correctes
 
   const { 
     drivers, // EnrichedDriver[]
