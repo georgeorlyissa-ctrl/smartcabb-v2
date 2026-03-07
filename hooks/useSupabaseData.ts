@@ -416,7 +416,7 @@ export function useSupabaseData() {
     hasLoadedRef.current = false; // ✅ Réinitialiser aussi ce flag pour forcer le rechargement
     setLoading(true);
     loadAllData();
-  }, [loadAllData]);
+  }, []); // ✅ FIX: Pas de dépendances, on appelle loadAllData directement
 
   // Obtenir les passagers (profils avec role = 'passenger')
   const getPassengers = useCallback(() => {
