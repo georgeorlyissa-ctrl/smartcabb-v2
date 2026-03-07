@@ -25,7 +25,7 @@ import { DriverDeploymentCheck } from '../components/driver/DriverDeploymentChec
 import { useEffect } from 'react';
 
 function DriverAppContent() {
-  const { state, setCurrentScreen, setCurrentView } = useAppState();
+  const { state, setCurrentScreen, setCurrentView, setCurrentDriver } = useAppState();
   const { currentScreen, currentUser: user } = state;
   const showRLSModal = false; // Désactivé pour chauffeur
   const showRLSBlockingScreen = false; // Désactivé pour chauffeur
@@ -42,11 +42,52 @@ function DriverAppContent() {
     console.log('🚗 DriverApp - currentView:', state.currentView);
     console.log('🚗 DriverApp - currentDriver:', state.currentDriver?.id || 'none');
     
+    // 🧹 NETTOYAGE AUTOMATIQUE : Vérifier et nettoyer les conducteurs non approuvés du localStorage
+    if (location.pathname.includes('/driver')) {
+      try {
+        const savedDriverStr = localStorage.getItem('smartcab_current_driver');
+        if (savedDriverStr) {
+          const savedDriver = JSON.parse(savedDriverStr);
+          const driverStatus = savedDriver.status;
+          
+          // Si le conducteur sauvegardé n'est pas approuvé, le supprimer
+          if (driverStatus === 'pending' || driverStatus === 'rejected' || driverStatus === 'suspended' || !driverStatus) {
+            console.warn(`🧹 Nettoyage automatique : conducteur "${driverStatus || 'sans statut'}" détecté dans localStorage`);
+            localStorage.removeItem('smartcab_current_driver');
+            localStorage.removeItem('smartcab_current_user');
+            
+            // Si ce conducteur est chargé dans le state, le nettoyer aussi
+            if (state.currentDriver?.id === savedDriver.id) {
+              console.warn('🧹 Nettoyage du state currentDriver');
+              setCurrentDriver(null);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors du nettoyage du localStorage:', error);
+      }
+    }
+    
     // ✅ Si on est sur /driver OU /app/driver, s'assurer qu'on est en mode conducteur
     if (location.pathname.includes('/driver')) {
       // ✅ TOUJOURS forcer la vue à 'driver' dès qu'on est sur /driver
       console.log('🔄 Forçage de la vue à driver');
       setCurrentView('driver');
+      
+      // 🚨 VÉRIFICATION CRITIQUE : Bloquer les conducteurs non approuvés
+      if (state.currentDriver) {
+        const driverStatus = state.currentDriver.status;
+        console.log('🔍 Vérification statut conducteur:', driverStatus);
+        
+        // Si le conducteur est pending, rejected ou suspended, le bloquer
+        if (driverStatus === 'pending' || driverStatus === 'rejected' || driverStatus === 'suspended') {
+          console.warn(`⚠️ Conducteur avec statut "${driverStatus}" détecté, redirection vers login`);
+          setCurrentDriver(null); // Nettoyer le state
+          localStorage.removeItem('smartcab_current_driver'); // Nettoyer le localStorage
+          setCurrentScreen('driver-login');
+          return;
+        }
+      }
       
       // ✅ FIX: Si l'utilisateur est connecté et a un écran driver valide, ne rien changer
       if (state.currentDriver && currentScreen && currentScreen.startsWith('driver-') && currentScreen !== 'driver-welcome' && currentScreen !== 'driver-login') {
@@ -77,7 +118,7 @@ function DriverAppContent() {
         setCurrentScreen('driver-welcome');
       }
     }
-  }, [location.pathname, currentScreen, state.currentView, state.currentDriver, setCurrentView, setCurrentScreen]); // Toutes les dépendances
+  }, [location.pathname, currentScreen, state.currentView, state.currentDriver, setCurrentView, setCurrentScreen, setCurrentDriver]); // Ajout de setCurrentDriver
 
   // Show RLS blocking screen if there's a critical RLS issue
   if (showRLSBlockingScreen) {
