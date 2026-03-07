@@ -327,6 +327,48 @@ export function AdminDashboard() {
     }
   };
 
+  // 🔍 DIAGNOSTIC COMPLET: Auth + KV + Routes
+  const handleFullDiagnostic = async () => {
+    try {
+      console.log('🔍🔍🔍 DIAGNOSTIC COMPLET...');
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/debug/full-diagnostic`,
+        {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        const d = result.diagnostic;
+        console.log('╔══════════════════════════════════════╗');
+        console.log('║   🔍 DIAGNOSTIC COMPLET             ║');
+        console.log('╠══════════════════════════════════════╣');
+        console.log(`║ Auth: ${d.auth.drivers} conducteurs`);
+        console.log(`║ KV: ${d.kv.drivers} conducteurs`);
+        console.log(`║ ${d.summary}`);
+        console.log('╚══════════════════════════════════════╝');
+        console.log('\n📋 Conducteurs Auth:');
+        console.table(d.driversAuth);
+        console.log('\n📦 Conducteurs KV:');
+        console.table(d.driversKV);
+        
+        toast.success('Diagnostic terminé', {
+          description: `Auth: ${d.auth.drivers}, KV: ${d.kv.drivers} (voir console F12)`
+        });
+      } else {
+        toast.error(result.error || 'Erreur');
+      }
+    } catch (error) {
+      console.error('❌ Erreur:', error);
+      toast.error('Erreur diagnostic');
+    }
+  };
+
   // 🔄 NOUVELLE FONCTION: Synchroniser les conducteurs depuis Auth vers KV
   const handleSyncDrivers = async () => {
     try {
@@ -836,6 +878,16 @@ export function AdminDashboard() {
       count: null,
       highlight: true,
       color: 'from-blue-500 to-indigo-500'
+    },
+    {
+      id: 'action-full-diagnostic',
+      title: '🔍🔍🔍 DIAGNOSTIC COMPLET',
+      description: 'Auth vs KV vs Routes (console F12)',
+      icon: Search,
+      action: handleFullDiagnostic,
+      count: null,
+      highlight: true,
+      color: 'from-red-500 to-pink-500'
     },
     {
       id: 'action-sms-settings',
