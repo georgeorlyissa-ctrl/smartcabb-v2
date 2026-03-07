@@ -252,6 +252,13 @@ export function DriverRegistrationScreen() {
         // ❌ NE PAS sauvegarder le profil conducteur dans l'état
         // ❌ NE PAS permettre l'accès au dashboard avant approbation
         
+        // 🧹 NETTOYER COMPLÈTEMENT LE STATE ET LE LOCALSTORAGE
+        // Pour éviter qu'un ancien profil conducteur soit détecté et charge le dashboard
+        console.log('🧹 Nettoyage complet du state conducteur...');
+        localStorage.removeItem('smartcab_current_driver');
+        localStorage.removeItem('smartcab_current_user');
+        setCurrentDriver(null);
+        
         // 📱 Envoyer SMS de confirmation d'inscription
         if (formData.phone) {
           try {
@@ -268,11 +275,9 @@ export function DriverRegistrationScreen() {
           }
         }
         
-        // ✅ FIX: Rediriger vers l'écran de bienvenue avec message d'attente
-        // Ne PAS donner accès au dashboard avant approbation
-        setTimeout(() => {
-          setCurrentScreen('driver-login');
-        }, 2000);
+        // ✅ FIX FINAL: Rediriger IMMÉDIATEMENT vers l'écran de connexion
+        // Ne PAS attendre 2 secondes pour éviter toute détection du profil
+        setCurrentScreen('driver-login');
       } else {
         toast.error(result.error || 'Erreur lors de l\'inscription');
       }
