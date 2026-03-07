@@ -322,6 +322,41 @@ export function AdminDashboard() {
     }
   };
 
+  // 🔄 NOUVELLE FONCTION: Synchroniser les conducteurs depuis Auth vers KV
+  const handleSyncDrivers = async () => {
+    try {
+      console.log('🔄 Synchronisation conducteurs Auth → KV...');
+      toast.info('Synchronisation en cours...');
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/sync-drivers`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('✅ SYNCHRONISATION TERMINÉE:', result);
+        toast.success(`✅ Synchronisation réussie !`, {
+          description: `${result.synced} conducteur(s) ajouté(s), ${result.skipped} déjà existant(s)`
+        });
+        
+        // Rafraîchir les données
+        refresh();
+      } else {
+        toast.error(result.error || 'Erreur synchronisation');
+      }
+    } catch (error) {
+      console.error('❌ Erreur synchronisation:', error);
+      toast.error('Erreur lors de la synchronisation');
+    }
+  };
+
   // 🔍 NOUVELLE FONCTION: Prévisualiser les données de test qui seront supprimées
   const handlePreviewTestData = async () => {
     try {
@@ -865,6 +900,16 @@ export function AdminDashboard() {
       count: null,
       highlight: true,
       color: 'from-blue-500 to-indigo-500'
+    },
+    {
+      id: 'action-sync-drivers-auth-kv',
+      title: '🔄 Sync Auth → KV',
+      description: 'Synchroniser les conducteurs depuis Auth vers KV',
+      icon: RefreshCw,
+      action: handleSyncDrivers,
+      count: null,
+      highlight: true,
+      color: 'from-green-500 to-emerald-500'
     },
     {
       id: 'action-migrate-profiles',
