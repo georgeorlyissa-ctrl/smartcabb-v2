@@ -210,7 +210,12 @@ export function AdminDashboard() {
   const activeRides = rides.filter(r => r.status === 'started').length;
   const completedRides = rides.filter(r => r.status === 'completed');
   const onlineDrivers = drivers.filter(d => d.is_available).length;
-  const pendingDrivers = drivers.filter(d => !d.isApproved && d.isApproved !== undefined); // ✅ Conducteurs non approuvés (pending)
+  
+  // ✅ FIX: Filtrer par status ET isApproved pour les conducteurs en attente
+  const pendingDrivers = drivers.filter(d => 
+    (d.status === 'pending' || !d.isApproved || d.isApproved === false)
+  );
+  
   const totalRevenue = stats.totalRevenue;
   
   const averageRating = drivers.length > 0
