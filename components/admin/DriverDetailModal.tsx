@@ -516,7 +516,7 @@ export function DriverDetailModal({
   };
 
   const handleDelete = async () => {
-    if (!confirm(`⚠️ ATTENTION : Êtes-vous sûr de vouloir supprimer complètement ce conducteur ?\n\n👤 ${driver.full_name}\n📧 ${driver.email}\n📱 ${driver.phone || 'N/A'}\n🚗 ${driverVehicle?.make} ${driverVehicle?.model} (${driverVehicle?.license_plate})\n\nCette action est IRRÉVERSIBLE et supprimera :\n✓ Le compte auth\n✓ Le profil dans la base de données\n✓ Le profil conducteur\n✓ Toutes les données associées\n\nLe conducteur pourra se réinscrire avec les mêmes identifiants.`)) {
+    if (!confirm(`⚠️ ATTENTION : Êtes-vous sûr de vouloir supprimer complètement ce conducteur ?\n\n👤 ${driver.full_name}\n📱 ${driver.phone || 'N/A'}\n🚗 ${driverVehicle?.make} ${driverVehicle?.model} (${driverVehicle?.license_plate})\n\nCette action est IRRÉVERSIBLE et supprimera :\n✓ Le compte auth\n✓ Le profil dans la base de données\n✓ Le profil conducteur\n✓ Toutes les données associées\n\nLe conducteur pourra se réinscrire avec les mêmes identifiants.`)) {
       return;
     }
 
@@ -686,7 +686,11 @@ export function DriverDetailModal({
                   ) : (
                     <div className="flex items-center space-x-2 mt-2">
                       <Mail className="w-4 h-4 text-gray-500" />
-                      <span>{driver.email}</span>
+                      <span>
+                        {driver.email?.includes('@smartcabb.app') 
+                          ? '(Email interne masqué)' 
+                          : driver.email}
+                      </span>
                     </div>
                   )}
                 </div>
