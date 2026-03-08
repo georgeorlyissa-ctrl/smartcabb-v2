@@ -140,27 +140,6 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
     toast.success('Fichier CSV téléchargé !');
   };
 
-  // Toggle affichage mot de passe
-  const togglePasswordVisibility = (userId: string) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [userId]: !prev[userId]
-    }));
-  };
-
-  // ✅ NOUVEAU: Toggle affichage de TOUS les mots de passe
-  const toggleAllPasswords = () => {
-    const newValue = !showAllPasswords;
-    setShowAllPasswords(newValue);
-    
-    // Mettre à jour tous les mots de passe en même temps
-    const newShowPasswords: { [key: string]: boolean } = {};
-    filteredUsers.forEach(user => {
-      newShowPasswords[user.id] = newValue;
-    });
-    setShowPasswords(newShowPasswords);
-  };
-
   // Supprimer tous les passagers
   const deleteAllPassengers = async () => {
     const confirmation = window.confirm(
@@ -461,15 +440,10 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
                     <div className="flex items-center gap-2">
                       <span>Mot de passe</span>
                       <button
-                        onClick={toggleAllPasswords}
                         className="p-1 hover:bg-gray-200 rounded transition-colors"
-                        title={showAllPasswords ? 'Masquer tous les mots de passe' : 'Afficher tous les mots de passe'}
+                        title="Masquer tous les mots de passe"
                       >
-                        {showAllPasswords ? (
-                          <EyeOff className="w-4 h-4 text-gray-500" />
-                        ) : (
-                          <Eye className="w-4 h-4 text-gray-500" />
-                        )}
+                        <EyeOff className="w-4 h-4 text-gray-500" />
                       </button>
                     </div>
                   </th>
@@ -540,18 +514,13 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                            {showPasswords[user.id] ? user.password : '••••••••'}
+                            ••••••••
                           </code>
                           <button
-                            onClick={() => togglePasswordVisibility(user.id)}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
-                            title={showPasswords[user.id] ? 'Masquer' : 'Afficher'}
+                            title="Masquer"
                           >
-                            {showPasswords[user.id] ? (
-                              <EyeOff className="w-4 h-4 text-gray-400" />
-                            ) : (
-                              <Eye className="w-4 h-4 text-gray-400" />
-                            )}
+                            <EyeOff className="w-4 h-4 text-gray-400" />
                           </button>
                           <button
                             onClick={() => copyToClipboard(user.password, 'Mot de passe')}
