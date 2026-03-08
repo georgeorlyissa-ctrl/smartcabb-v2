@@ -199,12 +199,16 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       };
     }
     
-    // ✅ FIX: Supabase signInWithPassword retourne access_token directement dans data
-    if (!authData?.user || !authData?.access_token) {
+    // ✅ FIX: Supabase signInWithPassword retourne access_token dans data.session
+    const accessToken = authData?.session?.access_token || authData?.access_token;
+    
+    if (!authData?.user || !accessToken) {
       console.error('❌ [signIn] Réponse Supabase incomplète:');
       console.error('   - data:', authData);
       console.error('   - data.user:', authData?.user);
+      console.error('   - data.session:', authData?.session);
       console.error('   - data.access_token:', authData?.access_token ? '[présent]' : '[absent]');
+      console.error('   - data.session.access_token:', authData?.session?.access_token ? '[présent]' : '[absent]');
       console.error('   - Authentification échouée sans token valide');
       
       return {
@@ -216,7 +220,7 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     console.log('✅ [signIn] Authentification Supabase réussie');
     console.log('   - User ID:', authData.user.id);
     console.log('   - Email:', authData.user.email);
-    console.log('   - Access token:', authData.access_token ? '[présent]' : '[absent]');
+    console.log('   - Access token:', accessToken ? '[présent]' : '[absent]');
     
     // ✅ Récupérer le profil depuis Postgres
     console.log('🔍 [signIn] Récupération du profil depuis Postgres...');
@@ -237,7 +241,7 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       success: true,
       user: authData.user,
       profile,
-      accessToken: authData.access_token
+      accessToken // ✅ Utiliser le token extrait (session ou direct)
     };
     
   } catch (error) {
