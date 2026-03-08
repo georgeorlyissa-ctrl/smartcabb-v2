@@ -74,18 +74,26 @@ export function AdminLoginScreen() {
       const result = await authService.signIn({ identifier: email, password });
 
       if (!result.success) {
-        console.error('❌ Erreur authentification:', result.error || 'Erreur inconnue');
+        // ✅ FIX: Convertir l'erreur en string pour éviter [object Object]
+        let errorMsg = 'Erreur inconnue';
+        if (result.error) {
+          if (typeof result.error === 'string') {
+            errorMsg = result.error;
+          } else if (typeof result.error === 'object') {
+            errorMsg = result.error.message || JSON.stringify(result.error);
+          }
+        }
+        
+        console.error('❌ Erreur authentification:', errorMsg);
         
         // Si c'est une erreur d'identifiants invalides, proposer la synchronisation
-        if (result.error && (
-          result.error.includes('Invalid login credentials') ||
-          result.error.includes('Email ou mot de passe incorrect') ||
-          result.error.includes('incorrect')
-        )) {
+        if (errorMsg.includes('Invalid login credentials') ||
+            errorMsg.includes('Email ou mot de passe incorrect') ||
+            errorMsg.includes('incorrect')) {
           toast.error('Identifiants incorrects. Vérifiez vos informations de connexion.');
           setShowSyncLink(true); // Afficher le lien de synchronisation
         } else {
-          toast.error(result.error || 'Identifiants incorrects');
+          toast.error(errorMsg);
         }
         
         setLoading(false);
