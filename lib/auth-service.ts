@@ -87,7 +87,9 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       
       // MODE STANDALONE : Générer l'email directement sans appel backend
       // ✅ CORRECTION: Préfixe "u" + numéro SANS + pour que Supabase accepte
-      email = `u${normalizedPhone}@smartcabb.app`;
+      // normalizedPhone = +243XXXXXXXXX, on retire le +
+      const phoneWithoutPlus = normalizedPhone.startsWith('+') ? normalizedPhone.substring(1) : normalizedPhone;
+      email = `u${phoneWithoutPlus}@smartcabb.app`;
       console.log('🔐 Email généré:', email);
     } else if (inputType === 'email') {
       // Vérifier que l'email est valide
@@ -104,7 +106,8 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
       if (normalizedPhone) {
         console.log('📱 Traitement comme téléphone:', normalizedPhone);
         // ✅ CORRECTION: Préfixe "u" + numéro SANS + pour que Supabase accepte
-        email = `u${normalizedPhone}@smartcabb.app`;
+        const phoneWithoutPlus = normalizedPhone.startsWith('+') ? normalizedPhone.substring(1) : normalizedPhone;
+        email = `u${phoneWithoutPlus}@smartcabb.app`;
       } else {
         return {
           success: false,
