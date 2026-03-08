@@ -4,8 +4,8 @@
  * Implémentation 100% locale sans dépendances externes
  * Compatible avec tous les navigateurs et Safari/iOS
  * 
- * @version 2.0.0 - Standalone (sans sonner)
- * @date 2026-01-21
+ * @version 2.0.1 - Fix [object Object] avec ReactNode
+ * @date 2026-03-08
  */
 
 // 🎯 Type de toast
@@ -23,6 +23,9 @@ export interface ToastOptions {
     onClick: () => void;
   };
 }
+
+// 🎯 Type de message (string OU any pour ReactNode)
+export type ToastMessage = string | any;
 
 // 🎨 Icônes emoji par type
 const TOAST_ICONS: Record<ToastType, string> = {
@@ -99,7 +102,7 @@ function getOrCreateContainer(position: ToastOptions['position']): HTMLDivElemen
  * 🎨 Créer un élément toast
  */
 function createToastElement(
-  message: string,
+  message: ToastMessage,
   type: ToastType,
   options: ToastOptions
 ): HTMLDivElement {
@@ -144,7 +147,43 @@ function createToastElement(
   
   // Message
   const messageEl = document.createElement('div');
-  messageEl.textContent = message;
+  
+  // ✅ FIX v2.0.1 : Convertir le message de manière sécurisée
+  if (typeof message === 'string') {
+    // String normale : utiliser textContent (sécurisé)
+    messageEl.textContent = message;
+  } else if (message && typeof message === 'object') {
+    // ✅ NOUVEAU : Si c'est un objet React/JSX, ne RIEN afficher dans le toast
+    // Les erreurs de login afficheront setErrorMsg() à la place
+    console.warn('[Toast] ReactNode détecté - Conversion en string');
+    
+    // Essayer d'extraire le texte de l'objet
+    if (message.props && message.props.children) {
+      // Extraire récursivement le texte des children React
+      const extractText = (node: any): string => {
+        if (typeof node === 'string') return node;
+        if (Array.isArray(node)) return node.map(extractText).join(' ');
+        if (node && node.props && node.props.children) {
+          return extractText(node.props.children);
+        }
+        return '';
+      };
+      
+      const text = extractText(message.props.children);
+      messageEl.textContent = text || '[Message complexe - voir console]';
+    } else if (message.message) {
+      // Si l'objet a une propriété .message
+      messageEl.textContent = String(message.message);
+    } else {
+      // Dernier recours : afficher une erreur générique
+      messageEl.textContent = 'Erreur de connexion - Consultez la console';
+      console.error('[Toast] Impossible de convertir le message:', message);
+    }
+  } else {
+    // Valeur invalide
+    messageEl.textContent = String(message) || 'Notification';
+  }
+  
   messageEl.style.cssText = `
     font-weight: 500;
   `;
@@ -215,7 +254,7 @@ function createToastElement(
  * 📤 Afficher un toast
  */
 function showToast(
-  message: string,
+  message: ToastMessage,
   type: ToastType = 'info',
   options: ToastOptions = {}
 ): number {
@@ -310,28 +349,28 @@ function showToast(
  */
 export const toast = Object.assign(
   // Fonction par défaut (appel direct: toast('message'))
-  (message: string, options?: ToastOptions) => 
+  (message: ToastMessage, options?: ToastOptions) => 
     showToast(message, 'info', options),
   
   // Méthodes
   {
-    success: (message: string, options?: ToastOptions) => 
+    success: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'success', options),
     
-    error: (message: string, options?: ToastOptions) => 
+    error: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'error', options),
     
-    info: (message: string, options?: ToastOptions) => 
+    info: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'info', options),
     
-    warning: (message: string, options?: ToastOptions) => 
+    warning: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'warning', options),
     
-    loading: (message: string, options?: ToastOptions) => 
+    loading: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'loading', options),
     
     // Toast générique
-    message: (message: string, options?: ToastOptions) => 
+    message: (message: ToastMessage, options?: ToastOptions) => 
       showToast(message, 'info', options),
     
     // Fermer un toast spécifique
