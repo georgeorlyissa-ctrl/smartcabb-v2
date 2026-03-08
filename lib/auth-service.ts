@@ -280,20 +280,17 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
     
     console.log('📞 [signUp] Téléphone normalisé:', normalizedPhone);
     
-    // Déterminer l'email final à utiliser
-    let finalEmail: string;
+    // ✅ FIX: Ne PAS envoyer d'email au backend si c'est juste un numéro de téléphone
+    // Le backend générera automatiquement l'email @smartcabb.app
+    let finalEmail: string | undefined;
     if (email && email.trim() && isValidEmail(email)) {
-      // Email fourni et valide
+      // Email fourni et valide - l'utiliser
       finalEmail = email.trim().toLowerCase();
-    } else if (normalizedPhone) {
-      // Pas d'email valide mais téléphone fourni
-      finalEmail = generateEmailFromPhone(normalizedPhone);
-      console.log('📧 Email généré depuis téléphone:', finalEmail);
+      console.log('📧 Email réel fourni:', finalEmail);
     } else {
-      return {
-        success: false,
-        error: 'Veuillez fournir un email ou un numéro de téléphone valide'
-      };
+      // Pas d'email réel - laisser le backend générer l'email @smartcabb.app
+      finalEmail = undefined; // ✅ Ne pas envoyer d'email généré
+      console.log('📧 Pas d\'email fourni, le backend générera l\'email automatiquement');
     }
     
     console.log('📝 Inscription avec:', { finalEmail, phone: normalizedPhone, role });
@@ -346,7 +343,7 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
 
       // Se connecter automatiquement après inscription
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: finalEmail,
+        email: finalEmail || `u${normalizedPhone}@smartcabb.app`,
         password
       });
 
@@ -376,7 +373,7 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
       console.log('📱 Téléphone:', normalizedPhone);
       
       const { data, error } = await supabase.auth.signUp({
-        email: finalEmail,
+        email: finalEmail || `u${normalizedPhone}@smartcabb.app`,
         password,
         options: {
           data: {
@@ -429,7 +426,7 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
       try {
         profile = await profileService.createProfile({
           id: data.user.id,
-          email: finalEmail,
+          email: finalEmail || `u${normalizedPhone}@smartcabb.app`,
           full_name: fullName,
           phone: normalizedPhone || undefined,
           role
