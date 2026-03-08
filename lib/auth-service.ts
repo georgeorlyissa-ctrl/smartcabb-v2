@@ -5,9 +5,17 @@ import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { apiCache, CACHE_DURATION } from './api-cache'; // ⚡ OPTIMISATION
 
 /**
- * Service d'authentification pour SmartCabb (Version optimisée)
- * Authentification uniquement par numéro de téléphone
- * Les emails sont générés automatiquement en arrière-plan pour Supabase
+ * 🔐 SERVICE D'AUTHENTIFICATION SMARTCABB
+ * @version 3.0.0 - 2026-03-08
+ * @description Mode STANDALONE - Connexion directe Supabase (pas de backend)
+ * 
+ * ✅ FONCTIONNALITÉS :
+ * - Connexion par téléphone ou email
+ * - Génération automatique d'email pour numéros de téléphone
+ * - Pas d'appels backend /auth/login (404 supprimés)
+ * - Format email : u243XXXXXXXXX@smartcabb.app
+ * 
+ * ⚠️ IMPORTANT : Ce fichier remplace tous les anciens auth-service
  */
 
 export interface LoginCredentials {
