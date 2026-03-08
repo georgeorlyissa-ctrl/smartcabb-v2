@@ -64,6 +64,18 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
                          (filterStatus === 'pending' && !driver.isApproved); // ✅ FIX: isApproved === false = pending
     return matchesSearch && matchesFilter;
   });
+  
+  // ✅ Calculer les statistiques basées sur le filtre actif
+  const stats = {
+    total: filterStatus === 'pending' 
+      ? filteredDrivers.length  // Si filtre "En attente", afficher le nombre filtré
+      : (drivers || []).length, // Sinon, afficher tous les conducteurs
+    totalRides: (drivers || []).reduce((total, driver) => total + (driver.total_rides || 0), 0),
+    activeDrivers: (drivers || []).filter(d => d.is_available).length,
+    averageRating: (drivers || []).length > 0 
+      ? ((drivers || []).reduce((sum, d) => sum + (d.rating || 0), 0) / (drivers || []).length).toFixed(1)
+      : '0.0'
+  };
 
   const handleOpenDriverDetails = async (driver: EnrichedDriver) => {
     setSelectedDriver(driver);
@@ -413,7 +425,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total conducteurs</p>
-                <p className="text-2xl font-bold">{(drivers || []).length}</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
               </div>
             </div>
           </Card>
@@ -426,7 +438,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
               <div>
                 <p className="text-sm text-gray-600">Courses totales</p>
                 <p className="text-2xl font-bold">
-                  {(drivers || []).reduce((total, driver) => total + (driver.total_rides || 0), 0)}
+                  {stats.totalRides}
                 </p>
               </div>
             </div>
@@ -440,7 +452,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
               <div>
                 <p className="text-sm text-gray-600">Conducteurs actifs</p>
                 <p className="text-2xl font-bold">
-                  {(drivers || []).filter(d => d.is_available).length}
+                  {stats.activeDrivers}
                 </p>
               </div>
             </div>
@@ -454,10 +466,7 @@ export function DriversListScreen({ onBack }: DriversListScreenProps) {
               <div>
                 <p className="text-sm text-gray-600">Note moyenne</p>
                 <p className="text-2xl font-bold">
-                  {(drivers || []).length > 0 
-                    ? ((drivers || []).reduce((sum, d) => sum + (d.rating || 0), 0) / (drivers || []).length).toFixed(1)
-                    : '0.0'
-                  }
+                  {stats.averageRating}
                 </p>
               </div>
             </div>
