@@ -33,8 +33,6 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'Passager' | 'Conducteur' | 'Administrateur'>('all');
-  const [showPasswords, setShowPasswords] = useState<{ [key: string]: boolean }>({});
-  const [showAllPasswords, setShowAllPasswords] = useState(false); // ✅ NOUVEAU: Toggle global pour tous les mots de passe
   const [stats, setStats] = useState({ passengers: 0, drivers: 0, admins: 0 });
   const { setCurrentScreen } = useAppState();
 
@@ -114,14 +112,13 @@ export function UsersManagementScreen({ onBack }: UsersManagementScreenProps) {
 
   // Exporter en CSV
   const exportToCSV = () => {
-    const headers = ['Rôle', 'Nom', 'Téléphone', 'Email', 'Mot de passe', 'Solde', 'Type de compte', 'Véhicule', 'Statut', 'Date création'];
+    const headers = ['Rôle', 'Nom', 'Téléphone', 'Email', 'Solde', 'Type de compte', 'Véhicule', 'Statut', 'Date création'];  // ✅ SUPPRIMÉ 'Mot de passe'
     
     const rows = filteredUsers.map(user => [
       user.role,
       user.name,
       user.phone,
       user.email,
-      user.password,
       user.balance || '',
       user.accountType || '',
       user.vehicleCategory || '',
