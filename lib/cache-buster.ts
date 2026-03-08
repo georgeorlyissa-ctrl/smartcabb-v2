@@ -1,11 +1,12 @@
 /**
- * 🔄 CACHE BUSTER - Version 3.0.0
+ * 🔄 CACHE BUSTER - Version 3.0.1
  * Force le navigateur à recharger le code JavaScript
  * 
  * @date 2026-03-08
+ * @changelog v3.0.1 - Correction access_token (data.session.access_token)
  */
 
-export const APP_VERSION = '3.0.0-20260308';
+export const APP_VERSION = '3.0.1-20260308';
 
 export function clearAuthCache() {
   try {
