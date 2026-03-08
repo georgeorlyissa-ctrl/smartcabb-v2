@@ -1,12 +1,12 @@
 /**
- * 🔄 CACHE BUSTER - Version 3.0.2
+ * 🔄 CACHE BUSTER - Version 3.0.3
  * Force le navigateur à recharger le code JavaScript
  * 
  * @date 2026-03-08
- * @changelog v3.0.2 - Fix inscription passager (pas d'email requis)
+ * @changelog v3.0.3 - Fix connexion après inscription (email normalisé)
  */
 
-export const APP_VERSION = '3.0.2-20260308';
+export const APP_VERSION = '3.0.3-20260308';
 
 export function clearAuthCache() {
   try {
