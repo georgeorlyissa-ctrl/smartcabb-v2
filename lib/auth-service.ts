@@ -298,6 +298,12 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
     // UTILISER LE SERVEUR pour créer le compte (l'API Admin accepte tous les formats)
     console.log('🔄 Création via API serveur (Admin API)...');
     
+    // ✅ FIX CRITIQUE: Envoyer le téléphone NORMALISÉ au backend pour garantir
+    // que backend et frontend génèrent le même email @smartcabb.app
+    // Format attendu: "243XXXXXXXXX" (sans +, sans espaces, sans tirets)
+    const phoneToSend = normalizedPhone ? normalizedPhone.replace(/[\s\-+]/g, '') : phone;
+    console.log('📱 Téléphone envoyé au backend:', phoneToSend);
+    
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/signup-passenger`,
@@ -309,7 +315,7 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
           },
           body: JSON.stringify({
             email: finalEmail,
-            phone: normalizedPhone,
+            phone: phoneToSend,  // ✅ Téléphone normalisé
             password,
             fullName,
             role
@@ -342,8 +348,12 @@ export async function signUp(userData: SignUpData): Promise<AuthResult> {
       console.log('✅ Compte créé via serveur:', result);
 
       // Se connecter automatiquement après inscription
+      // ✅ FIX: Utiliser le même email que celui généré par le backend
+      const emailToUse = finalEmail || `u${phoneToSend}@smartcabb.app`;
+      console.log('🔐 Connexion automatique avec email:', emailToUse);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: finalEmail || `u${normalizedPhone}@smartcabb.app`,
+        email: emailToUse,
         password
       });
 
