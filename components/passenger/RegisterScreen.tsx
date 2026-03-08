@@ -156,7 +156,15 @@ export function RegisterScreen() {
         }, 500);
       } else {
         // 🔍 Détecter si l'utilisateur existe déjà
-        const errorMessage = result.error || 'Erreur lors de l\'inscription';
+        // ✅ FIX: Convertir l'erreur en string pour éviter [object Object]
+        let errorMessage = 'Erreur lors de l\'inscription';
+        if (result.error) {
+          if (typeof result.error === 'string') {
+            errorMessage = result.error;
+          } else if (typeof result.error === 'object') {
+            errorMessage = result.error.message || JSON.stringify(result.error);
+          }
+        }
         
         console.error('❌ Erreur inscription:', errorMessage);
         
