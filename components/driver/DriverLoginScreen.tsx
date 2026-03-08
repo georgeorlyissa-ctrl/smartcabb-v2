@@ -56,7 +56,15 @@ export function DriverLoginScreen() {
         }
         
         // Afficher l'erreur de connexion
-        const errorMsg = result.error || 'Erreur de connexion';
+        // ✅ FIX: Convertir l'erreur en string pour éviter [object Object]
+        let errorMsg = 'Erreur de connexion';
+        if (result.error) {
+          if (typeof result.error === 'string') {
+            errorMsg = result.error;
+          } else if (typeof result.error === 'object') {
+            errorMsg = result.error.message || JSON.stringify(result.error);
+          }
+        }
         
         // ✅ CAS 2 : Si identifiants incorrects, proposer de créer un compte
         if (errorMsg.includes('Identifiants incorrects') || errorMsg.includes('Invalid login credentials')) {
