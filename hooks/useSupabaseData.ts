@@ -55,6 +55,7 @@ export type EnrichedRide = Ride & {
 
 export function useSupabaseData() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [passengers, setPassengers] = useState<any[]>([]); // ✅ AJOUTÉ: State séparé pour les passagers du KV
   const [rawDrivers, setRawDrivers] = useState<Driver[]>([]);
   const [drivers, setDrivers] = useState<EnrichedDriver[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -281,6 +282,7 @@ export function useSupabaseData() {
       }
 
       setProfiles(profilesData);
+      setPassengers(profilesData); // ✅ AJOUTÉ: Assigner les passagers
       setRawDrivers(driversData);
       setVehicles(vehiclesData);
       setRawRides(ridesData);
@@ -420,8 +422,9 @@ export function useSupabaseData() {
 
   // Obtenir les passagers (profils avec role = 'passenger')
   const getPassengers = useCallback(() => {
-    return profiles.filter(p => p.role === 'passenger');
-  }, [profiles]);
+    // ✅ FIX: Retourner directement les passagers du KV store
+    return passengers;
+  }, [passengers]); // ✅ Dépendance corrigée
 
   // Obtenir les admins
   const getAdmins = useCallback(() => {
@@ -433,7 +436,7 @@ export function useSupabaseData() {
     const completedRides = rides.filter(r => r.status === 'completed');
     const totalRevenue = completedRides.reduce((sum, ride) => sum + (ride.estimatedPrice || 0), 0);
     const activeDrivers = drivers.filter(d => d.is_available && d.status === 'approved');
-    const totalPassengers = profiles.filter(p => p.role === 'passenger').length;
+    const totalPassengers = passengers.length; // ✅ FIX: Utiliser passengers.length
 
     return {
       totalRevenue,
@@ -444,7 +447,7 @@ export function useSupabaseData() {
       totalPassengers,
       pendingDrivers: drivers.filter(d => d.status === 'pending').length,
     };
-  }, [rides, drivers, profiles]);
+  }, [rides, drivers, passengers]); // ✅ Dépendance corrigée
 
   // Obtenir le véhicule d'un conducteur
   const getDriverVehicle = useCallback(async (driverId: string) => {
