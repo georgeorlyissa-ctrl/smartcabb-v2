@@ -1,12 +1,12 @@
 /**
- * 🔄 CACHE BUSTER - Version 3.0.5
+ * 🔄 CACHE BUSTER - Version 3.0.7
  * Force le navigateur à recharger le code JavaScript
  * 
  * @date 2026-03-09
- * @changelog v3.0.5 - FIX FINAL : Conversion JSX en strings dans tous les toasts
+ * @changelog v3.0.7 - Fix erreur "Driver non trouvé: signup" - Ajout route POST /drivers/signup dans index.tsx
  */
 
-export const APP_VERSION = '3.0.5-20260309';
+export const APP_VERSION = '3.0.7-20260309';
 
 export function clearAuthCache() {
   try {
