@@ -84,7 +84,12 @@ function DriverAppContent() {
           console.warn(`⚠️ Conducteur avec statut "${driverStatus}" détecté, redirection vers login`);
           setCurrentDriver(null); // Nettoyer le state
           localStorage.removeItem('smartcab_current_driver'); // Nettoyer le localStorage
-          setCurrentScreen('driver-login');
+          
+          // ✅ FIX: Ne PAS afficher de toast ni rediriger si on est déjà sur l'écran d'inscription
+          // Cela évite le toast "Conducteur non trouvé" pendant l'inscription
+          if (currentScreen !== 'driver-registration') {
+            setCurrentScreen('driver-login');
+          }
           return;
         }
       }
