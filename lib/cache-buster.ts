@@ -1,12 +1,12 @@
 /**
- * 🔄 CACHE BUSTER - Version 3.0.4
+ * 🔄 CACHE BUSTER - Version 3.0.9
  * Force le navigateur à recharger le code JavaScript
  * 
- * @date 2026-03-08
- * @changelog v3.0.4 - Fix toast "[object Object]" (extraction texte ReactNode)
+ * @date 2026-03-09
+ * @changelog v3.0.9 - FIX FINAL "Profil introuvable" - Ajout routes GET /passengers/:id et POST /passengers/signup + Fix export toast.ts
  */
 
-export const APP_VERSION = '3.0.4-20260308';
+export const APP_VERSION = '3.0.9-20260309';
 
 export function clearAuthCache() {
   try {
