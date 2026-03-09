@@ -4,8 +4,8 @@
  * Implémentation 100% locale sans dépendances externes
  * Compatible avec tous les navigateurs et Safari/iOS
  * 
- * @version 2.0.1 - Fix [object Object] avec ReactNode
- * @date 2026-03-08
+ * @version 3.0.5 - CORRECTION FINALE : Tous les JSX convertis en strings
+ * @date 2026-03-09
  */
 
 // 🎯 Type de toast
@@ -149,39 +149,44 @@ function createToastElement(
   const messageEl = document.createElement('div');
   
   // ✅ FIX v2.0.1 : Convertir le message de manière sécurisée
-  if (typeof message === 'string') {
-    // String normale : utiliser textContent (sécurisé)
-    messageEl.textContent = message;
-  } else if (message && typeof message === 'object') {
-    // ✅ NOUVEAU : Si c'est un objet React/JSX, ne RIEN afficher dans le toast
-    // Les erreurs de login afficheront setErrorMsg() à la place
-    console.warn('[Toast] ReactNode détecté - Conversion en string');
-    
-    // Essayer d'extraire le texte de l'objet
-    if (message.props && message.props.children) {
-      // Extraire récursivement le texte des children React
-      const extractText = (node: any): string => {
-        if (typeof node === 'string') return node;
-        if (Array.isArray(node)) return node.map(extractText).join(' ');
-        if (node && node.props && node.props.children) {
-          return extractText(node.props.children);
-        }
-        return '';
-      };
+  try {
+    if (typeof message === 'string') {
+      // String normale : utiliser textContent (sécurisé)
+      messageEl.textContent = message;
+    } else if (message && typeof message === 'object') {
+      // ✅ NOUVEAU : Si c'est un objet React/JSX, extraire le texte
+      console.warn('[Toast] ReactNode détecté - Conversion en string');
       
-      const text = extractText(message.props.children);
-      messageEl.textContent = text || '[Message complexe - voir console]';
-    } else if (message.message) {
-      // Si l'objet a une propriété .message
-      messageEl.textContent = String(message.message);
+      // Essayer d'extraire le texte de l'objet
+      if (message.props && message.props.children) {
+        // Extraire récursivement le texte des children React
+        const extractText = (node: any): string => {
+          if (typeof node === 'string') return node;
+          if (Array.isArray(node)) return node.map(extractText).join(' ');
+          if (node && node.props && node.props.children) {
+            return extractText(node.props.children);
+          }
+          return '';
+        };
+        
+        const text = extractText(message.props.children);
+        messageEl.textContent = text || '[Message complexe - voir console]';
+      } else if (message.message) {
+        // Si l'objet a une propriété .message
+        messageEl.textContent = String(message.message);
+      } else {
+        // Dernier recours : afficher une erreur générique
+        messageEl.textContent = 'Erreur de connexion - Consultez la console';
+        console.error('[Toast] Impossible de convertir le message:', message);
+      }
     } else {
-      // Dernier recours : afficher une erreur générique
-      messageEl.textContent = 'Erreur de connexion - Consultez la console';
-      console.error('[Toast] Impossible de convertir le message:', message);
+      // Valeur invalide
+      messageEl.textContent = String(message) || 'Notification';
     }
-  } else {
-    // Valeur invalide
-    messageEl.textContent = String(message) || 'Notification';
+  } catch (error) {
+    // Protection contre toute erreur de conversion
+    console.error('[Toast] Erreur lors de la conversion du message:', error);
+    messageEl.textContent = 'Notification';
   }
   
   messageEl.style.cssText = `
