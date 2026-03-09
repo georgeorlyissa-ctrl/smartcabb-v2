@@ -33,18 +33,12 @@ export function DriverLoginScreen() {
         // ✅ CAS 1 : Erreur réseau (serveur non accessible)
         if (result.error?.includes('Impossible de contacter le serveur')) {
           toast.error(
-            <div className="space-y-3">
-              <p className="font-semibold">🌐 Problème de connexion</p>
-              <p className="text-sm">Impossible de contacter le serveur d'authentification Supabase.</p>
-              <div className="text-sm space-y-2 bg-gray-50 p-3 rounded">
-                <p className="font-medium">Solutions possibles :</p>
-                <ul className="list-disc list-inside text-xs space-y-1">
-                  <li>Vérifiez votre connexion internet</li>
-                  <li>Vérifiez que Supabase est accessible</li>
-                  <li>Consultez la console développeur (F12)</li>
-                </ul>
-              </div>
-            </div>,
+            '🌐 Problème de connexion\n\n' +
+            'Impossible de contacter le serveur d\'authentification Supabase.\n\n' +
+            'Solutions possibles :\n' +
+            '• Vérifiez votre connexion internet\n' +
+            '• Vérifiez que Supabase est accessible\n' +
+            '• Consultez la console développeur (F12)',
             {
               duration: 10000,
               position: 'top-center'
@@ -69,22 +63,16 @@ export function DriverLoginScreen() {
         // ✅ CAS 2 : Si identifiants incorrects, proposer de créer un compte
         if (errorMsg.includes('Identifiants incorrects') || errorMsg.includes('Invalid login credentials')) {
           toast.error(
-            <div className="space-y-3">
-              <p className="font-semibold">❌ Aucun compte trouvé</p>
-              <p className="text-sm">Ces identifiants ne correspondent à aucun compte conducteur existant.</p>
-              
-              <div className="space-y-2">
-                <button 
-                  onClick={() => setCurrentScreen('driver-registration')}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 w-full font-medium"
-                >
-                  ✨ Créer mon compte conducteur
-                </button>
-              </div>
-            </div>,
+            '❌ ❌ Aucun compte trouvé\n\n' +
+            'Ces identifiants ne correspondent à aucun compte conducteur existant.\n\n' +
+            '✨ Créer mon compte conducteur',
             {
               duration: 15000,
-              position: 'top-center'
+              position: 'top-center',
+              action: {
+                label: '✨ Créer mon compte',
+                onClick: () => setCurrentScreen('driver-registration')
+              }
             }
           );
         } else {
