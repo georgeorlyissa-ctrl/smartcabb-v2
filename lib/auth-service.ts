@@ -222,15 +222,72 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     console.log('   - Email:', authData.user.email);
     console.log('   - Access token:', accessToken ? '[présent]' : '[absent]');
     
-    // ✅ Récupérer le profil depuis Postgres
-    console.log('🔍 [signIn] Récupération du profil depuis Postgres...');
-    const profile = await profileService.getProfile(authData.user.id);
+    // ✅ Récupérer le profil depuis le BACKEND (avec auto-réparation UUID)
+    console.log('🔍 [signIn] Récupération du profil depuis le backend...');
     
-    if (!profile) {
-      console.error('❌ [signIn] Aucun profil trouvé pour user ID:', authData.user.id);
-      return {
-        success: false,
-        error: 'Profil introuvable. Veuillez contacter le support.'
+    let profile;
+    try {
+      const profileResponse = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${authData.user.id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (!profileResponse.ok) {
+        const errorData = await profileResponse.json().catch(() => ({ error: 'Erreur inconnue' }));
+        console.error('❌ [signIn] Erreur backend:', errorData);
+        
+        // Fallback : créer un profil minimal depuis les données Auth
+        console.log('⚠️ [signIn] Fallback : utilisation des données Auth');
+        profile = {
+          id: authData.user.id,
+          email: authData.user.email,
+          full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
+          phone: authData.user.user_metadata?.phone || '',
+          role: 'passenger',
+          created_at: authData.user.created_at
+        };
+      } else {
+        const profileData = await profileResponse.json();
+        
+        if (!profileData.success || !profileData.passenger) {
+          console.error('❌ [signIn] Profil invalide dans la réponse:', profileData);
+          
+          // Fallback
+          profile = {
+            id: authData.user.id,
+            email: authData.user.email,
+            full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
+            phone: authData.user.user_metadata?.phone || '',
+            role: 'passenger',
+            created_at: authData.user.created_at
+          };
+        } else {
+          profile = profileData.passenger;
+          
+          // Si le profil a été réparé, afficher l'info
+          if (profileData.repaired) {
+            console.log('🔧 [signIn] Profil réparé automatiquement !');
+            console.log('   - Ancien UUID:', profileData.old_uuid);
+            console.log('   - Nouveau UUID:', profileData.new_uuid);
+          }
+        }
+      }
+    } catch (fetchError) {
+      console.error('❌ [signIn] Erreur fetch profil:', fetchError);
+      
+      // Fallback : créer un profil minimal
+      profile = {
+        id: authData.user.id,
+        email: authData.user.email,
+        full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
+        phone: authData.user.user_metadata?.phone || '',
+        role: 'passenger',
+        created_at: authData.user.created_at
       };
     }
     
