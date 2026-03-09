@@ -1,12 +1,12 @@
 /**
- * 🔄 CACHE BUSTER - Version 3.0.10
+ * 🔄 CACHE BUSTER - Version 3.0.11
  * Force le navigateur à recharger le code JavaScript
  * 
  * @date 2026-03-09
- * @changelog v3.0.10 - SOLUTION COMPLÈTE "Profil introuvable" + Outil de diagnostic + Routes passengers
+ * @changelog v3.0.11 - Outils de diagnostic complets + Analyse profonde erreurs
  */
 
-export const APP_VERSION = '3.0.10-20260309';
+export const APP_VERSION = '3.0.11-diagnostic-20260309';
 
 export function clearAuthCache() {
   try {
