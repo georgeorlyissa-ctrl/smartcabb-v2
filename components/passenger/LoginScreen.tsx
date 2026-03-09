@@ -74,18 +74,12 @@ export function LoginScreen() {
           setErrorMsg('');
           
           toast.error(
-            <div className="space-y-3">
-              <p className="font-semibold">🌐 Problème de connexion</p>
-              <p className="text-sm">Impossible de contacter le serveur d'authentification Supabase.</p>
-              <div className="text-sm space-y-2 bg-gray-50 p-3 rounded">
-                <p className="font-medium">Solutions possibles :</p>
-                <ul className="list-disc list-inside text-xs space-y-1">
-                  <li>Vérifiez votre connexion internet</li>
-                  <li>Vérifiez que Supabase est accessible</li>
-                  <li>Consultez la console développeur (F12)</li>
-                </ul>
-              </div>
-            </div>,
+            '🌐 Problème de connexion\n\n' +
+            'Impossible de contacter le serveur d\'authentification Supabase.\n\n' +
+            'Solutions possibles :\n' +
+            '• Vérifiez votre connexion internet\n' +
+            '• Vérifiez que Supabase est accessible\n' +
+            '• Consultez la console développeur (F12)',
             {
               duration: 10000,
               position: 'top-center'
@@ -104,21 +98,18 @@ export function LoginScreen() {
           setErrorMsg('');
           
           toast.error(
-            <div className="space-y-2">
-              <p className="font-semibold">Compte incomplet détecté</p>
-              <p className="text-sm">Votre profil existe mais votre compte d'authentification n'a pas été créé.</p>
-              <button
-                onClick={() => {
-                  window.location.href = '/auth/create-auth-from-profile';
-                }}
-                className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 w-full"
-              >
-                Activer mon compte maintenant
-              </button>
-            </div>,
+            '⚠️ Compte incomplet détecté\n\n' +
+            'Votre profil existe mais votre compte d\'authentification n\'a pas été créé.\n\n' +
+            'Cliquez sur le bouton ci-dessous pour activer votre compte.',
             {
-              duration: 10000, // 10 secondes
-              position: 'top-center'
+              duration: 10000,
+              position: 'top-center',
+              action: {
+                label: 'Activer mon compte',
+                onClick: () => {
+                  window.location.href = '/auth/create-auth-from-profile';
+                }
+              }
             }
           );
           
@@ -145,24 +136,18 @@ export function LoginScreen() {
         // 🆕 CAS 3 : Si le compte n'existe pas, proposer de s'inscrire OU de créer un compte de test
         if (errorMessage.includes('Identifiants incorrects') || errorMessage.includes('Invalid login credentials')) {
           toast.error(
-            <div className="space-y-3">
-              <p className="font-semibold">❌ Aucun compte trouvé</p>
-              <p className="text-sm">Ces identifiants ne correspondent à aucun compte existant.</p>
-              
-              <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    setCurrentScreen('register');
-                  }}
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm hover:bg-cyan-700 w-full font-medium"
-                >
-                  ✨ Créer mon compte
-                </button>
-              </div>
-            </div>,
+            '❌ Aucun compte trouvé\n\n' +
+            'Ces identifiants ne correspondent à aucun compte existant.\n\n' +
+            '✨ Créer mon compte',
             {
               duration: 15000,
-              position: 'top-center'
+              position: 'top-center',
+              action: {
+                label: '✨ Créer mon compte',
+                onClick: () => {
+                  setCurrentScreen('register');
+                }
+              }
             }
           );
         } else {
@@ -331,14 +316,9 @@ export function LoginScreen() {
       setLoading(false);
       setErrorMsg('Erreur lors de la connexion');
       
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       toast.error(
-        <div className="space-y-2">
-          <p className="font-semibold">❌ Erreur inattendue</p>
-          <p className="text-sm">{error instanceof Error ? error.message : 'Erreur inconnue'}</p>
-          <div className="text-xs bg-gray-50 p-2 rounded">
-            Consultez la console (F12) pour plus de détails
-          </div>
-        </div>,
+        `❌ Erreur inattendue\n\n${errorMessage}\n\nConsultez la console (F12) pour plus de détails`,
         {
           duration: 8000
         }
