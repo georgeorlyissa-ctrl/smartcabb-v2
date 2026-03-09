@@ -222,20 +222,25 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     console.log('   - Email:', authData.user.email);
     console.log('   - Access token:', accessToken ? '[présent]' : '[absent]');
     
+    // ✅ Récupérer le rôle depuis les métadonnées Auth
+    const userRole = authData.user.user_metadata?.role || 'passenger';
+    console.log('🔍 [signIn] Rôle détecté:', userRole);
+    
     // ✅ Récupérer le profil depuis le BACKEND (avec auto-réparation UUID)
-    console.log('🔍 [signIn] Récupération du profil depuis le backend...');
+    const endpoint = userRole === 'driver' 
+      ? `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${authData.user.id}`
+      : `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${authData.user.id}`;
+    
+    console.log('🔍 [signIn] Récupération du profil depuis:', endpoint);
     
     let profile;
     try {
-      const profileResponse = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${authData.user.id}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-            'Content-Type': 'application/json'
-          }
+      const profileResponse = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${publicAnonKey}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
       
       if (!profileResponse.ok) {
         const errorData = await profileResponse.json().catch(() => ({ error: 'Erreur inconnue' }));
@@ -248,13 +253,13 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
           email: authData.user.email,
           full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
           phone: authData.user.user_metadata?.phone || '',
-          role: 'passenger',
+          role: userRole,
           created_at: authData.user.created_at
         };
       } else {
         const profileData = await profileResponse.json();
         
-        if (!profileData.success || !profileData.passenger) {
+        if (!profileData.success || (!profileData.passenger && !profileData.driver)) {
           console.error('❌ [signIn] Profil invalide dans la réponse:', profileData);
           
           // Fallback
@@ -263,11 +268,11 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
             email: authData.user.email,
             full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
             phone: authData.user.user_metadata?.phone || '',
-            role: 'passenger',
+            role: userRole,
             created_at: authData.user.created_at
           };
         } else {
-          profile = profileData.passenger;
+          profile = profileData.passenger || profileData.driver;
           
           // Si le profil a été réparé, afficher l'info
           if (profileData.repaired) {
@@ -286,7 +291,7 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
         email: authData.user.email,
         full_name: authData.user.user_metadata?.full_name || 'Utilisateur',
         phone: authData.user.user_metadata?.phone || '',
-        role: 'passenger',
+        role: userRole,
         created_at: authData.user.created_at
       };
     }
