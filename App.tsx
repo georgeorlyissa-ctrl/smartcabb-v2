@@ -13,7 +13,7 @@ import { DebugAccountChecker } from './components/debug/DebugAccountChecker';
 import { applyBrowserOptimizations, applySafariFixes, isPrivateBrowsing } from './utils/browserDetection';
 import './lib/cache-buster'; // ✅ Force le rechargement du cache à chaque version
 // ✅ BUILD VERSION - Défini directement ici pour éviter les erreurs d'import
-const BUILD_VERSION = '518.1.9'; // ✅ Incrémenté pour forcer le rechargement (v3.0.4 - fix toast [object Object])
+const BUILD_VERSION = '518.2.0'; // ✅ Incrémenté (v3.0.4 - fix toast [object Object] + protection try/catch)
 const BUILD_TIMESTAMP = new Date().toISOString();
 
 import { startUpdateDetection } from './utils/updateDetector';
@@ -91,7 +91,10 @@ import { AdminQuickSetup } from './components/admin/AdminQuickSetup';
 import { AdminAccountSync } from './components/admin/AdminAccountSync';
 import { QuickAdminSignup } from './components/admin/QuickAdminSignup';
 import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswordScreen';
-// ❌ import { SeedTestUsers } - SUPPRIMÉ - Ne plus créer d'utilisateurs de test
+// ✅ Page de création d'utilisateurs de test (pour résoudre "Invalid login credentials")
+import { CreateTestUsers } from './components/admin/CreateTestUsers';
+// 🔧 Page de réparation des emails malformés
+import { FixEmailsPage } from './components/admin/FixEmailsPage';
 
 // 🔍 Driver Diagnostic
 import { DriverSignupDiagnostic } from './components/driver/DriverSignupDiagnostic';
@@ -458,7 +461,10 @@ function App() {
                   <Route path="/admin/signup" element={<QuickAdminSignup />} />
                   <Route path="/admin/forgot-password" element={<AdminForgotPasswordScreen />} />
                   <Route path="/admin/clean-system" element={<AdminCleanSystem />} />
-                  {/* ❌ Route /admin/seed-test-users SUPPRIMÉE - Ne plus créer d'utilisateurs de test */}
+                  {/* ✅ Page de création d'utilisateurs de test (pour résoudre "Invalid login credentials") */}
+                  <Route path="/admin/create-test-users" element={<CreateTestUsers />} />
+                  {/* 🔧 Page de réparation des emails malformés */}
+                  <Route path="/admin/fix-emails" element={<FixEmailsPage />} />
                   
                   {/* 🔍 Driver Diagnostic Route */}
                   <Route path="/driver/signup-diagnostic" element={<DriverSignupDiagnostic />} />
