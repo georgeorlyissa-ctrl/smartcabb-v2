@@ -13,6 +13,7 @@ import { projectId, publicAnonKey } from '../../utils/supabase/info';
 import { RideNotificationSound } from './RideNotificationSound';
 import { RideNotification } from './RideNotification';
 import { FCMDiagnostic } from './FCMDiagnostic';
+import { PreciseGPSTracker, reverseGeocode } from '../../lib/precise-gps'; // 🆕 Import GPS tracker
 
 // Icônes SVG
 const Home = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -125,6 +126,12 @@ export function DriverDashboardNew() {
   const [showFCMDiagnostic, setShowFCMDiagnostic] = useState(false);
   const [activeRide, setActiveRide] = useState<any>(null);
   const [ridesHistory, setRidesHistory] = useState<any[]>([]);
+
+  // 🆕 États pour la géolocalisation
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [currentAddress, setCurrentAddress] = useState<string>('Localisation en cours...');
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [gpsTracker] = useState(() => new PreciseGPSTracker());
 
   // Charger les données du conducteur
   useEffect(() => {
