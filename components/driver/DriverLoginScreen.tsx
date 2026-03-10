@@ -63,15 +63,18 @@ export function DriverLoginScreen() {
         // ✅ CAS 2 : Si identifiants incorrects, proposer de créer un compte
         if (errorMsg.includes('Identifiants incorrects') || errorMsg.includes('Invalid login credentials')) {
           toast.error(
-            '❌ ❌ Aucun compte trouvé\n\n' +
+            '❌ Aucun compte trouvé\n\n' +
             'Ces identifiants ne correspondent à aucun compte conducteur existant.\n\n' +
-            '✨ Créer mon compte conducteur',
+            '🧪 Besoin de comptes de test ?\n' +
+            'Créez 3 utilisateurs de test en 1 clic !',
             {
-              duration: 15000,
+              duration: 20000,
               position: 'top-center',
               action: {
-                label: '✨ Créer mon compte',
-                onClick: () => setCurrentScreen('driver-registration')
+                label: '🧪 Créer comptes test',
+                onClick: () => {
+                  window.location.href = '/admin/create-test-users';
+                }
               }
             }
           );
