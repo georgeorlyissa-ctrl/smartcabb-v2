@@ -92,7 +92,7 @@ import { AdminAccountSync } from './components/admin/AdminAccountSync';
 import { QuickAdminSignup } from './components/admin/QuickAdminSignup';
 import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswordScreen';
 // ✅ Page de création d'utilisateurs de test (pour résoudre "Invalid login credentials")
-import { CreateTestUsers } from './components/admin/CreateTestUsers';
+// import { CreateTestUsers } from './components/admin/CreateTestUsers';
 // 🔧 Page de réparation des emails malformés
 import { FixEmailsPage } from './components/admin/FixEmailsPage';
 
@@ -462,7 +462,7 @@ function App() {
                   <Route path="/admin/forgot-password" element={<AdminForgotPasswordScreen />} />
                   <Route path="/admin/clean-system" element={<AdminCleanSystem />} />
                   {/* ✅ Page de création d'utilisateurs de test (pour résoudre "Invalid login credentials") */}
-                  <Route path="/admin/create-test-users" element={<CreateTestUsers />} />
+                  {/* <Route path="/admin/create-test-users" element={<CreateTestUsers />} /> */}
                   {/* 🔧 Page de réparation des emails malformés */}
                   <Route path="/admin/fix-emails" element={<FixEmailsPage />} />
                   
