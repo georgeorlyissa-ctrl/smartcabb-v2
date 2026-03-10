@@ -227,7 +227,61 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
     const userRole = authData.user.user_metadata?.role || 'passenger';
     console.log('🔍 [signIn] Rôle détecté:', userRole);
     
-    // ✅ Récupérer le profil depuis le BACKEND (avec auto-réparation UUID)
+    // ✅ GESTION SPÉCIALE POUR LES ADMINS
+    if (userRole === 'admin') {
+      console.log('🛡️ [signIn] Utilisateur admin détecté, récupération du profil depuis le backend...');
+      
+      // Récupérer le profil admin depuis le KV store via le backend
+      const adminEndpoint = `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/profile/${authData.user.id}`;
+      console.log('🔍 [signIn] Tentative de récupération du profil admin:', adminEndpoint);
+      
+      let adminProfile;
+      try {
+        const adminResponse = await fetch(adminEndpoint, {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (adminResponse.ok) {
+          const adminData = await adminResponse.json();
+          if (adminData.success && adminData.admin) {
+            adminProfile = adminData.admin;
+            console.log('✅ [signIn] Profil admin récupéré depuis le backend');
+          }
+        } else {
+          console.log('⚠️ [signIn] Route admin/profile non disponible, utilisation du fallback');
+        }
+      } catch (error) {
+        console.log('⚠️ [signIn] Erreur récupération profil admin, utilisation du fallback');
+      }
+      
+      // Si pas de profil récupéré, créer un profil depuis les métadonnées Auth
+      if (!adminProfile) {
+        console.log('📝 [signIn] Création du profil admin depuis les métadonnées Auth');
+        adminProfile = {
+          id: authData.user.id,
+          email: authData.user.email,
+          full_name: authData.user.user_metadata?.full_name || 'Administrateur',
+          phone: authData.user.user_metadata?.phone || '',
+          role: 'admin',
+          created_at: authData.user.created_at
+        };
+      }
+      
+      console.log('✅ [signIn] Profil admin prêt:', adminProfile.role, adminProfile.full_name);
+      console.log('✅ Connexion admin réussie:', authData.user.id);
+      
+      return {
+        success: true,
+        user: authData.user,
+        profile: adminProfile,
+        accessToken
+      };
+    }
+    
+    // ✅ Récupérer le profil depuis le BACKEND (avec auto-réparation UUID) - POUR PASSAGERS ET CONDUCTEURS
     const endpoint = userRole === 'driver' 
       ? `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${authData.user.id}`
       : `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/passengers/${authData.user.id}`;
