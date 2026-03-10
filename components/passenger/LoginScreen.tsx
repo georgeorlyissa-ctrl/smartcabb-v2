@@ -138,14 +138,15 @@ export function LoginScreen() {
           toast.error(
             '❌ Aucun compte trouvé\n\n' +
             'Ces identifiants ne correspondent à aucun compte existant.\n\n' +
-            '✨ Créer mon compte',
+            '🧪 Besoin de comptes de test ?\n' +
+            'Créez 3 utilisateurs de test en 1 clic !',
             {
-              duration: 15000,
+              duration: 20000,
               position: 'top-center',
               action: {
-                label: '✨ Créer mon compte',
+                label: '🧪 Créer comptes test',
                 onClick: () => {
-                  setCurrentScreen('register');
+                  window.location.href = '/admin/create-test-users';
                 }
               }
             }
