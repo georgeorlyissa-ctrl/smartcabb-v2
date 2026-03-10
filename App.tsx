@@ -13,7 +13,7 @@ import { DebugAccountChecker } from './components/debug/DebugAccountChecker';
 import { applyBrowserOptimizations, applySafariFixes, isPrivateBrowsing } from './utils/browserDetection';
 import './lib/cache-buster'; // ✅ Force le rechargement du cache à chaque version
 // ✅ BUILD VERSION - Défini directement ici pour éviter les erreurs d'import
-const BUILD_VERSION = '518.2.0'; // ✅ Incrémenté (v3.0.4 - fix toast [object Object] + protection try/catch)
+const BUILD_VERSION = '518.3.0'; // ✅ Incrémenté (v3.0.5 - ajout purge utilisateur)
 const BUILD_TIMESTAMP = new Date().toISOString();
 
 import { startUpdateDetection } from './utils/updateDetector';
@@ -95,6 +95,8 @@ import { AdminForgotPasswordScreen } from './components/admin/AdminForgotPasswor
 // import { CreateTestUsers } from './components/admin/CreateTestUsers';
 // 🔧 Page de réparation des emails malformés
 import { FixEmailsPage } from './components/admin/FixEmailsPage';
+// 🗑️ Page de purge d'utilisateur (pour libérer les emails bloqués)
+import { PurgeUserPage } from './components/admin/PurgeUserPage';
 
 // 🔍 Driver Diagnostic
 import { DriverSignupDiagnostic } from './components/driver/DriverSignupDiagnostic';
@@ -465,6 +467,8 @@ function App() {
                   {/* <Route path="/admin/create-test-users" element={<CreateTestUsers />} /> */}
                   {/* 🔧 Page de réparation des emails malformés */}
                   <Route path="/admin/fix-emails" element={<FixEmailsPage />} />
+                  {/* 🗑️ Page de purge d'utilisateur (pour libérer les emails bloqués) */}
+                  <Route path="/admin/purge-user" element={<PurgeUserPage />} />
                   
                   {/* 🔍 Driver Diagnostic Route */}
                   <Route path="/driver/signup-diagnostic" element={<DriverSignupDiagnostic />} />
