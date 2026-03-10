@@ -187,6 +187,70 @@ export function DriverDashboardNew() {
     loadDriver();
   }, [state.currentDriver?.id]);
 
+  // 🆕 Géolocalisation automatique quand le conducteur est EN LIGNE
+  useEffect(() => {
+    if (isOnline && driver?.id) {
+      console.log('📍 Conducteur EN LIGNE - Démarrage GPS tracking...');
+      
+      // Démarrer le tracking GPS
+      gpsTracker.start({
+        onPositionUpdate: (position) => {
+          const location = { lat: position.lat, lng: position.lng };
+          setCurrentLocation(location);
+          setGpsAccuracy(position.accuracy);
+          
+          console.log(`📍 Position conducteur: ${position.lat.toFixed(6)}, ${position.lng.toFixed(6)} (±${Math.round(position.accuracy)}m)`);
+          
+          // Géocodage inverse pour obtenir l'adresse
+          reverseGeocode(position.lat, position.lng).then(address => {
+            setCurrentAddress(address);
+            console.log(`📍 Adresse conducteur: ${address}`);
+          });
+          
+          // Envoyer la position au backend toutes les 30 secondes
+          const now = Date.now();
+          const lastUpdate = parseInt(sessionStorage.getItem('lastLocationUpdate') || '0');
+          if (now - lastUpdate > 30000) { // 30 secondes
+            updateDriverLocation(driver.id, location);
+            sessionStorage.setItem('lastLocationUpdate', now.toString());
+          }
+        },
+        onError: (error) => {
+          console.error('❌ Erreur GPS:', error);
+          toast.error('Géolocalisation indisponible');
+        }
+      });
+      
+      return () => {
+        console.log('🛑 Conducteur HORS LIGNE - Arrêt GPS tracking');
+        gpsTracker.stop();
+      };
+    }
+  }, [isOnline, driver?.id, gpsTracker]);
+
+  // Fonction pour envoyer la position au backend
+  const updateDriverLocation = async (driverId: string, location: { lat: number; lng: number }) => {
+    try {
+      await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driverId}/location`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            latitude: location.lat,
+            longitude: location.lng,
+          }),
+        }
+      );
+      console.log('✅ Position envoyée au serveur');
+    } catch (error) {
+      console.error('❌ Erreur envoi position:', error);
+    }
+  };
+
   // Toggle en ligne/hors ligne
   const handleToggleOnline = async () => {
     if (!driver) return;
@@ -336,6 +400,34 @@ export function DriverDashboardNew() {
                 </div>
               </div>
             </Card>
+
+            {/* 🆕 Position actuelle si EN LIGNE */}
+            {isOnline && (
+              <Card className="p-4 bg-blue-50 border-blue-200">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Navigation className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-blue-900 mb-1">📍 Ma position actuelle</h3>
+                    <p className="text-sm text-blue-700 font-medium">{currentAddress}</p>
+                    {gpsAccuracy && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Précision: ±{Math.round(gpsAccuracy)}m
+                      </p>
+                    )}
+                    {currentLocation && (
+                      <p className="text-xs text-blue-500 mt-1 font-mono">
+                        {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Bouton Gérer mon portefeuille */}
             <Button
