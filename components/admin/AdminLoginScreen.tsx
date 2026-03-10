@@ -90,7 +90,22 @@ export function AdminLoginScreen() {
         if (errorMsg.includes('Invalid login credentials') ||
             errorMsg.includes('Email ou mot de passe incorrect') ||
             errorMsg.includes('incorrect')) {
-          toast.error('Identifiants incorrects. Vérifiez vos informations de connexion.');
+          toast.error(
+            '❌ Aucun compte admin trouvé\n\n' +
+            'Ces identifiants ne correspondent à aucun compte administrateur.\n\n' +
+            '🧪 Besoin de comptes de test ?\n' +
+            'Créez 3 utilisateurs de test en 1 clic !',
+            {
+              duration: 20000,
+              position: 'top-center',
+              action: {
+                label: '🧪 Créer comptes test',
+                onClick: () => {
+                  window.location.href = '/admin/create-test-users';
+                }
+              }
+            }
+          );
           setShowSyncLink(true); // Afficher le lien de synchronisation
         } else {
           toast.error(errorMsg);
