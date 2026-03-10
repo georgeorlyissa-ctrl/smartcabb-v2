@@ -245,10 +245,10 @@ export function DriverDashboardNew() {
           </div>
           <button
             onClick={handleToggleOnline}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            className={`px-4 py-2 rounded-lg font-medium transition-all shadow-lg ${
               isOnline
-                ? 'bg-green-500 text-white'
-                : 'bg-white/20 text-white hover:bg-white/30'
+                ? 'bg-green-500 text-white hover:bg-green-600'
+                : 'bg-white text-primary hover:bg-gray-50 border-2 border-white'
             }`}
           >
             <Power className="w-4 h-4 inline mr-1" />
