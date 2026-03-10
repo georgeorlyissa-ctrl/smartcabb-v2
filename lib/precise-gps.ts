@@ -386,15 +386,25 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
       }
     });
 
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response ok:', response.ok);
+
     if (!response.ok) {
-      console.error('❌ Geocoding HTTP error:', response.status);
+      const errorText = await response.text();
+      console.error('❌ Geocoding HTTP error:', response.status, errorText);
       throw new Error(`Erreur geocoding: ${response.status}`);
     }
 
     const data = await response.json();
     console.log('✅ Geocoding Google Maps response:', JSON.stringify(data, null, 2));
 
-    // Le backend retourne : { result: { formatted_address, address_components, ... } }
+    // Vérifier si success est false
+    if (data.success === false) {
+      console.error('❌ Backend geocoding failed:', data.error);
+      throw new Error(`Backend error: ${data.error}`);
+    }
+
+    // Le backend retourne : { success: true, result: { formatted_address, address_components, ... } }
     if (data.result) {
       const result = data.result;
       
@@ -463,7 +473,24 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
     
   } catch (error) {
     console.error('❌ Erreur geocoding:', error);
-    // Retourner une position formatée en cas d'erreur
+    
+    // 🆕 FALLBACK AMÉLIORÉ : Utiliser la base de données de lieux Kinshasa
+    // Au lieu d'afficher les coordonnées, chercher le quartier le plus proche
+    try {
+      // Charger dynamiquement la base de données de lieux
+      const { findNearestLocation } = await import('./kinshasa-locations-database');
+      const nearestPlace = findNearestLocation(lat, lng);
+      
+      if (nearestPlace && nearestPlace.distance < 2) { // Moins de 2km
+        const locationName = nearestPlace.quartier || nearestPlace.commune || 'Kinshasa';
+        console.log(`✅ Fallback: Lieu approximatif trouvé: ${locationName} (~${nearestPlace.distance.toFixed(1)}km)`);
+        return locationName;
+      }
+    } catch (fallbackError) {
+      console.error('❌ Fallback database failed:', fallbackError);
+    }
+    
+    // Dernier fallback : afficher les coordonnées
     return `Position ${Math.abs(lat).toFixed(4)}°${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(4)}°${lng < 0 ? 'W' : 'E'}`;
   }
 }
