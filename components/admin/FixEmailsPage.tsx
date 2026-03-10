@@ -44,7 +44,7 @@ export function FixEmailsPage() {
     
     try {
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/diagnose-bad-emails`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/fix-emails/diagnose`,
         {
           headers: {
             'Authorization': `Bearer ${publicAnonKey}`,
@@ -83,46 +83,52 @@ export function FixEmailsPage() {
     }
 
     setLoading(true);
-    const fixedIds: string[] = [];
 
-    for (const user of usersWithBadEmails) {
-      try {
-        const response = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/admin/fix-user-email/${user.id}`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${publicAnonKey}`,
-              'Content-Type': 'application/json'
-            }
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/fix-emails/fix-all`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+            'Content-Type': 'application/json'
           }
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-          fixedIds.push(user.id);
-          console.log(`✅ Email réparé pour ${user.full_name}:`, data.oldEmail, '→', data.newEmail);
-        } else {
-          console.error(`❌ Erreur réparation ${user.full_name}:`, data.error);
         }
+      );
 
-        // Attendre un peu entre chaque réparation
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } catch (error) {
-        console.error(`❌ Erreur réparation ${user.full_name}:`, error);
+      const data = await response.json();
+
+      if (data.success) {
+        const successCount = data.successCount || 0;
+        const totalProcessed = data.totalProcessed || 0;
+        
+        if (successCount === totalProcessed) {
+          toast.success(`✅ ${successCount} email(s) réparé(s) avec succès !`);
+        } else {
+          toast.error(`⚠️ ${successCount}/${totalProcessed} email(s) réparé(s)`);
+        }
+        
+        // Afficher les détails dans la console
+        console.log('📊 Résultats de la réparation:', data.results);
+        
+        // Afficher un message important sur les mots de passe
+        if (successCount > 0) {
+          toast.info(
+            '⚠️ IMPORTANT: Les utilisateurs doivent réinitialiser leur mot de passe',
+            { duration: 10000 }
+          );
+        }
+        
+        // Relancer le diagnostic pour vérifier
+        setTimeout(() => diagnoseUsers(), 2000);
+      } else {
+        toast.error(`Erreur: ${data.error || 'Erreur inconnue'}`);
       }
-    }
-
-    setFixed(fixedIds);
-    setLoading(false);
-
-    if (fixedIds.length === usersWithBadEmails.length) {
-      toast.success(`✅ ${fixedIds.length} email(s) réparé(s) avec succès !`);
-      // Relancer le diagnostic pour vérifier
-      setTimeout(() => diagnoseUsers(), 1000);
-    } else {
-      toast.error(`⚠️ ${fixedIds.length}/${usersWithBadEmails.length} email(s) réparé(s)`);
+    } catch (error) {
+      console.error('Erreur réparation:', error);
+      toast.error('Erreur lors de la réparation. Vérifiez la console.');
+    } finally {
+      setLoading(false);
     }
   };
 
