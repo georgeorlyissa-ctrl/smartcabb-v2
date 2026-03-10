@@ -162,12 +162,13 @@ export async function signIn(credentials: LoginCredentials): Promise<AuthResult>
         console.log('');
         console.log('✅ SOLUTION EN 1 CLIC:');
         console.log('');
-        console.log('   1. Ouvrir: /admin/seed-test-users');
-        console.log('   2. Cliquer "Créer les utilisateurs de test"');
+        console.log('   1. Ouvrir: /admin/create-test-users');
+        console.log('   2. Cliquer \"Créer les utilisateurs de test\"');
         console.log('   3. Se connecter avec les identifiants affichés');
         console.log('');
-        console.log('   🚗 Conducteur: 0990666661 / Test1234');
-        console.log('   👤 Passager: 0990666662 / Test1234');
+        console.log('   🚗 Conducteur: +243990666661 / Test1234');
+        console.log('   👤 Passager: +243990666662 / Test1234');
+        console.log('   🛡️  Admin: admin@smartcabb.app / Admin1234');
         console.log('');
         console.log('   ⏱️  Temps: ~1 minute');
         console.log('');
@@ -632,9 +633,13 @@ export async function createAdmin(adminData: CreateAdminData): Promise<AuthResul
       };
     }
     
-    // Appel à l'endpoint serveur pour créer l'admin
+    // ✅ NOUVELLE ROUTE : Purge automatique + Création
+    // Cette route supprime définitivement l'ancien compte s'il existe
+    // et crée un nouveau compte admin avec le même email
+    console.log('🔧 Création admin avec purge automatique si nécessaire...');
+    
     const response = await fetch(
-      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/create-admin`,
+      `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/purge/create-admin-with-purge`,
       {
         method: 'POST',
         headers: {
@@ -654,11 +659,11 @@ export async function createAdmin(adminData: CreateAdminData): Promise<AuthResul
       };
     }
     
-    console.log('✅ Admin créé avec succès');
+    console.log('✅ Admin créé avec succès (ancien compte purgé si nécessaire)');
     return {
       success: true,
-      user: result.user,
-      profile: result.profile
+      user: result.admin,
+      profile: result.admin
     };
   } catch (error) {
     console.error('❌ Erreur création admin:', error);
