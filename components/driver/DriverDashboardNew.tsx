@@ -73,6 +73,7 @@ interface Driver {
   email?: string;
   balance: number;
   earningsBalance?: number;
+  bonusBalance?: number;
   status: 'online' | 'offline' | 'busy';
   isApproved: boolean;
   rating: number;
@@ -384,19 +385,29 @@ export function DriverDashboardNew() {
               </Card>
             )}
 
-            {/* Double Solde */}
+            {/* Triple Solde - Crédit / Gains / Bonus */}
             <Card className="p-4">
               <h3 className="font-semibold text-gray-900 mb-4">💰 Mes Soldes</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3">
+                {/* Crédit (Ligne) - Informatif */}
                 <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
-                  <p className="text-xs text-blue-600 mb-1">Crédit (Ligne)</p>
+                  <p className="text-xs text-blue-600 mb-1">💳 Crédit (Ligne)</p>
                   <p className="text-2xl font-bold text-blue-900">{(driver.balance || 0).toLocaleString('fr-FR')} CDF</p>
-                  <p className="text-xs text-blue-600 mt-2">-15% par course</p>
+                  <p className="text-xs text-blue-600 mt-2">-15% par course • Informatif uniquement</p>
                 </div>
+                
+                {/* Gains (Informatif) */}
+                <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+                  <p className="text-xs text-purple-600 mb-1">📊 Gains (Informatif)</p>
+                  <p className="text-2xl font-bold text-purple-900">{(driver.earningsBalance || 0).toLocaleString('fr-FR')} CDF</p>
+                  <p className="text-xs text-purple-600 mt-2">+85% par course • Non retirable</p>
+                </div>
+                
+                {/* Bonus (Retirable) */}
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                  <p className="text-xs text-green-600 mb-1">Gains (Retirable)</p>
-                  <p className="text-2xl font-bold text-green-900">{(driver.earningsBalance || 0).toLocaleString('fr-FR')} CDF</p>
-                  <p className="text-xs text-green-600 mt-2">+85% par course</p>
+                  <p className="text-xs text-green-600 mb-1">🎁 Bonus (Retirable)</p>
+                  <p className="text-2xl font-bold text-green-900">{(driver.bonusBalance || 0).toLocaleString('fr-FR')} CDF</p>
+                  <p className="text-xs text-green-600 mt-2">Défini par l'admin • Retirable uniquement</p>
                 </div>
               </div>
             </Card>
@@ -704,11 +715,13 @@ export function DriverDashboardNew() {
                 driverId={driver.id}
                 creditBalance={driver.balance || 0}
                 earningsBalance={driver.earningsBalance || 0}
-                onBalanceUpdate={(newCreditBalance, newEarningsBalance) => {
+                bonusBalance={driver.bonusBalance || 0}
+                onBalanceUpdate={(newCreditBalance, newEarningsBalance, newBonusBalance) => {
                   setDriver({
                     ...driver,
                     balance: newCreditBalance,
                     earningsBalance: newEarningsBalance,
+                    bonusBalance: newBonusBalance,
                   });
                 }}
               />
