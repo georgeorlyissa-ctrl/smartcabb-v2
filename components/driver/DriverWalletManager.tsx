@@ -35,13 +35,15 @@ interface DriverWalletManagerProps {
   driverId: string;
   creditBalance: number;
   earningsBalance: number;
-  onBalanceUpdate: (creditBalance: number, earningsBalance: number) => void;
+  bonusBalance: number;
+  onBalanceUpdate: (creditBalance: number, earningsBalance: number, bonusBalance: number) => void;
 }
 
 export function DriverWalletManager({ 
   driverId, 
   creditBalance,
   earningsBalance,
+  bonusBalance,
   onBalanceUpdate 
 }: DriverWalletManagerProps) {
   const [rechargeAmount, setRechargeAmount] = useState('');
@@ -70,7 +72,7 @@ export function DriverWalletManager({
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          onBalanceUpdate(data.creditBalance || 0, data.earningsBalance || 0);
+          onBalanceUpdate(data.creditBalance || 0, data.earningsBalance || 0, data.bonusBalance || 0);
           toast.success('✅ Soldes synchronisés !');
         }
       } else {
@@ -114,7 +116,7 @@ export function DriverWalletManager({
       const data = await response.json();
 
       if (data.success) {
-        onBalanceUpdate(data.newCreditBalance, earningsBalance);
+        onBalanceUpdate(data.newCreditBalance, earningsBalance, bonusBalance);
         setRechargeAmount('');
         toast.success(`✅ Recharge de ${formatCDF(amount)} effectuée !`);
       } else {
@@ -136,8 +138,8 @@ export function DriverWalletManager({
       return;
     }
 
-    if (amount > earningsBalance) {
-      toast.error('❌ Solde insuffisant pour ce retrait');
+    if (amount > bonusBalance) {
+      toast.error('❌ Solde de bonus insuffisant pour ce retrait');
       return;
     }
 
@@ -163,7 +165,7 @@ export function DriverWalletManager({
       const data = await response.json();
 
       if (data.success) {
-        onBalanceUpdate(creditBalance, data.newEarningsBalance);
+        onBalanceUpdate(creditBalance, earningsBalance, data.newBonusBalance);
         setWithdrawAmount('');
         toast.success(`✅ Retrait de ${formatCDF(amount)} traité ! Vous recevrez l'argent sous 24-48h.`);
       } else {
@@ -182,31 +184,47 @@ export function DriverWalletManager({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      {/* Affichage des 3 soldes */}
+      <div className="grid grid-cols-1 gap-3">
         <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
               <CreditCard className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-blue-700 font-medium">Solde de crédit</p>
-              <p className="text-[10px] text-blue-600">Pour se mettre en ligne</p>
+              <p className="text-xs text-blue-700 font-medium">💳 Crédit (Ligne)</p>
+              <p className="text-[10px] text-blue-600">-15% par course • Informatif uniquement</p>
             </div>
           </div>
           <p className="text-xl font-bold text-blue-900">{formatCDF(creditBalance)}</p>
         </Card>
 
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-green-700 font-medium">Solde de gains</p>
-              <p className="text-[10px] text-green-600">Retirable</p>
+              <p className="text-xs text-purple-700 font-medium">📊 Gains (Informatif)</p>
+              <p className="text-[10px] text-purple-600">+85% par course • Non retirable</p>
             </div>
           </div>
-          <p className="text-xl font-bold text-green-900">{formatCDF(earningsBalance)}</p>
+          <p className="text-xl font-bold text-purple-900">{formatCDF(earningsBalance)}</p>
+        </Card>
+
+        <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-green-700 font-medium">🎁 Bonus (Retirable)</p>
+              <p className="text-[10px] text-green-600">Défini par l'admin • Retirable uniquement</p>
+            </div>
+          </div>
+          <p className="text-xl font-bold text-green-900">{formatCDF(bonusBalance)}</p>
         </Card>
       </div>
 
@@ -322,10 +340,10 @@ export function DriverWalletManager({
                 placeholder="Entrez le montant en CDF"
                 disabled={isLoading}
                 className="mt-1"
-                max={earningsBalance}
+                max={bonusBalance}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Disponible: {formatCDF(earningsBalance)} | Minimum: 5 000 CDF
+                Disponible: {formatCDF(bonusBalance)} | Minimum: 5 000 CDF
               </p>
             </div>
 
@@ -338,7 +356,7 @@ export function DriverWalletManager({
                     variant="outline"
                     size="sm"
                     onClick={() => setWithdrawAmount(amount.toString())}
-                    disabled={isLoading || amount > earningsBalance}
+                    disabled={isLoading || amount > bonusBalance}
                     className="text-xs"
                   >
                     {(amount / 1000)}k
@@ -347,7 +365,7 @@ export function DriverWalletManager({
               </div>
             </div>
 
-            {earningsBalance === 0 && (
+            {bonusBalance === 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -361,7 +379,7 @@ export function DriverWalletManager({
               </div>
             )}
 
-            {earningsBalance > 0 && (
+            {bonusBalance > 0 && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
@@ -377,7 +395,7 @@ export function DriverWalletManager({
 
             <Button
               onClick={handleWithdraw}
-              disabled={isLoading || !withdrawAmount || earningsBalance === 0}
+              disabled={isLoading || !withdrawAmount || bonusBalance === 0}
               className="w-full bg-green-600 hover:bg-green-700"
             >
               <ArrowDownCircle className="w-4 h-4 mr-2" />
