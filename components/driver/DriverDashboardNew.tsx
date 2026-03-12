@@ -14,6 +14,17 @@ import { RideNotificationSound } from './RideNotificationSound';
 import { RideNotification } from './RideNotification';
 import { FCMDiagnostic } from './FCMDiagnostic';
 import { PreciseGPSTracker, reverseGeocode } from '../../lib/precise-gps'; // 🆕 Import GPS tracker
+import { registerDriverFCMToken } from '../../lib/driver-fcm'; // 🔔 Import FCM
+
+// ✅ Helper inliné pour éviter les problèmes de build Rollup
+function isDriverFCMTokenRegistered(driverId: string): boolean {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return false;
+  }
+  const registered = localStorage.getItem(`fcm_registered_${driverId}`);
+  const token = localStorage.getItem(`fcm_token_${driverId}`);
+  return registered === 'true' && !!token;
+}
 
 // Icônes SVG
 const Home = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -187,6 +198,29 @@ export function DriverDashboardNew() {
 
     loadDriver();
   }, [state.currentDriver?.id]);
+
+  // 🔔 Initialiser FCM pour recevoir les notifications push
+  useEffect(() => {
+    if (!driver?.id) return;
+
+    // Vérifier si déjà enregistré pour éviter les doublons
+    const isAlreadyRegistered = isDriverFCMTokenRegistered(driver.id);
+    
+    if (!isAlreadyRegistered) {
+      console.log('🔔 Initialisation automatique FCM pour le conducteur:', driver.id);
+      registerDriverFCMToken(driver.id).then(success => {
+        if (success) {
+          console.log('✅ Token FCM enregistré avec succès');
+        } else {
+          console.warn('⚠️ Échec de l\'enregistrement FCM (non bloquant)');
+        }
+      }).catch(error => {
+        console.warn('⚠️ Erreur FCM (non bloquant):', error);
+      });
+    } else {
+      console.log('ℹ️ Token FCM déjà enregistré pour', driver.id);
+    }
+  }, [driver?.id]);
 
   // 🆕 Géolocalisation automatique quand le conducteur est EN LIGNE
   useEffect(() => {
