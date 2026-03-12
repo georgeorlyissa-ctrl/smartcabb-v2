@@ -112,6 +112,7 @@ interface Driver {
   email?: string;
   balance: number;
   earningsBalance?: number;
+  bonusBalance?: number;
   status: 'online' | 'offline' | 'busy';
   isApproved: boolean;
   rating: number;
@@ -190,6 +191,29 @@ export function DriverDashboard() {
 
     loadDriver();
   }, [state.currentDriver?.id]);
+
+  // 🔔 Initialiser FCM pour recevoir les notifications push
+  useEffect(() => {
+    if (!driver?.id) return;
+
+    // Vérifier si déjà enregistré pour éviter les doublons
+    const isAlreadyRegistered = isDriverFCMTokenRegistered(driver.id);
+    
+    if (!isAlreadyRegistered) {
+      console.log('🔔 Initialisation automatique FCM pour le conducteur:', driver.id);
+      registerDriverFCMToken(driver.id).then(success => {
+        if (success) {
+          console.log('✅ Token FCM enregistré avec succès');
+        } else {
+          console.warn('⚠️ Échec de l\'enregistrement FCM (non bloquant)');
+        }
+      }).catch(error => {
+        console.warn('⚠️ Erreur FCM (non bloquant):', error);
+      });
+    } else {
+      console.log('ℹ️ Token FCM déjà enregistré pour', driver.id);
+    }
+  }, [driver?.id]);
 
   // Toggle en ligne/hors ligne
   const handleToggleOnline = async () => {
@@ -394,11 +418,13 @@ export function DriverDashboard() {
                 driverId={driver.id}
                 creditBalance={driver.balance || 0}
                 earningsBalance={driver.earningsBalance || 0}
-                onBalanceUpdate={(newCreditBalance, newEarningsBalance) => {
+                bonusBalance={driver.bonusBalance || 0}
+                onBalanceUpdate={(newCreditBalance, newEarningsBalance, newBonusBalance) => {
                   setDriver({
                     ...driver,
                     balance: newCreditBalance,
                     earningsBalance: newEarningsBalance,
+                    bonusBalance: newBonusBalance,
                   });
                 }}
               />
