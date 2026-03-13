@@ -15,6 +15,9 @@
 // 🔑 Configuration Firebase SmartCabb (Production)
 // ⚠️ UNIFIÉE avec /lib/fcm-driver.tsx pour éviter les conflits
 // 🔐 IMPORTANT : Ces valeurs doivent correspondre exactement à votre projet Firebase Console
+// 🔑 Configuration Firebase SmartCabb (Production)
+// ⚠️ UNIFIÉE avec /lib/fcm-driver.tsx pour éviter les conflits
+// 🔐 IMPORTANT : Ces valeurs doivent correspondre exactement à votre projet Firebase Console
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC0Kq6QgnfVna4bEWUj0J3VknU0ZHMAaWU",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "smartcabb-bed00.firebaseapp.com",
