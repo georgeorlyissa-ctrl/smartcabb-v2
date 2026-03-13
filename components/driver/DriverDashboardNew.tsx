@@ -493,16 +493,6 @@ export function DriverDashboardNew() {
                   <div className="flex-1">
                     <h3 className="font-semibold text-blue-900 mb-1">📍 Ma position actuelle</h3>
                     <p className="text-sm text-blue-700 font-medium">{currentAddress}</p>
-                    {gpsAccuracy && (
-                      <p className="text-xs text-blue-600 mt-1">
-                        Précision: ±{Math.round(gpsAccuracy)}m
-                      </p>
-                    )}
-                    {currentLocation && (
-                      <p className="text-xs text-blue-500 mt-1 font-mono">
-                        {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
-                      </p>
-                    )}
                   </div>
                   <div className="flex-shrink-0">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
