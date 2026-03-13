@@ -708,11 +708,7 @@ export function EstimateScreen() {
             <PassengerCountSelector
               value={passengerCount}
               onChange={setPassengerCount}
-              maxPassengers={
-                selectedVehicle === 'smart_plus' ? 7 : 
-                selectedVehicle === 'smart_business' ? 7 : 
-                3 // smart_standard et smart_confort
-              }
+              maxPassengers={VEHICLE_PRICING[selectedVehicle]?.capacity || 3}
             />
           </div>
 
