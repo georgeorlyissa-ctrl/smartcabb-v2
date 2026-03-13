@@ -182,7 +182,44 @@ export function DriverDashboardNew() {
             }
           } else if (response.status === 404) {
             console.log(`⚠️ Profil conducteur non trouvé (tentative ${attempts + 1}/${maxAttempts})`);
-            // Continuer à réessayer
+            
+            // Si c'est la dernière tentative et qu'on a quand même les données du conducteur dans le state
+            // On crée un profil temporaire pour permettre au conducteur de continuer
+            if (attempts === maxAttempts - 1 && state.currentDriver) {
+              console.log('🔧 Création d\'un profil temporaire depuis le state local');
+              const tempDriver: Driver = {
+                id: state.currentDriver.id,
+                full_name: state.currentDriver.name || 'Conducteur',
+                name: state.currentDriver.name,
+                phone: state.currentDriver.phone || '',
+                email: state.currentDriver.email,
+                balance: 0,
+                earningsBalance: 0,
+                bonusBalance: 0,
+                status: 'offline',
+                isApproved: state.currentDriver.isApproved !== undefined ? state.currentDriver.isApproved : false,
+                rating: state.currentDriver.rating || 5.0,
+                totalRides: state.currentDriver.totalRides || 0,
+                vehicle: {
+                  make: state.currentDriver.vehicleInfo?.make,
+                  model: state.currentDriver.vehicleInfo?.model,
+                  color: state.currentDriver.vehicleInfo?.color,
+                  plate: state.currentDriver.vehicleInfo?.plate,
+                  category: state.currentDriver.vehicleInfo?.type,
+                },
+                accountType: 'prepaid'
+              };
+              
+              setDriver(tempDriver);
+              setIsOnline(false);
+              
+              // Afficher un avertissement au lieu d'une erreur
+              toast.error('Profil partiellement chargé. Certaines fonctionnalités peuvent être limitées.', {
+                duration: 5000
+              });
+              
+              return;
+            }
           }
         } catch (error) {
           console.error(`❌ Erreur chargement conducteur (tentative ${attempts + 1}/${maxAttempts}):`, error);
@@ -191,7 +228,7 @@ export function DriverDashboardNew() {
         attempts++;
       }
       
-      // Si on arrive ici, toutes les tentatives ont échoué
+      // Si on arrive ici, toutes les tentatives ont échoué et on n'a pas pu créer de profil temporaire
       console.error('❌ Impossible de charger le profil conducteur après', maxAttempts, 'tentatives');
       toast.error('Erreur de chargement du profil. Veuillez actualiser la page.');
     };
