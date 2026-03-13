@@ -32,9 +32,18 @@ self.addEventListener('message', (event) => {
     // Initialiser Firebase avec la config reçue
     if (firebaseConfig && firebaseConfig.apiKey) {
       try {
-        firebase.initializeApp(firebaseConfig);
-        messaging = firebase.messaging();
-        console.log('[Service Worker] Firebase initialisé avec succès ✅');
+        // ✅ Vérifier si Firebase est déjà initialisé AVANT de réinitialiser
+        const existingApps = firebase.apps || [];
+        
+        if (existingApps.length > 0) {
+          console.log('[Service Worker] Firebase déjà initialisé, réutilisation de l\'app existante');
+          messaging = firebase.messaging();
+        } else {
+          console.log('[Service Worker] Initialisation de Firebase...');
+          firebase.initializeApp(firebaseConfig);
+          messaging = firebase.messaging();
+          console.log('[Service Worker] Firebase initialisé avec succès ✅');
+        }
         
         // Configurer le listener de notifications
         setupNotificationListener();
