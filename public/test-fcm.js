@@ -76,7 +76,7 @@ async function checkInitialStatus() {
   
   // Tester le backend
   try {
-    const response = await fetch('https://georgeuylsaa-ctrh-s-org.supabase.co/functions/v1/make-server-2eb02e52/fcm/diagnostic');
+    const response = await fetch('https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/diagnostic');
     if (response.ok) {
       const data = await response.json();
       updateStatus('backend', '✅', 'Configuré');
@@ -183,7 +183,7 @@ async function testBackend() {
   addLog('🔧 Test du backend FCM...', 'info');
   
   try {
-    const response = await fetch('https://georgeuylsaa-ctrh-s-org.supabase.co/functions/v1/make-server-2eb02e52/fcm/diagnostic');
+    const response = await fetch('https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/diagnostic');
     const data = await response.json();
     
     if (response.ok) {
@@ -206,11 +206,11 @@ async function sendTestNotification() {
   addLog('📤 Envoi notification test...', 'info');
   
   try {
-    const response = await fetch('https://georgeuylsaa-ctrh-s-org.supabase.co/functions/v1/make-server-2eb02e52/fcm/send', {
+    const response = await fetch('https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdlb3JnZXV5bHNhYS1jdHJoLXMtb3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU3Mzc3MjQsImV4cCI6MjA1MTMxMzcyNH0.wzb_f4A4f2a6bL99Ul3VKvPd-q1iBf_2dSUoUEcEUwY'
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxNDMyOTgsImV4cCI6MjA3NTcxOTI5OH0.qwFRKsi9Gw4VVYoEGBBCIj0-lAZOxtqlGQ0eT6cPhik'
       },
       body: JSON.stringify({
         token: currentToken,
