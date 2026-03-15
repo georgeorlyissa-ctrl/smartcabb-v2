@@ -214,14 +214,13 @@ async function sendTestNotification() {
   addLog('📤 Envoi notification test...', 'info');
   
   try {
-    const response = await fetch('https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/send', {
+    const response = await fetch('https://zaerjqchzqmcxqblkfkg.supabase.co/functions/v1/make-server-2eb02e52/fcm/send-direct', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZXJqcWNoenFtY3hxYmxrZmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxNDMyOTgsImV4cCI6MjA3NTcxOTI5OH0.qwFRKsi9Gw4VVYoEGBBCIj0-lAZOxtqlGQ0eT6cPhik'
       },
       body: JSON.stringify({
-        userId: 'test-user-diagnostic',
         token: currentToken,
         title: '🧪 Test SmartCabb',
         body: 'Notification test envoyée depuis la page de diagnostic !',
