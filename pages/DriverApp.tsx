@@ -1,3 +1,24 @@
+import { Routes, Route, useLocation } from '../lib/simple-router';
+import { DriverWelcomeScreen } from '../components/driver/DriverWelcomeScreen';
+import { DriverLoginScreen } from '../components/driver/DriverLoginScreen';
+import { DriverRegistrationScreen } from '../components/driver/DriverRegistrationScreen';
+import { DriverDashboardNew } from '../components/driver/DriverDashboardNew';
+import { NavigationScreen } from '../components/driver/NavigationScreen';
+import { EarningsScreen } from '../components/driver/EarningsScreen';
+import { DriverSettingsScreen } from '../components/driver/DriverSettingsScreen';
+import { DriverProfileScreen } from '../components/driver/DriverProfileScreen';
+import { ClientInfoScreen } from '../components/driver/ClientInfoScreen';
+// ✅ SUPPRIMÉ : ConfirmationCodeScreen n'existe plus (système de code de confirmation retiré)
+// import { ConfirmationCodeScreen } from '../components/driver/ConfirmationCodeScreen';
+import { DriverWalletScreen } from '../components/driver/DriverWalletScreen';
+import { ActiveRideNavigationScreen } from '../components/driver/ActiveRideNavigationScreen';
+import { PaymentConfirmationScreen } from '../components/driver/PaymentConfirmationScreen';
+import { useAppState } from '../hooks/useAppState';
+import { WelcomeBackScreen } from '../components/WelcomeBackScreen';
+import { ForgotPasswordScreen } from '../components/ForgotPasswordScreen';
+import { ResetPasswordOTPScreen } from '../components/ResetPasswordOTPScreen';
+import { RLSFixModal } from '../components/RLSFixModal';
+import { RLSBlockingScreen } from '../components/RLSBlockingScreen';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { DriverDeploymentCheck } from '../components/driver/DriverDeploymentCheck';
