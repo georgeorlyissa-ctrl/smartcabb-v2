@@ -140,8 +140,11 @@ export function DriverDashboardNew() {
   const [ridesHistory, setRidesHistory] = useState<any[]>([]);
 
   // 🆕 États pour la géolocalisation
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [currentAddress, setCurrentAddress] = useState<string>('Localisation en cours...');
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>({
+    lat: -4.3276, // Kinshasa par défaut
+    lng: 15.3136
+  });
+  const [currentAddress, setCurrentAddress] = useState<string>('Kinshasa, RDC'); // Position par défaut immédiate
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsTracker] = useState(() => new PreciseGPSTracker());
 
