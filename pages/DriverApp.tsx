@@ -1,28 +1,8 @@
-import { Routes, Route, useLocation } from '../lib/simple-router';
-import { DriverWelcomeScreen } from '../components/driver/DriverWelcomeScreen';
-import { DriverLoginScreen } from '../components/driver/DriverLoginScreen';
-import { DriverRegistrationScreen } from '../components/driver/DriverRegistrationScreen';
-import { DriverDashboardNew } from '../components/driver/DriverDashboardNew';
-import { NavigationScreen } from '../components/driver/NavigationScreen';
-import { EarningsScreen } from '../components/driver/EarningsScreen';
-import { DriverSettingsScreen } from '../components/driver/DriverSettingsScreen';
-import { DriverProfileScreen } from '../components/driver/DriverProfileScreen';
-import { ClientInfoScreen } from '../components/driver/ClientInfoScreen';
-// ✅ SUPPRIMÉ : ConfirmationCodeScreen n'existe plus (système de code de confirmation retiré)
-// import { ConfirmationCodeScreen } from '../components/driver/ConfirmationCodeScreen';
-import { DriverWalletScreen } from '../components/driver/DriverWalletScreen';
-import { ActiveRideNavigationScreen } from '../components/driver/ActiveRideNavigationScreen';
-import { PaymentConfirmationScreen } from '../components/driver/PaymentConfirmationScreen';
-import { useAppState } from '../hooks/useAppState';
-import { WelcomeBackScreen } from '../components/WelcomeBackScreen';
-import { ForgotPasswordScreen } from '../components/ForgotPasswordScreen';
-import { ResetPasswordOTPScreen } from '../components/ResetPasswordOTPScreen';
-import { RLSFixModal } from '../components/RLSFixModal';
-import { RLSBlockingScreen } from '../components/RLSBlockingScreen';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { DriverDeploymentCheck } from '../components/driver/DriverDeploymentCheck';
 import { useEffect } from 'react';
+import { setupFCMForUser } from '../src/utils/firebase';
 
 function DriverAppContent() {
   const { state, setCurrentScreen, setCurrentView, setCurrentDriver } = useAppState();
@@ -50,9 +30,10 @@ function DriverAppContent() {
           const savedDriver = JSON.parse(savedDriverStr);
           const driverStatus = savedDriver.status;
           
-          // Si le conducteur sauvegardé n'est pas approuvé, le supprimer
-          if (driverStatus === 'pending' || driverStatus === 'rejected' || driverStatus === 'suspended' || !driverStatus) {
-            console.warn(`🧹 Nettoyage automatique : conducteur "${driverStatus || 'sans statut'}" détecté dans localStorage`);
+          // ✅ FIX CRITIQUE : Ne nettoyer que les conducteurs EXPLICITEMENT rejetés ou suspendus
+          // Ne PAS nettoyer les conducteurs 'pending', 'approved', ou sans statut (null/undefined)
+          if (driverStatus === 'rejected' || driverStatus === 'suspended') {
+            console.warn(`🧹 Nettoyage automatique : conducteur "${driverStatus}" détecté dans localStorage`);
             localStorage.removeItem('smartcab_current_driver');
             localStorage.removeItem('smartcab_current_user');
             
@@ -79,8 +60,9 @@ function DriverAppContent() {
         const driverStatus = state.currentDriver.status;
         console.log('🔍 Vérification statut conducteur:', driverStatus);
         
-        // Si le conducteur est pending, rejected ou suspended, le bloquer
-        if (driverStatus === 'pending' || driverStatus === 'rejected' || driverStatus === 'suspended') {
+        // ✅ FIX CRITIQUE : Ne bloquer que les conducteurs rejetés ou suspendus
+        // Les conducteurs 'pending' et 'approved' peuvent accéder à l'application
+        if (driverStatus === 'rejected' || driverStatus === 'suspended') {
           console.warn(`⚠️ Conducteur avec statut "${driverStatus}" détecté, redirection vers login`);
           setCurrentDriver(null); // Nettoyer le state
           localStorage.removeItem('smartcab_current_driver'); // Nettoyer le localStorage
@@ -124,6 +106,87 @@ function DriverAppContent() {
       }
     }
   }, [location.pathname, currentScreen, state.currentView, state.currentDriver, setCurrentView, setCurrentScreen, setCurrentDriver]); // Ajout de setCurrentDriver
+
+  // ✅ FCM : Initialiser les notifications push pour le conducteur
+  useEffect(() => {
+    // Ne rien faire si pas d'utilisateur connecté
+    if (!state.currentDriver || !state.currentDriver.id) {
+      console.log('⏭️ FCM : Pas de conducteur connecté, skip');
+      return;
+    }
+
+    // Vérifier que c'est bien un conducteur
+    if (state.currentView !== 'driver') {
+      console.log('⏭️ FCM : Pas un conducteur, skip');
+      return;
+    }
+
+    console.log('🔥 Initialisation FCM pour conducteur:', state.currentDriver.id);
+
+    // Configuration FCM complète
+    setupFCMForUser(state.currentDriver.id, 'driver', (payload) => {
+      console.log('🔔 Notification conducteur reçue:', payload);
+      
+      const { title, body } = payload.notification || {};
+      const data = payload.data || {};
+
+      // Gérer selon le type de notification
+      switch (data.type) {
+        case 'new_ride_request':
+          console.log('🚗 NOUVELLE DEMANDE DE COURSE !', {
+            title,
+            body,
+            rideId: data.rideId,
+            pickup: data.pickup,
+            destination: data.destination,
+            price: data.price,
+            distance: data.distance
+          });
+          
+          // TODO : Afficher modal de nouvelle course avec détails
+          // TODO : Jouer son d'alerte
+          break;
+
+        case 'ride_cancelled':
+          console.log('❌ Course annulée par le passager', {
+            title,
+            body,
+            rideId: data.rideId,
+            reason: data.reason
+          });
+          
+          // TODO : Fermer l'écran de course active
+          // TODO : Retour au dashboard
+          break;
+
+        case 'payment_received':
+          console.log('💰 Paiement reçu !', {
+            title,
+            body,
+            amount: data.amount,
+            rideId: data.rideId
+          });
+          
+          // TODO : Afficher confirmation de paiement
+          break;
+
+        case 'sos_alert':
+          console.log('⚠️⚠️⚠️ ALERTE SOS !', {
+            title,
+            body,
+            passengerId: data.passengerId,
+            passengerName: data.passengerName,
+            location: data.location
+          });
+          
+          // TODO : Afficher alerte urgente plein écran
+          break;
+
+        default:
+          console.log('🔔 Notification générique:', { title, body, data });
+      }
+    });
+  }, [state.currentDriver?.id, state.currentView]);
 
   // Show RLS blocking screen if there's a critical RLS issue
   if (showRLSBlockingScreen) {
