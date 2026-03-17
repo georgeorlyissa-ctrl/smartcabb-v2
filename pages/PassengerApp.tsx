@@ -3,7 +3,7 @@ import { DriverApproachingScreen } from '../components/passenger/DriverApproachi
 import { useEffect, useMemo } from 'react';
 import { setupFCMForUser } from '../src/utils/firebase';
 import { useAppState } from '../hooks/useAppState';
-import { useNavigate, useLocation, Routes, Route } from 'react-router';
+import { useNavigate, useLocation, Routes, Route } from '../lib/simple-router';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { RLSBlockingScreen } from '../components/RLSBlockingScreen';
 import { LoadingScreen } from '../components/LoadingScreen';
