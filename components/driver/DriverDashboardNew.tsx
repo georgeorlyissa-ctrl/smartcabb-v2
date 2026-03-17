@@ -392,6 +392,32 @@ export function DriverDashboardNew() {
     try {
       const newStatus = isOnline ? 'offline' : 'online';
       
+      // 🔥 FIX: Si le conducteur se met EN LIGNE, d'abord obtenir sa position GPS
+      let currentLocationToSend = null;
+      if (newStatus === 'online') {
+        console.log('📍 Obtention de la position GPS avant mise en ligne...');
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          });
+          
+          currentLocationToSend = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          console.log('✅ Position GPS obtenue:', currentLocationToSend);
+        } catch (gpsError) {
+          console.error('❌ Erreur GPS:', gpsError);
+          toast.error('❌ Impossible d\'obtenir votre position GPS. Vérifiez vos autorisations.');
+          return; // ❌ Bloquer la mise en ligne si pas de GPS
+        }
+      }
+      
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-2eb02e52/drivers/${driver.id}/status`,
         {
@@ -400,13 +426,19 @@ export function DriverDashboardNew() {
             'Authorization': `Bearer ${publicAnonKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ 
+            status: newStatus,
+            location: currentLocationToSend // 🔥 Envoyer la position GPS si EN LIGNE
+          }),
         }
       );
 
       if (response.ok) {
         setIsOnline(!isOnline);
         toast.success(newStatus === 'online' ? '✅ Vous êtes maintenant en ligne' : '✅ Vous êtes maintenant hors ligne');
+      } else {
+        const errorData = await response.json();
+        toast.error(`❌ ${errorData.error || 'Erreur lors du changement de statut'}`);
       }
     } catch (error) {
       console.error('Erreur changement statut:', error);
