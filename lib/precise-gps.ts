@@ -308,11 +308,20 @@ export class PreciseGPSTracker {
       speed: rawCoords.speed ? `${rawCoords.speed.toFixed(1)} m/s` : 'N/A'
     });
 
+    // ⚠️ DÉSACTIVÉ TEMPORAIREMENT : Filtrage de précision GPS
+    // Le GPS de certains navigateurs/environnements retourne des précisions très faibles
+    // On accepte TOUTES les positions pour garantir que le matching fonctionne
     // ✅ FILTRAGE 1 : Rejeter les positions de mauvaise qualité (>500m pour Kinshasa)
     // 🆕 ASSOUPLISSEMENT : Passé de 100m à 500m pour géolocalisation urbaine en RDC
-    if (rawCoords.accuracy > 500) {
-      console.warn('⚠️ Position rejetée : précision trop faible (>500m)');
-      return;
+    // if (rawCoords.accuracy > 500) {
+    //   console.warn('⚠️ Position rejetée : précision trop faible (>500m)');
+    //   return;
+    // }
+    
+    // 🆕 NOUVEAU : Accepter TOUTES les positions, même imprécises
+    if (rawCoords.accuracy > 10000000) {
+      console.warn(`⚠️ Position acceptée malgré précision faible : ±${Math.round(rawCoords.accuracy)}m`);
+      // On continue quand même
     }
 
     // ✅ FILTRAGE 2 : Détecter et rejeter les sauts GPS (outliers)
