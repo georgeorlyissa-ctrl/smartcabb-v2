@@ -68,7 +68,7 @@ import { ContactPage } from './pages/ContactPage';
 import { AboutPage } from './pages/AboutPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
-//import { LegalPage } from './pages/LegalPage';
+import { LegalPage } from './pages/LegalPage';
 
 // 📱 Passenger App - Import direct pour fiabilité
 import { PassengerApp } from './pages/PassengerApp';
