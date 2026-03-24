@@ -15,7 +15,6 @@ export function ServicesPage() {
       id: 'standard',
       name: 'SmartCabb Standard',
       badge: 'SMARTCABB STANDARD',
-      emoji: '🚗',
       subtitleFR: 'Solution économique et climatisée pour vos déplacements quotidiens. Idéal pour 3 personnes.',
       subtitleEN: 'Economical and air-conditioned solution for your daily trips. Ideal for 3 people.',
       color: 'cyan',
@@ -27,7 +26,7 @@ export function ServicesPage() {
         '/vehicles/smartcabb_standard/Standard_2.png',
         '/vehicles/smartcabb_standard/Standard_3.png',
         '/vehicles/smartcabb_standard/Standard_4.png',
-        '/vehicles/smartcabb_standard/Standard_5.png',
+        '/vehicles/smartcabb_standard/Stadard_5.png',
         '/vehicles/smartcabb_standard/Standard_6.png',
       ],
       vehicules: 'Toyota IST, Suzuki Swift, Toyota Vitz, Toyota Blade, Toyota Ractis, Toyota Runx',
@@ -41,14 +40,13 @@ export function ServicesPage() {
         { icon: '❄️', text: 'Air-conditioned' },
         { icon: '🛡️', text: 'Secured' }
       ],
-      priceFR: 'À partir de 3000 FC',
-      priceEN: 'From 3000 FC'
+      priceFR: 'À partir de 15000 FC',
+      priceEN: 'From 15000 FC'
     },
     {
       id: 'confort',
       name: 'SmartCabb Confort',
       badge: 'SMARTCABB CONFORT',
-      emoji: '🚙',
       subtitleFR: 'Confort premium avec connexion Data gratuit. Véhicules modernes pour 3 personnes.',
       subtitleEN: 'Premium comfort with free Data connection. Modern vehicles for 3 people.',
       color: 'blue',
@@ -73,14 +71,13 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-      priceFR: 'À partir de 4500 FC',
-      priceEN: 'From 4500 FC'
+      priceFR: 'À partir de 33000 FC',
+      priceEN: 'From 33000 FC'
     },
     {
       id: 'business',
       name: 'SmartCabb Business',
       badge: 'SMARTCABB BUSINESS',
-      emoji: '👑',
       subtitleFR: 'Service VIP 4 places avec rafraîchissement et Data gratuit. Le summum du luxe.',
       subtitleEN: 'VIP 4-seat service with refreshments and free Data. The height of luxury.',
       color: 'orange',
@@ -88,11 +85,11 @@ export function ServicesPage() {
       borderColor: 'border-orange-100',
       bgColor: 'bg-orange-50/50',
       images: [
-        '/vehicles/smartcabb_business/Business_1.png',
-        '/vehicles/smartcabb_business/Business_2.png',
-        '/vehicles/smartcabb_business/Business_3.png',
-        '/vehicles/smartcabb_business/Business_4.png',
-        '/vehicles/smartcabb_business/Business_5.png',
+        '/vehicles/smartcabb_business/Bussiness_1.png',
+        '/vehicles/smartcabb_business/Bussiness_2.png',
+        '/vehicles/smartcabb_business/Bussiness_3.png',
+        '/vehicles/smartcabb_business/Bussiness_4.png',
+        '/vehicles/smartcabb_business/Bussiness_5.png',
         '/vehicles/smartcabb_business/Business_6.png',
       ],
       vehicules: 'Prado, Fortuner',
@@ -108,14 +105,13 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-      priceFR: 'À partir de 7000 FC',
-      priceEN: 'From 7000 FC'
+      priceFR: 'À partir de 352000 FC'/Jour,
+      priceEN: 'From 352000 FC per day'
     },
     {
       id: 'familia',
       name: 'SmartCabb Familia',
       badge: 'SMARTCABB FAMILIA',
-      emoji: '🌟',
       subtitleFR: '7 places avec connexion Data gratuit. Véhicules spacieux pour familles et groupes.',
       subtitleEN: '7 seats with free Data connection. Spacious vehicles for families and groups.',
       color: 'green',
@@ -123,10 +119,10 @@ export function ServicesPage() {
       borderColor: 'border-emerald-100',
       bgColor: 'bg-emerald-50/50',
       images: [
-        '/vehicles/smartcabb_familiale/Familialle_1.png',
-        '/vehicles/smartcabb_familiale/Familialle_2.png',
-        '/vehicles/smartcabb_familiale/Familialle_3.png',
-        '/vehicles/smartcabb_familiale/Familialle_4.png',
+        '/vehicles/smartcabb_familiale/Familiale_1.png',
+        '/vehicles/smartcabb_familiale/Familiale_2.png',
+        '/vehicles/smartcabb_familiale/Familiale_3.png',
+        '/vehicles/smartcabb_familiale/Familiale_4.png',
       ],
       vehicules: 'Noah, Alphard, Voxy',
       featuresFR: [
@@ -141,8 +137,8 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-      priceFR: 'À partir de 10000 FC',
-      priceEN: 'From 10000 FC'
+      priceFR: 'À partir de 33000 FC',
+      priceEN: 'From 33000 FC'
     }
   ];
 
