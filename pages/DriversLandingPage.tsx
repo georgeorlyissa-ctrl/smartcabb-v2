@@ -12,10 +12,10 @@ export function DriversLandingPage() {
 
   // 📸 VOS IMAGES PERSONNALISÉES - Carousel Chauffeurs ✅
   const driverImages = [
-    'https://i.imgur.com/iDDJhXR.jpg', // ✅ Image 1 (essai avec .jpg)
-    'https://i.imgur.com/XNjTp4V.jpg', // ✅ Image 2
-    'https://i.imgur.com/iDDJhXR.jpg', // ✅ Image 3
-    'https://i.imgur.com/BPBYole.jpg'  // ✅ Image 4
+    'https://i.imgur.com/iDDJhXR.jpeg', // ✅ Image 1 (essai avec .jpg)
+    'https://i.imgur.com/XNjTp4V.jpeg', // ✅ Image 2
+    'https://i.imgur.com/iDDJhXR.jpeg', // ✅ Image 3
+    'https://i.imgur.com/BPBYole.jpeg'  // ✅ Image 4
   ];
 
   useEffect(() => {
