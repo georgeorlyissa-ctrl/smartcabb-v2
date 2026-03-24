@@ -83,91 +83,78 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* Mission - AVEC VOS IMAGES */}
+      {/* Mission & Vision - CARTES CÔTE À CÔTE SANS PHOTOS */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-5xl font-black mb-6">
-                {language === 'fr' ? 'Notre Mission' : 'Our Mission'}
-              </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                {language === 'fr'
-                  ? 'Révolutionner le transport en RD Congo en offrant une solution moderne, sûre et accessible à tous.'
-                  : 'Revolutionize transportation in DR Congo by offering a modern, safe and accessible solution to all.'}
-              </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                {language === 'fr'
-                  ? 'Nous croyons que chaque Congolais mérite un transport de qualité. C\'est pourquoi nous avons créé SmartCabb : une plateforme 100% locale qui connecte passagers et chauffeurs en temps réel, avec des tarifs transparents et un service irréprochable.'
-                  : 'We believe that every Congolese deserves quality transportation. That\'s why we created SmartCabb: a 100% local platform that connects passengers and drivers in real time, with transparent pricing and impeccable service.'}
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="aspect-square bg-gradient-to-br from-cyan-100 to-blue-100 rounded-3xl overflow-hidden shadow-xl">
-                <img 
-                  src="/about/mission.jpg" 
-                  alt="Notre Mission" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Vision - AVEC VOS IMAGES */}
-      <section className="py-20 bg-gradient-to-b from-white to-slate-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8">
             
+            {/* Mission Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="relative order-2 lg:order-1"
+              className="relative p-10 rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100"
             >
-              <div className="aspect-square bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl overflow-hidden shadow-xl">
-                <img 
-                  src="/about/vision.jpg" 
-                  alt="Notre Vision" 
-                  className="w-full h-full object-cover"
-                />
+              {/* Decorative circles */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-200/30 rounded-full blur-3xl"></div>
+              
+              <div className="relative">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                
+                {/* Title */}
+                <h2 className="text-4xl font-black mb-6 text-gray-900">
+                  {language === 'fr' ? 'Notre mission' : 'Our mission'}
+                </h2>
+                
+                {/* Description */}
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  {language === 'fr'
+                    ? 'Révolutionner le transport en RD Congo en offrant une solution moderne, sûre et accessible à tous les Congolais, avec des tarifs transparents et un service irréprochable.'
+                    : 'Revolutionize transportation in DR Congo by offering a modern, safe and accessible solution to all Congolese, with transparent pricing and impeccable service.'}
+                </p>
               </div>
             </motion.div>
 
+            {/* Vision Card */}
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
-              className="order-1 lg:order-2"
+              className="relative p-10 rounded-3xl overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100"
             >
-              <h2 className="text-5xl font-black mb-6">
-                {language === 'fr' ? 'Notre Vision' : 'Our Vision'}
-              </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                {language === 'fr'
-                  ? 'Devenir le leader du transport intelligent en Afrique centrale.'
-                  : 'Become the leader of smart transportation in Central Africa.'}
-              </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                {language === 'fr'
-                  ? 'Nous ne nous arrêtons pas à Kinshasa. Notre ambition est de déployer SmartCabb dans toutes les grandes villes de la RDC et, à terme, dans toute l\'Afrique centrale.'
-                  : 'We don\'t stop at Kinshasa. Our ambition is to deploy SmartCabb in all major cities of the DRC and, ultimately, throughout Central Africa.'}
-              </p>
+              {/* Decorative circles */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/30 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-200/30 rounded-full blur-3xl"></div>
+              
+              <div className="relative">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                
+                {/* Title */}
+                <h2 className="text-4xl font-black mb-6 text-gray-900">
+                  {language === 'fr' ? 'Notre vision' : 'Our vision'}
+                </h2>
+                
+                {/* Description */}
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  {language === 'fr'
+                    ? 'Devenir le leader du transport intelligent en Afrique centrale, en connectant toutes les grandes villes de la RDC et en créant un écosystème de mobilité moderne et durable.'
+                    : 'Become the leader of smart transportation in Central Africa, connecting all major cities in the DRC and creating a modern and sustainable mobility ecosystem.'}
+                </p>
+              </div>
             </motion.div>
 
           </div>
