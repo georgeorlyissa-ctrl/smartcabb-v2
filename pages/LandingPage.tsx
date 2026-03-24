@@ -407,7 +407,7 @@ export function LandingPage() {
               { icon: '💰', title: t('why.affordable'), description: t('why.affordableDesc') },
               { icon: '📱', title: t('why.simple'), description: t('why.simpleDesc') },
               { icon: '⭐', title: t('why.quality'), description: t('why.qualityDesc') },
-              { icon: '🌍', title: t('why.local'), description: t('why.localDesc') },
+              //{ icon: '🌍', title: t('why.local'), description: t('why.localDesc') },
               { icon: '💳', title: t('why.flexible'), description: t('why.flexibleDesc') },
               { icon: '🎯', title: t('why.reliable'), description: t('why.reliableDesc') }
             ].map((feature, index) => (
