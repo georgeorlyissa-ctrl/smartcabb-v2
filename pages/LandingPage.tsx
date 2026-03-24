@@ -245,9 +245,7 @@ export function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Contenu gauche */}
             <div className="fade-in-up">
-              <div className="inline-block px-4 py-2 bg-cyan-100 rounded-full text-cyan-700 font-semibold text-sm mb-6">
-                {t('hero.badge')}
-              </div>
+              {/* 🚫 BADGE SUPPRIMÉ */}
               
               <h1 className="text-6xl lg:text-7xl font-black mb-6 leading-tight">
                 {t('hero.title1')}<br/>
