@@ -15,6 +15,7 @@ import { RouteMapPreview } from '../RouteMapPreview';
 import { VehicleImageCarousel } from '../VehicleImageCarousel';
 import { PassengerCountSelector } from '../PassengerCountSelector';
 import { PromoCodeInput } from '../PromoCodeInput';
+import { BookForSomeoneElse } from './BookForSomeoneElse'; // 🆕 Commander pour quelqu'un d'autre
 import { projectId, publicAnonKey } from '../../utils/supabase/info';
 
 // 🚗 CHEMINS DES IMAGES DE VÉHICULES (pour GitHub/Vercel)
@@ -50,6 +51,10 @@ export function EstimateScreen() {
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [basePrice, setBasePrice] = useState(12500);
   const [estimatedDuration, setEstimatedDuration] = useState(15);
+  
+  // 🆕 Commander pour quelqu'un d'autre
+  const [showBookForOther, setShowBookForOther] = useState(false);
+  const [beneficiary, setBeneficiary] = useState<{ name: string; phone: string } | null>(null);
   
   // 🆕 État pour le calcul OSRM (async)
   const [routeInfo, setRouteInfo] = useState<{
@@ -315,7 +320,8 @@ export function EstimateScreen() {
       vehicleType: selectedVehicle,
       finalPrice,
       estimatedDuration,
-      passengerCount
+      passengerCount,
+      beneficiary: beneficiary ? `${beneficiary.name} (${beneficiary.phone})` : 'Pour moi-même'
     });
 
     // Store ride details in state for the next screen
@@ -358,7 +364,12 @@ export function EstimateScreen() {
             estimatedPrice: rideData.estimatedPrice,
             estimatedDuration: rideData.estimatedDuration,
             distance: rideData.distanceKm,
-            passengerCount: rideData.passengerCount
+            passengerCount: rideData.passengerCount,
+            // 🆕 Ajouter les informations du bénéficiaire si la course est pour quelqu'un d'autre
+            beneficiary: beneficiary ? {
+              name: beneficiary.name,
+              phone: beneficiary.phone
+            } : null
           })
         }
       );
@@ -588,7 +599,7 @@ export function EstimateScreen() {
             </motion.div>
           )}
           
-          {/* 🚗 SCROLL HORIZONTAL DES VÉHICULES */}
+          {/*  SCROLL HORIZONTAL DES VÉHICULES */}
           <div className="overflow-x-auto pb-2 px-4 scrollbar-hide">
             <div className="flex gap-3" style={{ width: 'max-content' }}>
               {vehicles.map((vehicle) => {
@@ -717,6 +728,15 @@ export function EstimateScreen() {
             <PromoCodeInput
               rideAmount={basePrice}
               onPromoApplied={setAppliedPromo}
+            />
+          </div>
+
+          {/* 🆕 Commander pour quelqu'un d'autre */}
+          <div className="px-4">
+            <BookForSomeoneElse
+              showForm={showBookForOther}
+              onToggleForm={setShowBookForOther}
+              onBeneficiaryChange={setBeneficiary}
             />
           </div>
         </div>
