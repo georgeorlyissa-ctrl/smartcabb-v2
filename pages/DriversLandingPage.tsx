@@ -10,17 +10,13 @@ export function DriversLandingPage() {
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // 📸 IMAGES DU CAROUSEL - REMPLACEZ PAR VOS PROPRES IMAGES ICI ⬇️
+  // 📸 VOS IMAGES PERSONNALISÉES - Carousel Chauffeurs ✅
   const driverImages = [
-    'https://i.imgur.com/IyIwqS7.jpg', // ✅ VOTRE IMAGE 1 (homme en costume près de la voiture)
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // ⬅️ Image 2 - Remplacez par votre URL
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80', // ⬅️ Image 3 - Remplacez par votre URL
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80'  // ⬅️ Image 4 - Remplacez par votre URL
+    'https://i.imgur.com/iDDJhXR.jpg', // ✅ Image 1
+    'https://i.imgur.com/XNjTp4V.jpg', // ✅ Image 2
+    'https://i.imgur.com/iDDJhXR.jpg', // ✅ Image 3
+    'https://i.imgur.com/BPBYole.jpg'  // ✅ Image 4
   ];
-  // 💡 POUR LES AUTRES IMAGES :
-  // 1. Téléchargez sur Imgur → Copiez le lien (ex: https://imgur.com/a/ABC123)
-  // 2. Transformez en : https://i.imgur.com/ABC123.jpg
-  // 3. Remplacez les lignes ci-dessus
 
   useEffect(() => {
     const interval = setInterval(() => {
