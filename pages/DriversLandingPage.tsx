@@ -10,12 +10,18 @@ export function DriversLandingPage() {
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // 📸 IMAGES DU CAROUSEL - REMPLACEZ PAR VOS PROPRES IMAGES ICI ⬇️
   const driverImages = [
-    'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80'
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80', // Image 1
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // Image 2
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80', // Image 3
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80'  // Image 4
   ];
+  // 💡 INSTRUCTIONS :
+  // 1. Hébergez vos images sur Imgur/Cloudinary
+  // 2. Copiez les URLs et remplacez ci-dessus
+  // 3. Ou utilisez : import img1 from 'figma:asset/VOTRE_ID.png';
+  // 📖 Voir le fichier /GUIDE-REMPLACEMENT-IMAGES.md pour plus de détails
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -109,9 +115,8 @@ export function DriversLandingPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-block px-4 py-2 bg-cyan-100 rounded-full text-cyan-700 font-semibold text-sm mb-6">
-                💰 {language === 'fr' ? 'Gagnez plus avec SmartCabb' : 'Earn more with SmartCabb'}
-              </div>
+              {/* 🚫 BADGE SUPPRIMÉ */}
+              
               <h1 className="text-6xl font-black mb-6">
                 {t('drivers.title')}
               </h1>
