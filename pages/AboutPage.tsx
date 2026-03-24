@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 export function AboutPage() {
   const { t, language } = useLanguage();
 
-  // 🎨 VALEURS AVEC ICÔNES 3D STYLISÉES
+  //  🎨 VALEURS AVEC ICÔNES 3D STYLISÉES
   const values = [
     {
       icon: '🎯', // Excellence - Cible
