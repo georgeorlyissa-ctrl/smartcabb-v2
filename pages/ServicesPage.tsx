@@ -105,8 +105,8 @@ export function ServicesPage() {
         { icon: '📡', text: 'Free Data' },
         { icon: '🛡️', text: 'Secured' }
       ],
-      priceFR: 'À partir de 352000 FC'/Jour,
-      priceEN: 'From 352000 FC per day'
+      priceFR: 'À partir de 352000 FC',
+      priceEN: 'From 352000 FC '
     },
     {
       id: 'familia',
