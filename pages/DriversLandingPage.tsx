@@ -10,12 +10,17 @@ export function DriversLandingPage() {
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // 📸 VOS IMAGES PERSONNALISÉES - Carousel Chauffeurs ✅
+  // 📸 IMAGES DES CHAUFFEURS - Stockées dans GitHub /public/drivers/
+  // ⚠️ INSTRUCTIONS POUR AJOUTER VOS IMAGES :
+  // 1. Créez un dossier "drivers" dans votre dossier "public" sur GitHub
+  // 2. Téléchargez vos 4 images JPEG dans ce dossier
+  // 3. Nommez-les : driver1.jpg, driver2.jpg, driver3.jpg, driver4.jpg
+  // 4. Le code ci-dessous les utilisera automatiquement
   const driverImages = [
-    'https://i.imgur.com/iDDJhXR.jpeg', // ✅ Image 1 (essai avec .jpg)
-    'https://i.imgur.com/XNjTp4V.jpeg', // ✅ Image 2
-    'https://i.imgur.com/iDDJhXR.jpeg', // ✅ Image 3
-    'https://i.imgur.com/BPBYole.jpeg'  // ✅ Image 4
+    '/drivers/driver1.jpg', // ✅ Votre image 1
+    '/drivers/driver2.jpg', // ✅ Votre image 2
+    '/drivers/driver3.jpg', // ✅ Votre image 3
+    '/drivers/driver4.jpg'  // ✅ Votre image 4
   ];
 
   useEffect(() => {
