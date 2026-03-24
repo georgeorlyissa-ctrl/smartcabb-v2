@@ -14,105 +14,105 @@ const SMARTCABB_KNOWLEDGE = {
   // Questions sur les prix
   prix: {
     keywords: ['prix', 'tarif', 'coût', 'combien', 'coute', 'payer', 'montant', 'price', 'cost', 'fare'],
-    fr: `💰 **Nos Tarifs SmartCabb (en Franc Congolais):**
+    fr: `Nos Tarifs SmartCabb (en Franc Congolais):
 
-📱 **SmartCabb Standard** - Véhicules économiques
+SmartCabb Standard - Véhicules économiques
 • Course simple: 2,500 CDF/km
 • Course à l'heure: 50,000 CDF/h
 
-🚗 **SmartCabb Confort** - Voitures confortables
+SmartCabb Confort - Voitures confortables
 • Course simple: 5,000 CDF/km
 • Course à l'heure: 100,000 CDF/h
 
-👨‍👩‍👧‍👦 **SmartCabb Plus** - Véhicules familiaux (7 places)
+SmartCabb Plus - Véhicules familiaux (7 places)
 • Course simple: 7,500 CDF/km
 • Course à l'heure: 150,000 CDF/h
 
-💼 **SmartCabb Business** - Voitures de luxe avec chauffeur
+SmartCabb Business - Voitures de luxe avec chauffeur
 • Location journée: 500,000 CDF/jour
 
-⏰ *Tarifs de nuit (22h-5h): +50%*
-*Minimum de facturation: 2km ou 10 minutes*`,
-    en: `💰 **SmartCabb Pricing (in Congolese Francs):**
+Tarifs de nuit (22h-5h): +50%
+Minimum de facturation: 2km ou 10 minutes`,
+    en: `SmartCabb Pricing (in Congolese Francs):
 
-📱 **SmartCabb Standard** - Economy vehicles
+SmartCabb Standard - Economy vehicles
 • Per-km: 2,500 CDF/km
 • Hourly: 50,000 CDF/h
 
-🚗 **SmartCabb Confort** - Comfortable cars
+SmartCabb Confort - Comfortable cars
 • Per-km: 5,000 CDF/km
 • Hourly: 100,000 CDF/h
 
-👨‍👩‍👧‍👦 **SmartCabb Plus** - Family vehicles (7 seats)
+SmartCabb Plus - Family vehicles (7 seats)
 • Per-km: 7,500 CDF/km
 • Hourly: 150,000 CDF/h
 
-💼 **SmartCabb Business** - Luxury cars with driver
+SmartCabb Business - Luxury cars with driver
 • Daily rental: 500,000 CDF/day
 
-⏰ *Night rates (10pm-5am): +50%*
-*Minimum charge: 2km or 10 minutes*`
+Night rates (10pm-5am): +50%
+Minimum charge: 2km or 10 minutes`
   },
 
   // Questions sur comment devenir chauffeur
   chauffeur: {
     keywords: ['chauffeur', 'conducteur', 'devenir', 'inscription', 'driver', 'become', 'requirements', 'requis'],
-    fr: `🚗 **Devenir Chauffeur SmartCabb:**
+    fr: `Devenir Chauffeur SmartCabb:
 
-✅ **Conditions requises:**
+Conditions requises:
 • Permis de conduire valide
 • Véhicule en bon état
 • Casier judiciaire vierge
 • Âge minimum 21 ans
 
-💰 **Avantages:**
+Avantages:
 • Revenus attractifs et flexibles
 • Horaires que vous choisissez
 • Assurance incluse
 • Formation gratuite
 • Support 24/7
 
-📝 **Inscription en 4 étapes:**
-1️⃣ Remplir le formulaire en ligne
-2️⃣ Vérification de vos documents
-3️⃣ Formation gratuite à l'app
-4️⃣ Commencer à gagner!
+Inscription en 4 étapes:
+1. Remplir le formulaire en ligne
+2. Vérification de vos documents
+3. Formation gratuite à l'app
+4. Commencer à gagner!
 
-👉 Inscrivez-vous sur: smartcabb.com/chauffeurs
-📞 Appelez le: +243 990 666 661`,
-    en: `🚗 **Become a SmartCabb Driver:**
+Inscrivez-vous sur: smartcabb.com/chauffeurs
+Appelez le: +243 990 666 661`,
+    en: `Become a SmartCabb Driver:
 
-✅ **Requirements:**
+Requirements:
 • Valid driver's license
 • Vehicle in good condition
 • Clean criminal record
 • Minimum age 21 years
 
-💰 **Benefits:**
+Benefits:
 • Attractive flexible income
 • Choose your own hours
 • Insurance included
 • Free training
 • 24/7 support
 
-📝 **Sign up in 4 steps:**
-1️⃣ Fill out online form
-2️⃣ Document verification
-3️⃣ Free app training
-4️⃣ Start earning!
+Sign up in 4 steps:
+1. Fill out online form
+2. Document verification
+3. Free app training
+4. Start earning!
 
-👉 Sign up at: smartcabb.com/drivers
-📞 Call: +243 990 666 661`
+Sign up at: smartcabb.com/drivers
+Call: +243 990 666 661`
   },
 
   // Questions sur les zones de service
   zones: {
     keywords: ['zone', 'ville', 'secteur', 'où', 'disponible', 'areas', 'where', 'coverage', 'kinshasa'],
-    fr: `🗺️ **Zones de Service SmartCabb:**
+    fr: `Zones de Service SmartCabb:
 
-Nous opérons actuellement à **Kinshasa**, RDC:
+Nous opérons actuellement à Kinshasa, RDC:
 
-✅ **Communes couvertes:**
+Communes couvertes:
 • Gombe (centre d'affaires)
 • Ngaliema
 • Limete
@@ -120,15 +120,15 @@ Nous opérons actuellement à **Kinshasa**, RDC:
 • Kintambo
 • Et toutes les autres communes de Kinshasa
 
-🌍 **Expansion prévue:**
+Expansion prévue:
 Nous prévoyons d'étendre nos services à Lubumbashi, Matadi et Kisangani prochainement!
 
-📍 Utilisez l'app pour vérifier la disponibilité dans votre quartier.`,
-    en: `🗺️ **SmartCabb Service Areas:**
+Utilisez l'app pour vérifier la disponibilité dans votre quartier.`,
+    en: `SmartCabb Service Areas:
 
-We currently operate in **Kinshasa**, DRC:
+We currently operate in Kinshasa, DRC:
 
-✅ **Covered communes:**
+Covered communes:
 • Gombe (business district)
 • Ngaliema
 • Limete
@@ -136,26 +136,26 @@ We currently operate in **Kinshasa**, DRC:
 • Kintambo
 • And all other Kinshasa communes
 
-🌍 **Planned expansion:**
+Planned expansion:
 We plan to expand to Lubumbashi, Matadi, and Kisangani soon!
 
-📍 Use the app to check availability in your area.`
+Use the app to check availability in your area.`
   },
 
   // Questions sur l'application
   app: {
     keywords: ['application', 'app', 'télécharger', 'installer', 'download', 'mobile', 'smartphone'],
-    fr: `📱 **Application SmartCabb:**
+    fr: `Application SmartCabb:
 
-🌐 **Version Web:**
-Accédez directement sur: **smartcabb.com**
+Version Web:
+Accédez directement sur: smartcabb.com
 Aucun téléchargement nécessaire!
 
-📲 **Application Mobile:**
+Application Mobile:
 • Bientôt disponible sur Play Store
 • Bientôt disponible sur App Store
 
-✨ **Fonctionnalités:**
+Fonctionnalités:
 • Réservation en quelques clics
 • Estimation de prix en temps réel
 • Suivi GPS de votre chauffeur
@@ -163,18 +163,18 @@ Aucun téléchargement nécessaire!
 • Historique de vos courses
 • Support client intégré
 
-💡 En attendant, utilisez notre site web qui fonctionne parfaitement sur mobile!`,
-    en: `📱 **SmartCabb App:**
+En attendant, utilisez notre site web qui fonctionne parfaitement sur mobile!`,
+    en: `SmartCabb App:
 
-🌐 **Web Version:**
-Access directly at: **smartcabb.com**
+Web Version:
+Access directly at: smartcabb.com
 No download required!
 
-📲 **Mobile App:**
+Mobile App:
 • Coming soon on Play Store
 • Coming soon on App Store
 
-✨ **Features:**
+Features:
 • Book in a few clicks
 • Real-time price estimates
 • GPS tracking of your driver
@@ -182,177 +182,177 @@ No download required!
 • Trip history
 • Integrated customer support
 
-💡 Meanwhile, use our website which works perfectly on mobile!`
+Meanwhile, use our website which works perfectly on mobile!`
   },
 
   // Questions sur le paiement
   paiement: {
     keywords: ['paiement', 'payer', 'payment', 'mobile money', 'airtel', 'orange', 'mpesa', 'carte', 'card'],
-    fr: `💳 **Modes de Paiement SmartCabb:**
+    fr: `Modes de Paiement SmartCabb:
 
-✅ **Mobile Money (principal):**
+Mobile Money (principal):
 • Airtel Money
 • Orange Money
 • M-Pesa
 • Afrimoney
 
-💵 **Autres moyens:**
+Autres moyens:
 • Espèces (cash)
 • Carte bancaire (bientôt)
 
-🔒 **Sécurité:**
+Sécurité:
 Tous les paiements sont 100% sécurisés et cryptés.
 
-💡 **Comment ça marche:**
-1️⃣ Terminez votre course
-2️⃣ Recevez le montant exact
-3️⃣ Payez via votre mobile money
-4️⃣ Recevez votre reçu par SMS
+Comment ça marche:
+1. Terminez votre course
+2. Recevez le montant exact
+3. Payez via votre mobile money
+4. Recevez votre reçu par SMS
 
-*Pas de frais cachés, prix transparents!*`,
-    en: `💳 **SmartCabb Payment Methods:**
+Pas de frais cachés, prix transparents!`,
+    en: `SmartCabb Payment Methods:
 
-✅ **Mobile Money (primary):**
+Mobile Money (primary):
 • Airtel Money
 • Orange Money
 • M-Pesa
 • Afrimoney
 
-💵 **Other methods:**
+Other methods:
 • Cash
 • Bank card (coming soon)
 
-🔒 **Security:**
+Security:
 All payments are 100% secure and encrypted.
 
-💡 **How it works:**
-1️⃣ Complete your ride
-2️⃣ Receive exact amount
-3️⃣ Pay via mobile money
-4️⃣ Receive receipt by SMS
+How it works:
+1. Complete your ride
+2. Receive exact amount
+3. Pay via mobile money
+4. Receive receipt by SMS
 
-*No hidden fees, transparent pricing!*`
+No hidden fees, transparent pricing!`
   },
 
   // Questions sur la sécurité
   securite: {
     keywords: ['sécurité', 'sûr', 'sécurisé', 'security', 'safe', 'protection', 'danger'],
-    fr: `🛡️ **Votre Sécurité avec SmartCabb:**
+    fr: `Votre Sécurité avec SmartCabb:
 
-✅ **Vérification des chauffeurs:**
+Vérification des chauffeurs:
 • Casier judiciaire vérifié
 • Permis de conduire validé
 • Formation obligatoire
 • Évaluations par les passagers
 
-🚗 **Véhicules contrôlés:**
+Véhicules contrôlés:
 • Inspection technique régulière
 • Assurance valide
 • GPS tracking en temps réel
 
-📱 **Fonctionnalités de sécurité:**
+Fonctionnalités de sécurité:
 • Partage de trajet en temps réel
 • Bouton d'urgence dans l'app
 • Support 24/7
 • Enregistrement de tous les trajets
 
-📞 **Urgence:** +243 990 666 661
+Urgence: +243 990 666 661
 
-*Votre sécurité est notre priorité absolue!*`,
-    en: `🛡️ **Your Safety with SmartCabb:**
+Votre sécurité est notre priorité absolue!`,
+    en: `Your Safety with SmartCabb:
 
-✅ **Driver verification:**
+Driver verification:
 • Criminal record checked
 • Driver's license validated
 • Mandatory training
 • Passenger ratings
 
-🚗 **Controlled vehicles:**
+Controlled vehicles:
 • Regular technical inspection
 • Valid insurance
 • Real-time GPS tracking
 
-📱 **Safety features:**
+Safety features:
 • Live trip sharing
 • Emergency button in app
 • 24/7 support
 • All trips recorded
 
-📞 **Emergency:** +243 990 666 661
+Emergency: +243 990 666 661
 
-*Your safety is our top priority!*`
+Your safety is our top priority!`
   },
 
   // Questions sur le contact
   contact: {
     keywords: ['contact', 'téléphone', 'email', 'joindre', 'appeler', 'call', 'reach', 'support'],
-    fr: `📞 **Contacter SmartCabb:**
+    fr: `Contacter SmartCabb:
 
-**Support Client 24/7:**
-📱 Téléphone: **+243 990 666 661**
-📧 Email: **support@smartcabb.cd**
-💬 Chat: Directement sur ce chat!
+Support Client 24/7:
+Téléphone: +243 990 666 661
+Email: support@smartcabb.cd
+Chat: Directement sur ce chat!
 
-**Réseaux sociaux:**
-📘 Facebook: /SmartCabbRDC
-📸 Instagram: @smartcabb_cd
-🐦 Twitter: @SmartCabb
+Réseaux sociaux:
+Facebook: /SmartCabbRDC
+Instagram: @smartcabb_cd
+Twitter: @SmartCabb
 
-**Siège social:**
-📍 Kinshasa, République Démocratique du Congo
+Siège social:
+Kinshasa, République Démocratique du Congo
 
-⏰ **Horaires:**
+Horaires:
 Disponible 24h/24, 7j/7
 
-💡 Pour une réponse immédiate, appelez-nous ou utilisez ce chat!`,
-    en: `📞 **Contact SmartCabb:**
+Pour une réponse immédiate, appelez-nous ou utilisez ce chat!`,
+    en: `Contact SmartCabb:
 
-**24/7 Customer Support:**
-📱 Phone: **+243 990 666 661**
-📧 Email: **support@smartcabb.cd**
-💬 Chat: Right here in this chat!
+24/7 Customer Support:
+Phone: +243 990 666 661
+Email: support@smartcabb.cd
+Chat: Right here in this chat!
 
-**Social Media:**
-📘 Facebook: /SmartCabbRDC
-📸 Instagram: @smartcabb_cd
-🐦 Twitter: @SmartCabb
+Social Media:
+Facebook: /SmartCabbRDC
+Instagram: @smartcabb_cd
+Twitter: @SmartCabb
 
-**Headquarters:**
-📍 Kinshasa, Democratic Republic of Congo
+Headquarters:
+Kinshasa, Democratic Republic of Congo
 
-⏰ **Hours:**
+Hours:
 Available 24/7
 
-💡 For immediate response, call us or use this chat!`
+For immediate response, call us or use this chat!`
   },
 
   // Salutations
   salutation: {
     keywords: ['bonjour', 'salut', 'hello', 'hi', 'hey', 'bonsoir'],
-    fr: `👋 Bonjour! Bienvenue sur SmartCabb!
+    fr: `Bonjour! Bienvenue sur SmartCabb!
 
 Je suis votre assistant virtuel. Je peux vous aider avec:
 
-🚗 Informations sur nos services
-💰 Tarifs et estimations
-👨‍✈️ Devenir chauffeur
-📱 L'application SmartCabb
-💳 Modes de paiement
-🛡️ Sécurité et garanties
-📞 Contact et support
+• Informations sur nos services
+• Tarifs et estimations
+• Devenir chauffeur
+• L'application SmartCabb
+• Modes de paiement
+• Sécurité et garanties
+• Contact et support
 
 Comment puis-je vous aider aujourd'hui?`,
-    en: `👋 Hello! Welcome to SmartCabb!
+    en: `Hello! Welcome to SmartCabb!
 
 I'm your virtual assistant. I can help you with:
 
-🚗 Information about our services
-💰 Pricing and estimates
-👨‍✈️ Becoming a driver
-📱 SmartCabb app
-💳 Payment methods
-🛡️ Safety and guarantees
-📞 Contact and support
+• Information about our services
+• Pricing and estimates
+• Becoming a driver
+• SmartCabb app
+• Payment methods
+• Safety and guarantees
+• Contact and support
 
 How can I help you today?`
   },
@@ -360,18 +360,18 @@ How can I help you today?`
   // Merci
   merci: {
     keywords: ['merci', 'thank', 'thanks', 'thanks you'],
-    fr: `😊 Avec plaisir! N'hésitez pas si vous avez d'autres questions!
+    fr: `Avec plaisir! N'hésitez pas si vous avez d'autres questions!
 
-🚗 Prêt à commander? Rendez-vous sur **smartcabb.com**
-📞 Besoin d'aide? Appelez le **+243 990 666 661**
+Prêt à commander? Rendez-vous sur smartcabb.com
+Besoin d'aide? Appelez le +243 990 666 661
 
-Bonne journée! 🌟`,
-    en: `😊 You're welcome! Don't hesitate if you have other questions!
+Bonne journée!`,
+    en: `You're welcome! Don't hesitate if you have other questions!
 
-🚗 Ready to book? Go to **smartcabb.com**
-📞 Need help? Call **+243 990 666 661**
+Ready to book? Go to smartcabb.com
+Need help? Call +243 990 666 661
 
-Have a great day! 🌟`
+Have a great day!`
   }
 };
 
@@ -464,30 +464,30 @@ export function ChatWidget({}: ChatWidgetProps) {
 
 Voici ce que je peux vous aider:
 
-🚗 Nos services et tarifs
-👨‍✈️ Devenir chauffeur
-📱 L'application
-💳 Modes de paiement
-🛡️ Sécurité
-📞 Contact
+• Nos services et tarifs
+• Devenir chauffeur
+• L'application
+• Modes de paiement
+• Sécurité
+• Contact
 
 Pour une assistance personnalisée:
-📱 +243 990 666 661
-📧 support@smartcabb.cd`
+Téléphone: +243 990 666 661
+Email: support@smartcabb.cd`
           : `I'm sorry, I didn't understand your question.
 
 Here's what I can help you with:
 
-🚗 Our services and pricing
-👨‍✈️ Becoming a driver
-📱 The app
-💳 Payment methods
-🛡️ Safety
-📞 Contact
+• Our services and pricing
+• Becoming a driver
+• The app
+• Payment methods
+• Safety
+• Contact
 
 For personalized assistance:
-📱 +243 990 666 661
-📧 support@smartcabb.cd`;
+Phone: +243 990 666 661
+Email: support@smartcabb.cd`;
         
         addMessage(fallbackMessage, 'bot');
       }
