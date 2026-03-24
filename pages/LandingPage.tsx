@@ -478,17 +478,10 @@ export function LandingPage() {
                 {/* Quote icon */}
                 <div className="absolute top-6 right-6 text-6xl text-cyan-200 opacity-50">"</div>
                 
-                {/* Photo et infos */}
-                <div className="flex items-center gap-4 mb-6 relative z-10">
-                  <img 
-                    src={testimonial.image} 
-                    alt={testimonial.name}
-                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
-                  <div>
-                    <div className="font-bold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}</div>
-                  </div>
+                {/* 🚫 Photo supprimée - Infos uniquement */}
+                <div className="mb-6 relative z-10">
+                  <div className="font-bold text-gray-900">{testimonial.name}</div>
+                  <div className="text-sm text-gray-600">{testimonial.role}</div>
                 </div>
 
                 {/* Rating */}
