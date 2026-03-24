@@ -17,10 +17,9 @@ export function DriversLandingPage() {
   // 3. Nommez-les : driver1.jpg, driver2.jpg, driver3.jpg, driver4.jpg
   // 4. Le code ci-dessous les utilisera automatiquement
   const driverImages = [
-    '/drivers/driver1.jpg', // ✅ Votre image 1
-    '/drivers/driver2.jpg', // ✅ Votre image 2
-    '/drivers/driver3.jpg', // ✅ Votre image 3
-    '/drivers/driver4.jpg'  // ✅ Votre image 4
+    '/drivers/driver1.jpeg', // ✅ Votre image 1
+    '/drivers/driver2.jpeg', // ✅ Votre image 2
+    '/drivers/driver3.jpeg', // ✅ Votre image 3
   ];
 
   useEffect(() => {
