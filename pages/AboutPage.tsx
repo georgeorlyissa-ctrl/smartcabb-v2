@@ -7,41 +7,43 @@ import { useLanguage } from '../contexts/LanguageContext';
 export function AboutPage() {
   const { t, language } = useLanguage();
 
-  // 🎨 VOS IMAGES PERSONNALISÉES - Stockées dans GitHub /public/about/
-  // ⚠️ INSTRUCTIONS POUR AJOUTER VOS IMAGES :
-  // 1. Créez un dossier "about" dans votre dossier "public" sur GitHub
-  // 2. Téléchargez vos 3 images dans ce dossier
-  // 3. Nommez-les : mission.jpg, vision.jpg, value1.jpg, value2.jpg, value3.jpg, value4.jpg
-  // 4. Le code ci-dessous les utilisera automatiquement
-
+  // 🎨 VALEURS AVEC ICÔNES 3D STYLISÉES
   const values = [
     {
-      image: '/about/value1.jpg', // ✅ Votre image Excellence
+      icon: '🎯', // Excellence - Cible
       titleFR: 'Excellence',
       titleEN: 'Excellence',
       descFR: 'Nous visons l\'excellence dans chaque aspect de notre service',
-      descEN: 'We aim for excellence in every aspect of our service'
+      descEN: 'We aim for excellence in every aspect of our service',
+      gradient: 'from-blue-400 to-blue-600',
+      shadow: 'shadow-blue-500/50'
     },
     {
-      image: '/about/value2.jpg', // ✅ Votre image Confiance
+      icon: '🤝', // Confiance - Poignée de main
       titleFR: 'Confiance',
       titleEN: 'Trust',
       descFR: 'La confiance de nos clients est notre priorité absolue',
-      descEN: 'Our customers\' trust is our top priority'
+      descEN: 'Our customers\' trust is our top priority',
+      gradient: 'from-green-400 to-green-600',
+      shadow: 'shadow-green-500/50'
     },
     {
-      image: '/about/value3.jpg', // ✅ Votre image Innovation
+      icon: '💡', // Innovation - Ampoule
       titleFR: 'Innovation',
       titleEN: 'Innovation',
       descFR: 'Nous innovons constamment pour améliorer votre expérience',
-      descEN: 'We constantly innovate to improve your experience'
+      descEN: 'We constantly innovate to improve your experience',
+      gradient: 'from-yellow-400 to-orange-500',
+      shadow: 'shadow-yellow-500/50'
     },
     {
-      image: '/about/value4.jpg', // ✅ Votre image Local
+      icon: '🇨🇩', // Local - Drapeau RDC
       titleFR: 'Local',
       titleEN: 'Local',
       descFR: '100% congolais, créé pour répondre aux besoins locaux',
-      descEN: '100% Congolese, created to meet local needs'
+      descEN: '100% Congolese, created to meet local needs',
+      gradient: 'from-cyan-400 to-cyan-600',
+      shadow: 'shadow-cyan-500/50'
     }
   ];
 
@@ -56,6 +58,60 @@ export function AboutPage() {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+        }
+
+        /* ✨ ANIMATIONS 3D POUR LES ICÔNES */
+        @keyframes float3d {
+          0%, 100% {
+            transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+          }
+          50% {
+            transform: translateY(-15px) rotateX(10deg) rotateY(10deg);
+          }
+        }
+
+        @keyframes pulse3d {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
+          }
+        }
+
+        @keyframes rotate3d {
+          0% {
+            transform: perspective(1000px) rotateY(0deg);
+          }
+          100% {
+            transform: perspective(1000px) rotateY(360deg);
+          }
+        }
+
+        .icon-3d {
+          animation: float3d 3s ease-in-out infinite;
+          transition: all 0.3s ease;
+          transform-style: preserve-3d;
+          perspective: 1000px;
+        }
+
+        .icon-3d:hover {
+          animation: rotate3d 1s ease-in-out;
+          transform: scale(1.1) translateY(-5px);
+        }
+
+        .value-card {
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .value-card:hover {
+          transform: translateY(-10px) scale(1.02);
+        }
+
+        .value-card:hover .icon-3d {
+          animation: pulse3d 1s ease-in-out infinite;
         }
       `}</style>
 
@@ -179,30 +235,49 @@ export function AboutPage() {
             {values.map((value, index) => (
               <motion.div
                 key={index}
-                className="p-8 bg-white rounded-2xl shadow-lg text-center hover:shadow-xl transition-all overflow-hidden"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                className="value-card p-8 bg-white rounded-2xl shadow-lg text-center hover:shadow-2xl transition-all overflow-visible relative group"
+                initial={{ opacity: 0, y: 80, scale: 0.8 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ 
-                  duration: 0.6, 
-                  delay: index * 0.2, // ✨ Animation séquentielle: chaque carte apparaît 0.2s après la précédente
-                  ease: "easeOut"
+                  duration: 0.7, 
+                  delay: index * 0.25, // ✨ Animation séquentielle améliorée
+                  ease: [0.34, 1.56, 0.64, 1], // Bounce effect
+                  type: "spring",
+                  stiffness: 100
                 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-50px" }}
               >
-                {/* Image au lieu de l'icône */}
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden shadow-md">
-                  <img 
-                    src={value.image} 
-                    alt={value.titleFR} 
-                    className="w-full h-full object-cover"
-                  />
+                {/* Glow effect on hover */}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${value.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 -z-10`}></div>
+
+                {/* Icône 3D avec effet de lévitation */}
+                <div className="relative mb-6 flex justify-center">
+                  <div className={`icon-3d w-28 h-28 rounded-full bg-gradient-to-br ${value.gradient} ${value.shadow} shadow-2xl flex items-center justify-center text-6xl relative`}>
+                    {/* Cercle de fond avec effet glow */}
+                    <div className="absolute inset-0 rounded-full bg-white/20 animate-pulse"></div>
+                    
+                    {/* Emoji avec perspective 3D */}
+                    <span className="relative z-10 drop-shadow-2xl" style={{
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.2)'
+                    }}>
+                      {value.icon}
+                    </span>
+
+                    {/* Anneaux décoratifs */}
+                    <div className="absolute -inset-2 rounded-full border-2 border-white/30 animate-ping opacity-20"></div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-black mb-2">
+
+                <h3 className="text-2xl font-black mb-3 text-gray-900">
                   {language === 'fr' ? value.titleFR : value.titleEN}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-base leading-relaxed">
                   {language === 'fr' ? value.descFR : value.descEN}
                 </p>
+
+                {/* Decorative bottom line */}
+                <div className={`mt-6 h-1 w-16 mx-auto rounded-full bg-gradient-to-r ${value.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500`}></div>
               </motion.div>
             ))}
           </div>
