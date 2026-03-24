@@ -12,7 +12,7 @@ export function DriversLandingPage() {
 
   // 📸 VOS IMAGES PERSONNALISÉES - Carousel Chauffeurs ✅
   const driverImages = [
-    'https://imgur.com/BPBYole, // ✅ Image 1
+    'https://imgur.com/BPBYole.jpg', // ✅ Image 1
     'https://i.imgur.com/XNjTp4V.jpg', // ✅ Image 2
     'https://i.imgur.com/iDDJhXR.jpg', // ✅ Image 3
     'https://i.imgur.com/BPBYole.jpg'  // ✅ Image 4
